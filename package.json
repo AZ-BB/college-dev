@@ -10,7 +10,8 @@
     "format": "biome format --write",
     "db:migration": "supabase migration new",
     "db:generate": "drizzle-kit introspect",
-    "db:push": "supabase db push"
+    "db:push": "supabase db push",
+    "supabase:types:remote": "supabase gen types typescript --project-id \"PROJECT_ID\" --schema public > src/database.types.ts"
   },
   "dependencies": {
     "@radix-ui/react-alert-dialog": "^1.1.15",
