@@ -1,27 +1,28 @@
-import { db } from "@/db"
-import { users } from "@/db/schema/schema"
-import { eq } from "drizzle-orm"
+import { SystemRoles } from "@/enums/SystemRoles"
 import { createSupabaseServerClient } from "@/utils/supabase-server"
-import { SystemRole } from "@/db/enums"
 
-export async function getUserRole(): Promise<SystemRole | null> {
+export async function getUserRole(): Promise<SystemRoles | null> {
     try {
         const supabase = await createSupabaseServerClient()
         const { data: { user } } = await supabase.auth.getUser()
 
         if (!user) return null
 
-        const dbUser = await db.query.users.findFirst({
-            where: eq(users.id, user.id),
-            columns: {
-                role: true
-            }
-        })
+        const { data: dbUser, error } = await supabase
+            .from("users")
+            .select("role")
+            .eq("id", user.id)
+            .single()
+            
 
-        return (dbUser?.role as SystemRole) || null
+        if (error) {
+            console.error("Error fetching user role:", error)
+            return null
+        }
+
+        return (dbUser?.role as SystemRoles) || null
     } catch (error) {
         console.error("Error fetching user role:", error)
         return null
     }
 }
-

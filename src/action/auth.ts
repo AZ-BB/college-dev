@@ -1,12 +1,10 @@
 'use server'
 
-import { db } from "@/db";
-import { SystemRole } from "@/db/enums";
-import { users } from "@/db/schema/schema";
 import { GeneralResponse } from "@/utils/general-response";
 import { createSupabaseAdminServerClient, createSupabaseServerClient } from "@/utils/supabase-server";
 import config, { OAuthProvider } from "../../config"
 import { eq } from "drizzle-orm";
+import { SystemRoles } from "@/enums/SystemRoles";
 
 export async function registerUser(formData: FormData): Promise<GeneralResponse<boolean>> {
     try {
@@ -23,11 +21,15 @@ export async function registerUser(formData: FormData): Promise<GeneralResponse<
         const supabaseClient = await createSupabaseServerClient();
 
 
-        const isEmailExists = await db.select().from(users).where(eq(users.email, email));
-        if (isEmailExists.length > 0) {
+        const { data: isEmailExists } = await supabaseAdmin
+            .from("users")
+            .select("*")
+            .eq("email", email)
+            .single();
+
+        if (isEmailExists) {
             return { error: "Email already exists", statusCode: 400, data: false };
         }
-
 
         // Email confirmation flow
         if (config.confirmation === 'email') {
@@ -39,7 +41,7 @@ export async function registerUser(formData: FormData): Promise<GeneralResponse<
                     data: {
                         firstName,
                         lastName,
-                        role: SystemRole.ADMIN
+                        role: SystemRoles.ADMIN
                     }
                 }
             })
@@ -50,12 +52,12 @@ export async function registerUser(formData: FormData): Promise<GeneralResponse<
 
             // Create user in database
             try {
-                await db.insert(users).values({
+                await supabaseAdmin.from("users").insert({
                     id: data.user?.id!,
                     firstName,
                     lastName,
                     email,
-                    role: SystemRole.ADMIN
+                    role: SystemRoles.ADMIN
                 })
             }
             catch (error) {
@@ -77,22 +79,25 @@ export async function registerUser(formData: FormData): Promise<GeneralResponse<
             email,
             password,
             email_confirm: true,
-            role: SystemRole.ADMIN,
+            user_metadata: {
+                firstName,
+                lastName,
+                role: SystemRoles.ADMIN
+            }
         })
 
         if (error) {
             return { error: error.message, statusCode: 400, data: false };
         }
 
-
         // Create user in database
         try {
-            await db.insert(users).values({
+            const { data: userData, error: userError } = await supabaseAdmin.from('users').insert({
                 id: data.user?.id,
-                firstName,
-                lastName,
-                email,
-                role: SystemRole.ADMIN
+                first_name: firstName,
+                last_name: lastName,
+                email: email,
+                role: SystemRoles.ADMIN
             })
         }
         catch (error) {
@@ -139,10 +144,10 @@ export async function resetPassword(code: string, newPassword: string): Promise<
         }
 
         const supabase = await createSupabaseServerClient();
-        
+
         // Exchange code for session
         const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
-        
+
         if (exchangeError) {
             return { error: exchangeError.message || "Invalid or expired reset code", statusCode: 400, data: false };
         }
@@ -209,18 +214,19 @@ export async function handleOAuthCallback(provider: string): Promise<GeneralResp
             return { error: error.message, statusCode: 400, data: false };
         }
 
-        const isUserExists = await db.select().from(users).where(eq(users.id, user?.id!));
-        if (isUserExists.length > 0) {
+        const { data: isUserExists } = await supabase.from("users").select('*').eq('id', user?.id!).single();
+
+        if (isUserExists) {
             return { data: false, statusCode: 200, error: undefined, message: "User already exists" };
         }
 
-        await db.insert(users).values({
+        await supabase.from("users").insert({
             id: user?.id!,
             firstName: user?.user_metadata?.full_name?.split(' ')[0],
             lastName: user?.user_metadata?.full_name?.split(' ')[1],
             email: user?.email!,
             avatarUrl: user?.user_metadata?.avatar_url,
-            role: SystemRole.USER
+            role: SystemRoles.USER
         })
 
         return { data: true, statusCode: 200, error: undefined, message: "User created successfully" };

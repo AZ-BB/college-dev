@@ -73,13 +73,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuCheckboxItem,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
-  DropdownMenuSub,
-  DropdownMenuSubTrigger,
-  DropdownMenuSubContent,
+  DropdownMenuSeparator
 } from "@/components/ui/dropdown-menu"
 import {
   Tooltip,
@@ -127,7 +121,7 @@ import { ModeToggle } from "@/components/mode-toggle"
 import { useRouter } from "next/navigation"
 import { createSupabaseBrowserClient } from "@/utils/supabase-browser"
 import AccessControl from "@/components/access-control"
-import { SystemRole } from "@/db/enums"
+import { SystemRoles } from "@/enums/SystemRoles"
 
 export default function Home() {
   const router = useRouter()
@@ -184,10 +178,10 @@ export default function Home() {
           </SidebarContent>
           <SidebarFooter>
             <div className="px-2 py-4">
-              <AccessControl allowedRoles={[SystemRole.ADMIN]}>
+              <AccessControl allowedRoles={[SystemRoles.ADMIN]}>
                 ADMIN ONLY
               </AccessControl>
-              <AccessControl allowedRoles={[SystemRole.USER]}>
+              <AccessControl allowedRoles={[SystemRoles.USER]}>
                 USER ONLY
               </AccessControl>
               <Button variant="outline" size="sm" className="w-full">
