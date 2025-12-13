@@ -4,6 +4,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { RoleProvider } from "@/contexts/role-context";
 import { getUserRole } from "@/utils/get-user-role";
+import { createSupabaseServerClient } from "@/utils/supabase-server";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",

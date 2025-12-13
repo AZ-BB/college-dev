@@ -54,8 +54,8 @@ export async function registerUser(formData: FormData): Promise<GeneralResponse<
             try {
                 await supabaseAdmin.from("users").insert({
                     id: data.user?.id!,
-                    firstName,
-                    lastName,
+                    first_name: firstName,
+                    last_name: lastName,
                     email,
                     role: SystemRoles.ADMIN
                 })
@@ -222,10 +222,10 @@ export async function handleOAuthCallback(provider: string): Promise<GeneralResp
 
         await supabase.from("users").insert({
             id: user?.id!,
-            firstName: user?.user_metadata?.full_name?.split(' ')[0],
-            lastName: user?.user_metadata?.full_name?.split(' ')[1],
+            first_name: user?.user_metadata?.full_name?.split(' ')[0],
+            last_name: user?.user_metadata?.full_name?.split(' ')[1],
             email: user?.email!,
-            avatarUrl: user?.user_metadata?.avatar_url,
+            avatar_url: user?.user_metadata?.avatar_url,
             role: SystemRoles.USER
         })
 
