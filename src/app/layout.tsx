@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
+import "@/app/globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { RoleProvider } from "@/contexts/role-context";
 import { getUserRole } from "@/utils/get-user-role";
