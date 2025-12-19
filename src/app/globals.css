@@ -9,18 +9,21 @@
   font-weight: 400;
   src: local('General Sans'), url('https://fonts.cdnfonts.com/s/85793/GeneralSans-Regular.woff') format('woff');
 }
+
 @font-face {
   font-family: 'General Sans';
   font-style: normal;
   font-weight: 500;
   src: local('General Sans'), url('https://fonts.cdnfonts.com/s/85793/GeneralSans-Medium.woff') format('woff');
 }
+
 @font-face {
   font-family: 'General Sans';
   font-style: normal;
   font-weight: 600;
   src: local('General Sans'), url('https://fonts.cdnfonts.com/s/85793/GeneralSans-Semibold.woff') format('woff');
 }
+
 @font-face {
   font-family: 'General Sans';
   font-style: normal;
@@ -139,6 +142,12 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
+}
+
+/* اسف بس كنت مضطر*/
+html,
+body {
+  overflow-x: clip;
 }
 
 @layer base {
