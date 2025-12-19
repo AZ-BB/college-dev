@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { HeroCollage } from "./hero-college";
-
+import CreateCommunity from "./create-community";
 
 export default function Hero() {
   return (
@@ -50,7 +50,7 @@ export default function Hero() {
 
         {/*Create Community*/}
         <div className="mt-16 md:mt-24">
-          
+          <CreateCommunity/>
         </div>
       </div>
     </section>
