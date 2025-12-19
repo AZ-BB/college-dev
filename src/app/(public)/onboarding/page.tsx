@@ -1,6 +1,16 @@
+import { isProfileComplete } from "@/action/auth"
 import { OnboardingForm } from "@/components/onboarding-form"
+import { redirect } from "next/navigation"
+import { createSupabaseServerClient } from "@/utils/supabase-server"
 
-export default function OnboardingPage() {
+export default async function OnboardingPage() {
+  const supabase = await createSupabaseServerClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  console.log(user)
+  const isUserProfileComplete = await isProfileComplete(user!.id) 
+  if (!isUserProfileComplete.data?.needsOnboarding) {
+    return redirect("/")
+  }
   return (
     <div className="flex min-h-screen flex-col bg-white px-4 py-10">
       <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-md">
