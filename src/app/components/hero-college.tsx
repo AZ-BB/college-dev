@@ -1,84 +1,121 @@
-"use client";
+"use client"
 
-import { Button } from "@/components/ui/button";
-import Image from "next/image";
-import Link from "next/link";
-import { useEffect, useRef, useState, useCallback, useMemo } from "react";
+import { Button } from "@/components/ui/button"
+import Image from "next/image"
+import Link from "next/link"
+import { useEffect, useRef, useState, useCallback, useMemo } from "react"
 
 export function HeroCollage() {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [scrollProgress, setScrollProgress] = useState(0);
+  const containerRef = useRef<HTMLDivElement>(null)
+  const [scrollProgress, setScrollProgress] = useState(0)
+  const [currentQuoteIndex, setCurrentQuoteIndex] = useState(0)
+  
+  // Array of rotating quotes
+  const quotes = [
+    "Running programs on WhatsApp doesn't scale.",
+    "I don't know who's actually following the program.",
+    "Too many tools. No clear structure.",
+    "Everything is scattered.",
+    "Onboarding new members is painful.",
+    "My personal DMs become support.",
+    "Important posts get buried.",
+    "I can't scale without more people.",
+  ]
+
+  // Rotate quotes every 3 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentQuoteIndex((prevIndex) => (prevIndex + 1) % quotes.length)
+    }, 3000)
+
+    return () => clearInterval(interval)
+  }, [quotes.length])
 
   useEffect(() => {
-    let rafId: number;
-    let lastScrollY = 0;
+    let rafId: number
+    let lastScrollY = 0
 
     const handleScroll = () => {
       if (rafId) {
-        cancelAnimationFrame(rafId);
+        cancelAnimationFrame(rafId)
       }
 
       rafId = requestAnimationFrame(() => {
-        if (!containerRef.current) return;
+        if (!containerRef.current) return
 
-        const rect = containerRef.current.getBoundingClientRect();
-        const windowHeight = window.innerHeight;
+        const rect = containerRef.current.getBoundingClientRect()
+        const windowHeight = window.innerHeight
 
         // Calculate scroll progress based on how much of the sticky section has been scrolled
         if (rect.top <= 0 && rect.bottom >= windowHeight) {
-          const scrolled = Math.abs(rect.top);
-          const totalScroll = rect.height - windowHeight;
-          const progress = Math.max(0, Math.min(1, scrolled / totalScroll));
-          
+          const scrolled = Math.abs(rect.top)
+          const totalScroll = rect.height - windowHeight
+          const progress = Math.max(0, Math.min(1, scrolled / totalScroll))
+
           // Only update if progress changed significantly (reduces re-renders)
           if (Math.abs(progress - scrollProgress) > 0.001) {
-            setScrollProgress(progress);
+            setScrollProgress(progress)
           }
         } else if (rect.top > 0 && scrollProgress !== 0) {
-          setScrollProgress(0);
+          setScrollProgress(0)
         } else if (rect.bottom < windowHeight && scrollProgress !== 1) {
-          setScrollProgress(1);
+          setScrollProgress(1)
         }
-      });
-    };
+      })
+    }
 
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    handleScroll(); // Initial check
+    window.addEventListener("scroll", handleScroll, { passive: true })
+    handleScroll() // Initial check
 
     return () => {
-      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("scroll", handleScroll)
       if (rafId) {
-        cancelAnimationFrame(rafId);
+        cancelAnimationFrame(rafId)
       }
-    };
-  }, [scrollProgress]);
+    }
+  }, [scrollProgress])
 
   // Memoize position calculations
-  const imagePositions = useMemo(() => ({
-    twitter: -5 + (15 - (-5)) * scrollProgress,
-    whatsapp: 62 + (50 - 62) * scrollProgress,
-    telegram: 37 + (50 - 37) * scrollProgress,
-    facebook: 15 + (50 - 15) * scrollProgress,
-  }), [scrollProgress]);
+  const imagePositions = useMemo(
+    () => ({
+      twitter: -5 + (15 - -5) * scrollProgress,
+      whatsapp: 62 + (50 - 62) * scrollProgress,
+      telegram: 37 + (50 - 37) * scrollProgress,
+      facebook: 15 + (50 - 15) * scrollProgress,
+    }),
+    [scrollProgress]
+  )
 
   // Memoize rotation and opacity values
-  const animationValues = useMemo(() => ({
-    rotation: scrollProgress * 5,
-    imageOpacity: 1 - scrollProgress,
-    foregroundOpacity: scrollProgress,
-  }), [scrollProgress]);
+  const animationValues = useMemo(
+    () => ({
+      rotation: scrollProgress * 5,
+      imageOpacity: 1 - scrollProgress,
+      foregroundOpacity: scrollProgress,
+    }),
+    [scrollProgress]
+  )
 
   return (
-    <div ref={containerRef} className="relative max-w-6xl" style={{ height: "180vh" }}>
-
+    <div
+      ref={containerRef}
+      className="relative max-w-6xl"
+      style={{ height: "180vh" }}
+    >
       {/* ===== DESKTOP (FLOATING COLLAGE – ANGLED) ===== */}
       <div className="hidden md:block h-[650px] sticky top-20 pt-10 space-y-10">
-
         <div className="max-w-3xl mx-auto text-center">
-          <div className="inline-block mb-4 px-4 py-1 bg-orange-100 text-orange-600 rounded-full text-sm font-medium">
-            Open to opportunities · Limited time offer · 50%
+          <div className="inline-block mb-4 px-2 py-1 bg-orange-100 text-orange-600 rounded-full text-sm font-medium">
+            <span 
+              key={currentQuoteIndex}
+              className="inline-block transition-opacity duration-500 animate-fade-in"
+            >
+              "{quotes[currentQuoteIndex]}" 
+            </span>{" "}
+            <span className="text-sm ml-1 text-icon-black bg-white rounded-full px-2 py-0.5">Creator Interviews, 2026</span>
           </div>
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-generalSans tracking-tighter mb-6 font-bold"
+          <h1
+            className="text-4xl md:text-5xl lg:text-6xl font-generalSans tracking-tighter mb-6 font-bold"
             style={{
               fontFamily: "General Sans",
               fontWeight: 700,
@@ -91,7 +128,13 @@ export function HeroCollage() {
             The Better Place To Run Creator Programs
           </h1>
           <p className="text-lg text-gray-600 mb-8 max-w-3xl mx-auto">
-            Host your free or paid communities, courses, conversations and payments all in one place.<br /> <span>No ads, no algorithms, no monthly fees. You fully own and control everything.</span>
+            Host your free or paid communities, courses, conversations and
+            payments all in one place.
+            <br />{" "}
+            <span>
+              No ads, no algorithms, no monthly fees. You fully own and control
+              everything.
+            </span>
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button
@@ -99,18 +142,14 @@ export function HeroCollage() {
               className="bg-orange-500 hover:bg-orange-600 text-white px-8"
               asChild
             >
-              <Link href="/signup">
-                Create your community
-              </Link>
+              <Link href="/signup">Create your community</Link>
             </Button>
             <Button
               size="lg"
               className="px-8 text-gray-900 bg-gray-200 hover:bg-gray-100 hover:text-gray-900"
               asChild
             >
-              <Link href="#explore">
-                Explore Communities
-              </Link>
+              <Link href="#explore">Explore Communities</Link>
             </Button>
           </div>
         </div>
@@ -185,7 +224,7 @@ export function HeroCollage() {
             />
           </div>
 
-          <div 
+          <div
             className="md:-translate-x-[15%] lg:-translate-x-[12%] flex justify-center will-change-transform"
             style={{
               opacity: animationValues.foregroundOpacity,
@@ -202,8 +241,6 @@ export function HeroCollage() {
           </div>
         </div>
       </div>
-
-
     </div>
-  );
+  )
 }
