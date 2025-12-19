@@ -53,7 +53,7 @@ export function SignupForm({
           // No confirmation needed, get user and check profile
           setTimeout(async () => {
             router.push("/")
-            
+            router.refresh()
           }, 1500)
         } else {
           // Redirect to verify email with email in query params

@@ -13,31 +13,31 @@ export default function AllInOneSection() {
       image: "/pl.svg",
       title: "Classroom",
       description:
-        "Put your courses in the same place as your community. Courses modules, videos, resources, searchable transcripts, and progress tracking. Increasing your completion rate.",
+        "Put your courses in the same place as your community. Courses, modules, videos, resources, searchable transcripts, and progress tracking. Increasing your completion rate.",
     },
     {
       image: "/search.svg",
       title: "Search",
       description:
-        "Search posts, comments, course content, and members – with a single search box. Like Robot? Find all group discussions, course content, and members who mentioned “Robot”.",
+        'Search posts, comments, course content, and members - with a single search box. Like Robot? Find all group discussions, course content, and members  who mentioned "Robot".',
     },
     {
       image: "/noti.svg",
       title: "Notifications & Profile",
       description:
-        "Follow interesting posts, get notifications in-app and via email, tune your preferences, and get email digests of popular posts. Use 1 profile for all the groups you’re in.",
+        "Follow interesting posts, get notifications in-app and via email, tune your preferences, and get email digests of popular posts. Use 1-profile for all the groups you're in.",
     },
     {
       image: "/mai.svg",
       title: "Email Broadcast",
       description:
-        "Email broadcast to all members with 1-click. Write a post, click a button, and the post sends to all your members via email. No segmenting lists, tags, or formatting – it just works.",
+        "Email broadcast to all members with 1- click. Write a post, click a button, and the post sends to all your members via email. No segmenting lists, tags, or formatting - it just works.",
     },
     {
       image: "/trade.svg",
       title: "Metrics",
       description:
-        "Monitor the health of your community with a single dashboard and a few key metrics. Track growth, engagement, and progress at the group or member level. See how engaging TheCollege is!",
+        "Monitor the health of your community with single dashboard and a few key metrics. Track growth, engagement, and progress at the group or member level. See how engaging TheCollege is!",
     },
   ];
 

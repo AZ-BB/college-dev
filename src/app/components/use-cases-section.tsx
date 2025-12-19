@@ -26,7 +26,7 @@ export default function UseCasesSection() {
       image: "/mc.svg",
       title: "Coaching Programs",
       description:
-        "Give your members a home and improve their experience. Put all resources in-place, centralize communication.",
+        "Give your members a home and improve their experience. Put all resources in 1-place, centralize communication.",
     },
     {
       image: "/ht.svg",

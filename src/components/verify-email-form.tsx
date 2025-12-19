@@ -103,6 +103,7 @@ export function VerifyEmailForm({
           router.push("/onboarding")
         } else {
           router.push("/")
+          router.refresh()
         }
       } else {
         // No user found, default to onboarding
