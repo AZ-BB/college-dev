@@ -98,6 +98,7 @@ export async function registerUser(formData: FormData): Promise<GeneralResponse<
                 last_name: lastName,
                 email: email,
                 role: SystemRoles.ADMIN
+                
             })
         }
         catch (error) {
