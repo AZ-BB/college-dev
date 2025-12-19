@@ -2,8 +2,15 @@
 import { usePathname } from "next/navigation";
 import Footer from "./footer";
 import Header from "./header";
+import { UserData } from "@/utils/get-user-data";
 
-export default function Layout({ children }: { children: React.ReactNode }) {
+export default function Layout({ 
+    children, 
+    userData 
+}: { 
+    children: React.ReactNode
+    userData: UserData | null
+}) {
     const pathname = usePathname();
 
     const noHeaderFooterRoutes = [
@@ -16,7 +23,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
     return (
         <div className="min-h-screen bg-white text-neutral-900">
-            {noHeaderFooterRoutes.includes(pathname) ? null : <Header />}
+            {noHeaderFooterRoutes.includes(pathname) ? null : <Header userData={userData} />}
             <div className="mx-auto max-w-6xl px-4">{children}</div>
             {noHeaderFooterRoutes.includes(pathname) ? null : <Footer />}
         </div>

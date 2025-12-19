@@ -14,6 +14,104 @@ export type Database = {
   }
   public: {
     Tables: {
+      communities: {
+        Row: {
+          avatar: string | null
+          cover_image: string | null
+          created_at: string | null
+          creator_id: string
+          currency: string | null
+          description: string | null
+          id: string
+          is_active: boolean | null
+          is_public: boolean | null
+          member_count: number | null
+          name: string
+          price: number | null
+          slug: string
+          updated_at: string | null
+        }
+        Insert: {
+          avatar?: string | null
+          cover_image?: string | null
+          created_at?: string | null
+          creator_id: string
+          currency?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_public?: boolean | null
+          member_count?: number | null
+          name: string
+          price?: number | null
+          slug: string
+          updated_at?: string | null
+        }
+        Update: {
+          avatar?: string | null
+          cover_image?: string | null
+          created_at?: string | null
+          creator_id?: string
+          currency?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_public?: boolean | null
+          member_count?: number | null
+          name?: string
+          price?: number | null
+          slug?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "communities_creator_id_fkey"
+            columns: ["creator_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      community_members: {
+        Row: {
+          community_id: string
+          id: string
+          joined_at: string | null
+          role: string | null
+          user_id: string
+        }
+        Insert: {
+          community_id: string
+          id?: string
+          joined_at?: string | null
+          role?: string | null
+          user_id: string
+        }
+        Update: {
+          community_id?: string
+          id?: string
+          joined_at?: string | null
+          role?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_members_community_id_fkey"
+            columns: ["community_id"]
+            isOneToOne: false
+            referencedRelation: "communities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "community_members_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       otp_logs: {
         Row: {
           created_at: string | null

@@ -65,6 +65,7 @@ export function LoginForm({
         if (config.confirmation === 'none') {
           // No confirmation required, check profile completion
           router.push("/")
+          router.refresh()
         } else {
           // Check if email is confirmed (fallback check)
           if (!data.user.email_confirmed_at) {
@@ -76,6 +77,7 @@ export function LoginForm({
               router.push("/onboarding")
             } else {
               router.push("/")
+              router.refresh()
             }
           }
         }
