@@ -1,11 +1,11 @@
 "use client"
 
-import { SystemRole } from "@/db/enums"
+import { SystemRoles } from "@/enums/SystemRoles"
 import { useUserRole } from "@/contexts/role-context"
 
 interface AccessControlProps {
     children: React.ReactNode
-    allowedRoles: SystemRole[]
+    allowedRoles: SystemRoles[]
 }
 
 export default function AccessControl({

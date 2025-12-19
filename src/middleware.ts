@@ -1,5 +1,6 @@
 import { createServerClient } from "@supabase/ssr"
 import { NextResponse, type NextRequest } from "next/server"
+import { isProfileComplete } from "./action/auth"
 
 export async function middleware(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
@@ -29,20 +30,21 @@ export async function middleware(request: NextRequest) {
 
   // Refresh session if expired - required for Server Components
   const {
-    data: { session },
-  } = await supabase.auth.getSession()
+    data: { user },
+  } = await supabase.auth.getUser()
 
   const { pathname } = request.nextUrl
 
   // Define public routes that don't require authentication
+  console.log(pathname, user)
   const publicRoutes = ['/login', '/signup', '/auth/callback', '/auth', '/forget-password', '/auth/reset-password', '/']
-  const isPublicRoute = publicRoutes.some(route => pathname.startsWith(route))
+  const isPublicRoute = publicRoutes.includes(pathname)
   
   // OAuth callback route needs special handling - always allow it through
   const isCallbackRoute = pathname.startsWith('/auth/callback')
 
   // If user is not authenticated and trying to access a protected route
-  if (!session && !isPublicRoute) {
+  if (!user && !isPublicRoute) {
     const redirectUrl = new URL('/login', request.url)
     // Add the current path as a query parameter to redirect back after login
     redirectUrl.searchParams.set('next', pathname)
@@ -51,8 +53,13 @@ export async function middleware(request: NextRequest) {
 
   // If user is authenticated and trying to access auth pages, redirect to home
   // BUT allow the callback route to complete its processing
-  if (session && isPublicRoute && !isCallbackRoute) {
-    return NextResponse.redirect(new URL('/', request.url))
+  if (user && isPublicRoute && !isCallbackRoute) {
+    const isUserProfileComplete = await isProfileComplete(user.id) 
+    if (isUserProfileComplete.data?.needsOnboarding) {
+      return NextResponse.redirect(new URL('/onboarding', request.url))
+    } else if (pathname !== "/") {
+      return NextResponse.redirect(new URL('/', request.url))
+    }
   }
 
   return supabaseResponse

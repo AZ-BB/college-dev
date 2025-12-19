@@ -1,10 +1,10 @@
 "use client"
 
-import { SystemRole } from "@/db/enums"
+import { SystemRoles } from "@/enums/SystemRoles"
 import { createContext, useContext, ReactNode } from "react"
 
 interface RoleContextType {
-    role: SystemRole | null
+    role: SystemRoles | null
     isLoading: boolean
 }
 
@@ -15,7 +15,7 @@ const RoleContext = createContext<RoleContextType>({
 
 interface RoleProviderProps {
     children: ReactNode
-    initialRole: SystemRole | null
+    initialRole: SystemRoles | null
 }
 
 export function RoleProvider({ children, initialRole }: RoleProviderProps) {
