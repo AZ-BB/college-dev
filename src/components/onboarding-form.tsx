@@ -99,6 +99,7 @@ export function OnboardingForm({
 
       // Profile updated successfully, redirect to home
       router.push("/")
+      router.refresh()
     } catch (err) {
       console.error(err)
       setError("An unexpected error occurred. Please try again.")

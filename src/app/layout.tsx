@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Instrument_Sans } from "next/font/google";
+import { Geist, Geist_Mono, Instrument_Sans,  } from "next/font/google";
 import "@/app/globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { RoleProvider } from "@/contexts/role-context";
 import { getUserRole } from "@/utils/get-user-role";
+import { getUserData } from "@/utils/get-user-data";
 import { createSupabaseServerClient } from "@/utils/supabase-server";
 import Footer from "../components/layout/footer";
 import Header from "../components/layout/header";
@@ -15,6 +16,7 @@ const instrumentSans = Instrument_Sans({
   variable: "--font-instrument-sans",
   subsets: ["latin"],
 });
+
 
 export const metadata: Metadata = {
   title: "The Better Place To Run Creator Programs | All-in-One Platform",
@@ -52,6 +54,7 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const userRole = await getUserRole();
+  const userData = await getUserData();
 
 
   return (
@@ -66,7 +69,7 @@ export default async function RootLayout({
           disableTransitionOnChange
         >
           <RoleProvider initialRole={userRole}>
-            <Layout>
+            <Layout userData={userData}>
               {children}
             </Layout>
           </RoleProvider>

@@ -1,0 +1,35 @@
+import { createSupabaseServerClient } from "@/utils/supabase-server"
+
+export interface UserData {
+  id: string
+  email: string
+  first_name?: string
+  last_name?: string
+  avatar_url?: string
+}
+
+export async function getUserData(): Promise<UserData | null> {
+  try {
+    const supabase = await createSupabaseServerClient()
+    const { data: { user } } = await supabase.auth.getUser()
+
+    if (!user) return null
+
+    const { data: dbUser, error } = await supabase
+      .from("users")
+      .select("id, email, first_name, last_name, avatar_url")
+      .eq("id", user.id)
+      .single()
+
+    if (error) {
+      console.error("Error fetching user data:", error)
+      return null
+    }
+
+    return dbUser as UserData
+  } catch (error) {
+    console.error("Error fetching user data:", error)
+    return null
+  }
+}
+
