@@ -7,6 +7,7 @@ import { getUserRole } from "@/utils/get-user-role";
 import { createSupabaseServerClient } from "@/utils/supabase-server";
 import Footer from "./components/footer";
 import Header from "./components/header";
+import { headers } from "next/headers";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -36,6 +37,7 @@ export default async function RootLayout({
 }>) {
   const userRole = await getUserRole();
 
+  
   return (
     <html lang="en" suppressHydrationWarning>
       <body
