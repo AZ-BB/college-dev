@@ -1,9 +1,9 @@
 export type OAuthProvider = "google" | "github" | "facebook" | "twitter" | "discord";
 
 export default {
-    confirmation: 'email',
+    confirmation: 'none',
     oauth_types: [
-        
+        "google",
     ] as OAuthProvider[]
 } as {
     confirmation: 'email' | 'otp' | 'none';

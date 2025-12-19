@@ -1,8 +1,15 @@
-import { GalleryVerticalEnd } from "lucide-react"
+import { VerifyEmailForm } from "@/components/verify-email-form"
 
-import { SignupForm } from "@/components/signup-form"
+interface VerifyEmailPageProps {
+  searchParams?: Promise<{ email?: string }>
+}
 
-export default function SignupPage() {
+export default async function VerifyEmailPage({
+  searchParams,
+}: VerifyEmailPageProps) {
+  const params = await searchParams
+  const email = params?.email || ""
+
   return (
     <div className="flex min-h-screen flex-col bg-white px-4 py-10">
       <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-md">
@@ -53,9 +60,10 @@ export default function SignupPage() {
       </div>
       <div className="flex flex-1 items-center justify-center">
         <div className="w-full max-w-md">
-          <SignupForm className="w-full" />
+          <VerifyEmailForm email={email} className="w-full" />
         </div>
       </div>
     </div>
   )
 }
+
