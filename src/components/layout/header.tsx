@@ -15,7 +15,7 @@ export default function Header() {
     { href: "#usecase", label: "Use Case" },
     { href: "#features", label: "Features" },
     { href: "#pricing", label: "Pricing" },
-    
+
   ];
 
   return (
@@ -27,11 +27,11 @@ export default function Header() {
             <Image
               src="/logo.svg"
               alt="College Logo"
-              width={90}
-              height={90}
-              className="w-25 h-25"
+              width={157}
+              height={32}
+              className="w-auto h-[32px]"
             />
-            
+
           </Link>
 
           {/* Desktop Navigation */}
@@ -50,8 +50,8 @@ export default function Header() {
           {/* CTA Buttons */}
           <div className="hidden md:flex items-center gap-3">
             <Button
-              variant="outline"
-              className="border-gray-300 text-gray-900 hover:bg-gray-100 hover:text-gray-900"
+              variant="default"
+              className="bg-white font-semibold"
               asChild
             >
               <Link href="/login">Log In</Link>

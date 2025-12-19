@@ -4,33 +4,22 @@
 @custom-variant dark (&:is(.dark *));
 
 @font-face {
-  font-family: "General Sans";
-  src:
-    url("https://fonts.cdnfonts.com/s/26438/GeneralSans-Regular.woff2") format("woff2"),
-    url("https://fonts.cdnfonts.com/s/26438/GeneralSans-Regular.woff") format("woff");
+  font-family: 'General Sans';
+  font-style: normal;
   font-weight: 400;
-  font-style: normal;
-  font-display: swap;
+  src: local('General Sans'), url('https://fonts.cdnfonts.com/s/85793/GeneralSans-Regular.woff') format('woff');
 }
-
 @font-face {
-  font-family: "General Sans";
-  src:
-    url("https://fonts.cdnfonts.com/s/26438/GeneralSans-Medium.woff2") format("woff2"),
-    url("https://fonts.cdnfonts.com/s/26438/GeneralSans-Medium.woff") format("woff");
+  font-family: 'General Sans';
+  font-style: normal;
   font-weight: 500;
-  font-style: normal;
-  font-display: swap;
+  src: local('General Sans'), url('https://fonts.cdnfonts.com/s/85793/GeneralSans-Medium.woff') format('woff');
 }
-
 @font-face {
-  font-family: "General Sans";
-  src:
-    url("https://fonts.cdnfonts.com/s/26438/GeneralSans-Semibold.woff2") format("woff2"),
-    url("https://fonts.cdnfonts.com/s/26438/GeneralSans-Semibold.woff") format("woff");
-  font-weight: 600;
+  font-family: 'General Sans';
   font-style: normal;
-  font-display: swap;
+  font-weight: 600;
+  src: local('General Sans'), url('https://fonts.cdnfonts.com/s/85793/GeneralSans-Semibold.woff') format('woff');
 }
 
 @theme inline {
@@ -150,6 +139,7 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
   }

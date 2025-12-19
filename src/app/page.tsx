@@ -13,8 +13,8 @@ export default function LandingPage() {
     <div className="min-h-screen bg-white text-neutral-900">
       <Hero />
       <FeaturesSection />
-      <UseCasesSection/>
-      <AllInOneSection/>
+      <UseCasesSection />
+      <AllInOneSection />
       <PricingSection />
       <CTASection />
     </div>
