@@ -46,6 +46,7 @@ export function HeroCollage() {
         const rect = containerRef.current.getBoundingClientRect()
         const windowHeight = window.innerHeight
 
+        let progress = 0;
         // Calculate scroll progress based on how much of the sticky section has been scrolled
         if (rect.top <= 0 && rect.bottom >= windowHeight) {
           const scrolled = Math.abs(rect.top)
@@ -154,14 +155,14 @@ export function HeroCollage() {
           </div>
         </div>
 
-        <div className="md:w-[1024px] lg:w-[1440px] relative left-2/3 -translate-x-1/2">
+        <div className="md:w-[1024px] lg:w-[1440px] relative left-2/3 -translate-x-1/2 ">
           <div
             className="absolute top-20 will-change-transform"
             style={{
-              left: `${imagePositions.twitter}%`,
-              opacity: animationValues.imageOpacity,
-              transform: `rotate(${animationValues.rotation}deg)`,
-            }}
+              left: "calc(-5% + 20% * var(--scroll-progress))",
+              opacity: "calc(1 - var(--scroll-progress))",
+              transform: "rotate(calc(var(--scroll-progress) * 5deg))",
+            } as React.CSSProperties}
           >
             <Image
               src="/hero/twitter.png"
@@ -176,10 +177,10 @@ export function HeroCollage() {
           <div
             className="absolute top-2 will-change-transform"
             style={{
-              right: `${imagePositions.whatsapp}%`,
-              opacity: animationValues.imageOpacity,
-              transform: `rotate(${animationValues.rotation}deg)`,
-            }}
+              right: "calc(62% + (50% - 62%) * var(--scroll-progress))",
+              opacity: "calc(1 - var(--scroll-progress))",
+              transform: "rotate(calc(var(--scroll-progress) * 5deg))",
+            } as React.CSSProperties}
           >
             <Image
               src="/hero/whatsapp.png"
@@ -193,10 +194,10 @@ export function HeroCollage() {
           <div
             className="absolute top-2 will-change-transform"
             style={{
-              right: `${imagePositions.telegram}%`,
-              opacity: animationValues.imageOpacity,
-              transform: `rotate(${-animationValues.rotation}deg)`,
-            }}
+              right: "calc(37% + (50% - 37%) * var(--scroll-progress))",
+              opacity: "calc(1 - var(--scroll-progress))",
+              transform: "rotate(calc(var(--scroll-progress) * -5deg))",
+            } as React.CSSProperties}
           >
             <Image
               src="/hero/telegram.png"
@@ -210,10 +211,10 @@ export function HeroCollage() {
           <div
             className="absolute top-8 will-change-transform"
             style={{
-              right: `${imagePositions.facebook}%`,
-              opacity: animationValues.imageOpacity,
-              transform: `rotate(${-animationValues.rotation}deg)`,
-            }}
+              right: "calc(15% + (50% - 15%) * var(--scroll-progress))",
+              opacity: "calc(1 - var(--scroll-progress))",
+              transform: "rotate(calc(var(--scroll-progress) * -5deg))",
+            } as React.CSSProperties}
           >
             <Image
               src="/hero/facebook.png"
@@ -227,8 +228,8 @@ export function HeroCollage() {
           <div
             className="md:-translate-x-[15%] lg:-translate-x-[12%] flex justify-center will-change-transform"
             style={{
-              opacity: animationValues.foregroundOpacity,
-            }}
+              opacity: "var(--scroll-progress)",
+            } as React.CSSProperties}
           >
             <Image
               src="/Foreground.svg"
