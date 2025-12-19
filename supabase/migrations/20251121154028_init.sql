@@ -8,7 +8,7 @@ CREATE TABLE users
     last_name text,
     email text UNIQUE NOT NULL,
     avatar_url text,
-    role roles NOT   NULL DEFAULT 'USER',
+    role roles NOT NULL DEFAULT 'USER',
     updated_at timestamp DEFAULT CURRENT_TIMESTAMP,
     created_at timestamp DEFAULT CURRENT_TIMESTAMP
 );

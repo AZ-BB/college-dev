@@ -5,6 +5,8 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { RoleProvider } from "@/contexts/role-context";
 import { getUserRole } from "@/utils/get-user-role";
 import { createSupabaseServerClient } from "@/utils/supabase-server";
+import Footer from "./components/footer";
+import Header from "./components/header";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -18,7 +20,8 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Next.js App Template",
-  description: "A modern Next.js application template with shadcn/ui components",
+  description:
+    "A modern Next.js application template with shadcn/ui components",
 };
 
 export default async function RootLayout({
@@ -40,7 +43,11 @@ export default async function RootLayout({
           disableTransitionOnChange
         >
           <RoleProvider initialRole={userRole}>
-            {children}
+            <div className="min-h-screen bg-white text-neutral-900">
+              <Header />
+              <div className="mx-auto max-w-6xl px-4">{children}</div>
+              <Footer />
+            </div>
           </RoleProvider>
         </ThemeProvider>
       </body>
