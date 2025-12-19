@@ -21,6 +21,12 @@
   font-weight: 600;
   src: local('General Sans'), url('https://fonts.cdnfonts.com/s/85793/GeneralSans-Semibold.woff') format('woff');
 }
+@font-face {
+  font-family: 'General Sans';
+  font-style: normal;
+  font-weight: 700;
+  src: local('General Sans'), url('https://fonts.cdnfonts.com/s/85793/GeneralSans-Bold.woff') format('woff');
+}
 
 @theme inline {
   --color-background: var(--background);
