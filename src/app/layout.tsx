@@ -17,7 +17,7 @@ const instrumentSans = Instrument_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "The Better Place To Run Creator Programs | All-in-One Platform",
+  title: "The College",
   description:
     "Host your free or paid communities, courses, conversations and payments all in one place. No ads, no algorithms, no monthly fees. You fully own and control everything.",
   keywords: [
