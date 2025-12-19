@@ -10,10 +10,8 @@ export async function registerUser(formData: FormData): Promise<GeneralResponse<
     try {
         const email = formData.get("email") as string;
         const password = formData.get("password") as string;
-        const firstName = formData.get("firstName") as string;
-        const lastName = formData.get("lastName") as string;
 
-        if (!email || !password || !firstName || !lastName) {
+        if (!email || !password) {
             return { error: "All fields are required", statusCode: 400, data: false };
         }
 
@@ -39,8 +37,6 @@ export async function registerUser(formData: FormData): Promise<GeneralResponse<
                 options: {
                     emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/auth/callback`,
                     data: {
-                        firstName,
-                        lastName,
                         role: SystemRoles.ADMIN
                     }
                 }
@@ -54,8 +50,6 @@ export async function registerUser(formData: FormData): Promise<GeneralResponse<
             try {
                 await supabaseAdmin.from("users").insert({
                     id: data.user?.id!,
-                    first_name: firstName,
-                    last_name: lastName,
                     email,
                     role: SystemRoles.ADMIN
                 })
@@ -71,7 +65,25 @@ export async function registerUser(formData: FormData): Promise<GeneralResponse<
 
         // OTP confirmation flow
         if (config.confirmation === 'otp') {
-            // TODO
+            // Use Supabase's built-in OTP via email
+            const { data, error } = await supabaseClient.auth.signInWithOtp({
+                email,
+                options: {
+                    shouldCreateUser: true,
+                    data: {
+                        role: SystemRoles.ADMIN
+                    }
+                }
+            })
+
+            if (error) {
+                return { error: error.message, statusCode: 400, data: false };
+            }
+
+            // Note: User will be created in auth.users but not in public.users until OTP is verified
+            // We'll create the public.users record after OTP verification
+
+            return { data: true, statusCode: 200, error: undefined, message: "Registration successful. Please check your email for OTP code." };
         }
 
         // No confirmation flow
@@ -80,8 +92,6 @@ export async function registerUser(formData: FormData): Promise<GeneralResponse<
             password,
             email_confirm: true,
             user_metadata: {
-                firstName,
-                lastName,
                 role: SystemRoles.ADMIN
             }
         })
@@ -94,8 +104,6 @@ export async function registerUser(formData: FormData): Promise<GeneralResponse<
         try {
             const { data: userData, error: userError } = await supabaseAdmin.from('users').insert({
                 id: data.user?.id,
-                first_name: firstName,
-                last_name: lastName,
                 email: email,
                 role: SystemRoles.ADMIN
                 
@@ -236,5 +244,215 @@ export async function handleOAuthCallback(provider: string): Promise<GeneralResp
     } catch (error) {
         console.error(error);
         return { error: "Failed to handle OAuth callback", statusCode: 500, data: false };
+    }
+}
+
+// Resend OTP using Supabase's built-in functionality
+export async function resendOTP(email: string): Promise<GeneralResponse<boolean>> {
+    try {
+        const supabase = await createSupabaseServerClient();
+        
+        const { error } = await supabase.auth.signInWithOtp({
+            email,
+            options: {
+                shouldCreateUser: false, // Don't create user on resend
+            }
+        });
+
+        if (error) {
+            return { error: error.message, statusCode: 400, data: false };
+        }
+
+        return {
+            data: true,
+            statusCode: 200,
+            error: undefined,
+            message: "OTP sent successfully"
+        };
+    } catch (error) {
+        console.error(error);
+        return { error: "Failed to resend OTP", statusCode: 500, data: false };
+    }
+}
+
+// Verify OTP code using Supabase's built-in functionality
+export async function verifyOTP(email: string, otpCode: string): Promise<GeneralResponse<boolean>> {
+    try {
+        const supabase = await createSupabaseServerClient();
+        const supabaseAdmin = await createSupabaseAdminServerClient();
+        
+        // Verify OTP with Supabase
+        const { data, error } = await supabase.auth.verifyOtp({
+            email,
+            token: otpCode,
+            type: 'email'
+        });
+
+        if (error) {
+            return { error: error.message || "Invalid OTP code", statusCode: 400, data: false };
+        }
+
+        if (!data.user) {
+            return { error: "Verification failed", statusCode: 400, data: false };
+        }
+
+        // Create user in public.users table if doesn't exist
+        const { data: existingUser } = await supabaseAdmin
+            .from("users")
+            .select("id")
+            .eq("id", data.user.id)
+            .single();
+
+        if (!existingUser) {
+            await supabaseAdmin.from("users").insert({
+                id: data.user.id,
+                email: data.user.email!,
+                role: SystemRoles.ADMIN
+            });
+        }
+
+        return {
+            data: true,
+            statusCode: 200,
+            error: undefined,
+            message: "OTP verified successfully"
+        };
+    } catch (error) {
+        console.error(error);
+        return { error: "Failed to verify OTP", statusCode: 500, data: false };
+    }
+}
+
+// Check if user profile is complete (has first_name and last_name)
+export async function isProfileComplete(userId: string): Promise<GeneralResponse<{ isComplete: boolean; needsOnboarding: boolean }>> {
+    try {
+        const supabaseAdmin = await createSupabaseAdminServerClient();
+        
+        const { data: user, error } = await supabaseAdmin
+            .from("users")
+            .select("first_name, last_name")
+            .eq("id", userId)
+            .single();
+
+        if (error) {
+            console.error("Error fetching user profile:", error);
+            return { 
+                error: "Failed to check profile status", 
+                statusCode: 500, 
+                data: { isComplete: false, needsOnboarding: true } 
+            };
+        }
+
+        const isComplete = !!(user?.first_name && user?.last_name);
+
+        return {
+            data: { 
+                isComplete,
+                needsOnboarding: !isComplete 
+            },
+            statusCode: 200,
+            error: undefined
+        };
+    } catch (error) {
+        console.error(error);
+        return { 
+            error: "Failed to check profile status", 
+            statusCode: 500, 
+            data: { isComplete: false, needsOnboarding: true } 
+        };
+    }
+}
+
+// Upload avatar to Supabase Storage
+export async function uploadAvatar(file: File, userId: string): Promise<GeneralResponse<{ url: string } | null>> {
+    try {
+        const supabase = await createSupabaseServerClient();
+        
+        // Generate unique filename with user folder
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${Date.now()}.${fileExt}`;
+        const filePath = `${userId}/${fileName}`;
+
+        // Upload to Supabase Storage
+        const { error: uploadError } = await supabase.storage
+            .from('avatars')
+            .upload(filePath, file, {
+                cacheControl: '3600',
+                upsert: true
+            });
+
+        if (uploadError) {
+            console.error("Error uploading avatar:", uploadError);
+            return { error: "Failed to upload avatar", statusCode: 500, data: null };
+        }
+
+        // Get public URL
+        const { data: { publicUrl } } = supabase.storage
+            .from('avatars')
+            .getPublicUrl(filePath);
+
+        return {
+            data: { url: publicUrl },
+            statusCode: 200,
+            error: undefined,
+            message: "Avatar uploaded successfully"
+        };
+    } catch (error) {
+        console.error(error);
+        return { error: "Failed to upload avatar", statusCode: 500, data: null };
+    }
+}
+
+// Update user profile information
+export async function updateUserProfile(
+    firstName: string, 
+    lastName: string, 
+    bio: string, 
+    avatarUrl?: string
+): Promise<GeneralResponse<boolean>> {
+    try {
+        const supabase = await createSupabaseServerClient();
+        
+        // Get current user
+        const { data: { user }, error: authError } = await supabase.auth.getUser();
+        
+        if (authError || !user) {
+            return { error: "Not authenticated", statusCode: 401, data: false };
+        }
+
+        if (!firstName || !lastName) {
+            return { error: "First name and last name are required", statusCode: 400, data: false };
+        }
+
+        // Update user profile in database
+        const updateData: any = {
+            first_name: firstName,
+            last_name: lastName,
+        };
+
+        // Add avatar_url if provided
+        if (avatarUrl) {
+            updateData.avatar_url = avatarUrl;
+        }
+
+        const { error: updateError } = await supabase
+            .from("users")
+            .update(updateData)
+            .eq("id", user.id);
+
+        if (updateError) {
+            console.error("Error updating user profile:", updateError);
+            return { error: "Failed to update profile", statusCode: 500, data: false };
+        }
+
+        return {
+            data: true,
+            statusCode: 200,
+            error: undefined,
+            message: "Profile updated successfully"
+        };
+    } catch (error) {
+        console.error(error);
+        return { error: "Failed to update profile", statusCode: 500, data: false };
     }
 }

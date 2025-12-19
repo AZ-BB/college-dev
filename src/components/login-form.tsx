@@ -8,7 +8,6 @@ import {
   FieldDescription,
   FieldGroup,
   FieldLabel,
-  FieldSeparator,
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
@@ -17,6 +16,7 @@ import { useRouter } from "next/navigation"
 import { AlertCircle } from "lucide-react"
 import config from "@/../config"
 import { OAuthButtons } from "@/components/oauth-buttons"
+import { isProfileComplete } from "@/action/auth"
 
 export function LoginForm({
   className,
@@ -25,6 +25,8 @@ export function LoginForm({
   const router = useRouter()
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
+  const [emailValue, setEmailValue] = useState("")
+  const [passwordValue, setPasswordValue] = useState("")
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -37,17 +39,49 @@ export function LoginForm({
 
     try {
       const supabase = createSupabaseBrowserClient()
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       })
       
       if (error) {
-        setError(error.message || "Invalid email or password")
-      } else {
-        router.push("/")
+        // Check if confirmation is disabled
+        if (config.confirmation === 'none') {
+          // No confirmation required, show all errors normally
+          setError(error.message || "Invalid email or password")
+        } else {
+          // Only show error if it's not about email confirmation
+          if (!error.message.includes("Email not confirmed")) {
+            setError(error.message || "Invalid email or password")
+          }
+          // If email is not confirmed, silently redirect
+          if (error.message.includes("Email not confirmed")) {
+            router.push(`/verify-email?email=${encodeURIComponent(email)}`)
+            return
+          }
+        }
+      } else if (data?.user) {
+        // Check if email confirmation is required
+        if (config.confirmation === 'none') {
+          // No confirmation required, check profile completion
+          router.push("/")
+        } else {
+          // Check if email is confirmed (fallback check)
+          if (!data.user.email_confirmed_at) {
+            router.push(`/verify-email?email=${encodeURIComponent(email)}`)
+          } else {
+            // Email is confirmed, check profile completion
+            const profileCheck = await isProfileComplete(data.user.id)
+            if (profileCheck.data?.needsOnboarding) {
+              router.push("/onboarding")
+            } else {
+              router.push("/")
+            }
+          }
+        }
       }
     } catch (err) {
+      console.error(err)
       setError("An unexpected error occurred. Please try again.")
     } finally {
       setIsLoading(false)
@@ -55,68 +89,97 @@ export function LoginForm({
   }
 
   return (
-    <form className={cn("flex flex-col gap-6", className)} {...props} onSubmit={handleSubmit}>
-      <FieldGroup>
-        <div className="flex flex-col items-center gap-1 text-center">
-          <h1 className="text-2xl font-bold">Login to your account</h1>
-          <p className="text-muted-foreground text-sm text-balance">
-            Enter your email below to login to your account
-          </p>
+    <form
+      className={cn("flex flex-col gap-6 w-full", className)}
+      {...props}
+      onSubmit={handleSubmit}
+    >
+      <FieldGroup className="gap-6">
+        <div className="flex flex-col items-center gap-2 text-center">
+          <h1 className="text-[32px] font-semibold text-gray-900 font-generalSans">Log In</h1>
         </div>
 
         {error && (
-          <Alert variant="destructive">
-            <AlertCircle />
-            <AlertTitle>Error</AlertTitle>
-            <AlertDescription>{error}</AlertDescription>
+          <Alert
+            variant="destructive"
+            className="rounded-[12px] border-[#ffd7d1] bg-[#fff3f0] text-[#d93025] font-instrumentSans"
+          >
+            <AlertCircle className="text-[#d93025]" />
+            <AlertTitle className="text-sm font-semibold">Error</AlertTitle>
+            <AlertDescription className="text-sm">{error}</AlertDescription>
           </Alert>
         )}
 
         <Field>
-          <FieldLabel htmlFor="email">Email</FieldLabel>
-          <Input id="email" name="email" type="email" placeholder="m@example.com" required />
+          <FieldLabel htmlFor="email" className="text-sm font-instrumentSans font-medium text-gray-800">
+            Email
+          </FieldLabel>
+          <Input
+            id="email"
+            name="email"
+            type="email"
+            placeholder="Your email"
+            value={emailValue}
+            onChange={(e) => setEmailValue(e.target.value)}
+            style={{
+              background: "#F4F4F6",
+            }}
+            required
+            className="h-12 rounded-[16px] text-black font-instrumentSans border border-[#F4F4F6] bg-[#F4F4F6] text-base placeholder:text-gray-400 focus-visible:border-[#f89b63] focus-visible:ring-2 focus-visible:ring-[#f89b63]/40"
+          />
         </Field>
         <Field>
-          <div className="flex items-center">
-            <FieldLabel htmlFor="password">Password</FieldLabel>
-            <a
-              href="/forget-password"
-              className="ml-auto text-sm underline-offset-4 hover:underline"
-            >
-              Forgot your password?
-            </a>
-          </div>
-          <Input id="password" name="password" type="password" required />
+          <FieldLabel htmlFor="password" className="text-sm font-instrumentSans font-medium text-gray-800">
+            Password
+          </FieldLabel>
+          <Input
+            id="password"
+            name="password"
+            type="password"
+            placeholder="Your password"
+            value={passwordValue}
+            onChange={(e) => setPasswordValue(e.target.value)}
+            required
+            style={{  
+              background: "#F4F4F6",
+            }}
+            className="h-12 rounded-[16px] text-black font-instrumentSans border border-[#F4F4F6] bg-[#F4F4F6] text-base placeholder:text-gray-400 focus-visible:border-[#f89b63] focus-visible:ring-2 focus-visible:ring-[#f89b63]/40"
+          />
         </Field>
         <Field>
-          <Button type="submit" disabled={isLoading}>
-            {isLoading ? "Logging in..." : "Login"}
+          <Button
+            type="submit"
+            disabled={isLoading}
+            className={cn(
+              "h-12 rounded-[16px] font-instrumentSans cursor-pointer text-base font-semibold text-white shadow-none transition focus-visible:ring-[#f89b63]/40",
+              emailValue.trim() && passwordValue.trim()
+                ? "bg-[#F7670E] hover:bg-[#e45f0d]"
+                : "bg-[#FA995E] hover:bg-[#f6833e]"
+            )}
+          >
+            {isLoading ? "Logging in..." : "Sign In"}
           </Button>
         </Field>
         {config.oauth_types.length > 0 && (
           <>
-            <FieldSeparator>Or continue with</FieldSeparator>
+            <div className="flex items-center gap-3 text-xs font-medium text-[#bdbdbd]">
+              <span className="h-px flex-1 bg-[#d9d9d9]" />
+              <span>or</span>
+              <span className="h-px flex-1 bg-[#d9d9d9]" />
+            </div>
             <Field>
               <OAuthButtons type="signin" />
-              <FieldDescription className="text-center">
-                Don&apos;t have an account?{" "}
-                <a href="/signup" className="underline underline-offset-4">
-                  Sign up
-                </a>
-              </FieldDescription>
             </Field>
           </>
         )}
-        {config.oauth_types.length === 0 && (
-          <Field>
-            <FieldDescription className="text-center">
-              Don&apos;t have an account?{" "}
-              <a href="/signup" className="underline underline-offset-4">
-                Sign up
-              </a>
-            </FieldDescription>
-          </Field>
-        )}
+        <Field>
+          <FieldDescription className="text-center text-sm text-gray-700">
+            Don&apos;t have an account?{" "}
+            <a href="/signup" className="font-semibold text-[#f89b63]">
+              {" "}Sign Up
+            </a>
+          </FieldDescription>
+        </Field>
       </FieldGroup>
     </form>
   )
