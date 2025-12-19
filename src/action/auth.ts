@@ -3,7 +3,7 @@
 import { GeneralResponse } from "@/utils/general-response";
 import { createSupabaseAdminServerClient, createSupabaseServerClient } from "@/utils/supabase-server";
 import config, { OAuthProvider } from "../../config"
-import { eq } from "drizzle-orm";
+
 import { SystemRoles } from "@/enums/SystemRoles";
 
 export async function registerUser(formData: FormData): Promise<GeneralResponse<boolean>> {

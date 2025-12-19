@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
@@ -25,26 +25,26 @@ export function SignupForm({
   const [passwordValue, setPasswordValue] = useState("")
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault()
-    setError(null)
-    setSuccess(null)
-    setIsLoading(true)
+    e.preventDefault();
+    setError(null);
+    setSuccess(null);
+    setIsLoading(true);
 
     const formData = new FormData(e.currentTarget)
     const password = formData.get("password")?.toString() || ""
 
     // Validate password length
     if (password.length < 8) {
-      setError("Password must be at least 8 characters long")
-      setIsLoading(false)
-      return
+      setError("Password must be at least 8 characters long");
+      setIsLoading(false);
+      return;
     }
 
     try {
-      const result = await registerUser(formData)
+      const result = await registerUser(formData);
 
       if (result.error) {
-        setError(result.error)
+        setError(result.error);
       } else if (result.data) {
         setSuccess(result.message || "Registration successful!")
         
@@ -52,19 +52,8 @@ export function SignupForm({
         if (config.confirmation === 'none') {
           // No confirmation needed, get user and check profile
           setTimeout(async () => {
-            const supabase = createSupabaseBrowserClient()
-            const { data: { user } } = await supabase.auth.getUser()
+            router.push("/")
             
-            if (user) {
-              const profileCheck = await isProfileComplete(user.id)
-              if (profileCheck.data?.needsOnboarding) {
-                router.push("/onboarding")
-              } else {
-                router.push("/")
-              }
-            } else {
-              router.push("/onboarding") // Default to onboarding if no user
-            }
           }, 1500)
         } else {
           // Redirect to verify email with email in query params
@@ -75,9 +64,9 @@ export function SignupForm({
         }
       }
     } catch (err) {
-      setError("An unexpected error occurred. Please try again.")
+      setError("An unexpected error occurred. Please try again.");
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
   }
 
@@ -196,5 +185,5 @@ export function SignupForm({
         </Field>
       </FieldGroup>
     </form>
-  )
+  );
 }
