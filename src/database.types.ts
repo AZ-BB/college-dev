@@ -84,21 +84,21 @@ export type Database = {
           community_id: string
           id: string
           joined_at: string | null
-          role: string | null
+          role: Database["public"]["Enums"]["community_role"]
           user_id: string
         }
         Insert: {
           community_id: string
           id?: string
           joined_at?: string | null
-          role?: string | null
+          role?: Database["public"]["Enums"]["community_role"]
           user_id: string
         }
         Update: {
           community_id?: string
           id?: string
           joined_at?: string | null
-          role?: string | null
+          role?: Database["public"]["Enums"]["community_role"]
           user_id?: string
         }
         Relationships: [
@@ -157,33 +157,57 @@ export type Database = {
       users: {
         Row: {
           avatar_url: string | null
+          bio: string | null
           created_at: string | null
           email: string
+          facebook_url: string | null
           first_name: string | null
+          followers_count: number | null
+          following_count: number | null
           id: string
+          instagram_url: string | null
           last_name: string | null
           role: Database["public"]["Enums"]["roles"]
+          twitter_url: string | null
           updated_at: string | null
+          username: string | null
+          website_url: string | null
         }
         Insert: {
           avatar_url?: string | null
+          bio?: string | null
           created_at?: string | null
           email: string
+          facebook_url?: string | null
           first_name?: string | null
+          followers_count?: number | null
+          following_count?: number | null
           id: string
+          instagram_url?: string | null
           last_name?: string | null
           role?: Database["public"]["Enums"]["roles"]
+          twitter_url?: string | null
           updated_at?: string | null
+          username?: string | null
+          website_url?: string | null
         }
         Update: {
           avatar_url?: string | null
+          bio?: string | null
           created_at?: string | null
           email?: string
+          facebook_url?: string | null
           first_name?: string | null
+          followers_count?: number | null
+          following_count?: number | null
           id?: string
+          instagram_url?: string | null
           last_name?: string | null
           role?: Database["public"]["Enums"]["roles"]
+          twitter_url?: string | null
           updated_at?: string | null
+          username?: string | null
+          website_url?: string | null
         }
         Relationships: []
       }
@@ -195,6 +219,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
+      community_role: "owner" | "member"
       roles: "USER" | "ADMIN"
     }
     CompositeTypes: {
@@ -323,6 +348,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      community_role: ["owner", "member"],
       roles: ["USER", "ADMIN"],
     },
   },
