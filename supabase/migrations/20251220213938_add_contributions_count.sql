@@ -1,0 +1,1 @@
+ALTER TABLE users ADD COLUMN contributions_count INTEGER DEFAULT 0;
