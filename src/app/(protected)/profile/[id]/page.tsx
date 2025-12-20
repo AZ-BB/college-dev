@@ -6,7 +6,7 @@ export default function Profile() {
         <div className="w-full pt-6">
             <ContributionHeatmap />
 
-            <div className="flex items-center gap-4 mt-5">
+            <div className="items-center gap-4 mt-5 hidden sm:flex">
                 <div className="flex items-center gap-2">
                     <div className="w-[32px] h-[32px] bg-[#FEF0E7] rounded-[4px] flex items-center justify-center">
                         <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
