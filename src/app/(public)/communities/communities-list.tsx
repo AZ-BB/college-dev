@@ -163,7 +163,7 @@ export default function CommunitiesList({
           </h1>
           <p className="text-lg text-neutral-600 mb-8">
             Join outcome-driven communities or{" "}
-            <Link href="/create" className="text-orange-500 hover:underline">
+            <Link href="/create-community" className="text-orange-500 hover:underline">
               Create Yours Now
             </Link>
           </p>
