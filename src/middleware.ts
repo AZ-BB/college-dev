@@ -57,7 +57,7 @@ export async function middleware(request: NextRequest) {
     const isUserProfileComplete = await isProfileComplete(user.id) 
     if (isUserProfileComplete.data?.needsOnboarding) {
       return NextResponse.redirect(new URL('/onboarding', request.url))
-    } else if (pathname !== "/") {
+    } else if (pathname !== "/" && pathname !== "/communities" && pathname.startsWith("/communities/")) {
       return NextResponse.redirect(new URL('/', request.url))
     }
   }
