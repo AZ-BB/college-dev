@@ -1,23 +1,26 @@
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { Tables } from "@/database.types";
+import { formatFullName } from "@/lib/utils";
+import { format } from "date-fns";
 
-export default function UserProfileCard() {
+export default function UserProfileCard({ user }: { user: Tables<"users"> }) {
     return (
         <div className="w-full shadow-md p-6 rounded-3xl flex flex-col gap-5">
             <div>
                 <Avatar className="w-28 h-28 rounded-2xl">
-                    <AvatarImage src="https://github.com/shadcn.png" />
+                    <AvatarImage className="object-cover" src={user.avatar_url || ""} />
                     <AvatarFallback>CN</AvatarFallback>
                 </Avatar>
             </div>
 
             <div className="w-full space-y-2">
-                <h1 className="text-2xl font-bold">John Doe</h1>
-                <p className="text-base text-[#65707A] font-semibold tracking-wide">john@example.com</p>
+                <h1 className="text-2xl font-bold">{formatFullName(user.first_name || "", user.last_name || "")}</h1>
+                <p className="text-base text-[#65707A] font-semibold tracking-wide">{user.email}</p>
                 {/* Max ~50 words */}
                 <p className="text-base text-[#65707A] font-medium w-full">
-                    Hello, I’m john smith from USA. I’m interested in technology and AI that.
+                    {user.bio || "No bio"}
                 </p>
             </div>
 
@@ -40,22 +43,22 @@ export default function UserProfileCard() {
                     <path d="M6.22049 12.5249H6.22723" stroke="#65707A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                 </svg>
 
-                <p className="text-sm text-[#65707A] font-medium">joined Nov 15, 2025</p>
+                <p className="text-sm text-[#65707A] font-medium">joined {format(new Date(user.created_at || ""), "MMM d, yyyy")}</p>
             </div>
 
             <div className="flex items-center gap-2 justify-start">
                 <div className="flex items-center gap-2">
-                    <span className="text-xl font-bold tracking-tight">156</span>
+                    <span className="text-xl font-bold tracking-tight">{user.contributions_count || 0}</span>
                     <span className="text-sm text-[#65707A] font-medium">Contributions</span>
                 </div>
 
                 <div className="flex items-center gap-2">
-                    <span className="text-xl font-bold tracking-tight">60</span>
+                    <span className="text-xl font-bold tracking-tight">{user.followers_count || 0}</span>
                     <span className="text-sm text-[#65707A] font-medium">Followers</span>
                 </div>
 
                 <div className="flex items-center gap-2">
-                    <span className="text-xl font-bold tracking-tight">23</span>
+                    <span className="text-xl font-bold tracking-tight">{user.following_count || 0}</span>
                     <span className="text-sm text-[#65707A] font-medium">Following</span>
                 </div>
             </div>
