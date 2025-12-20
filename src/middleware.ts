@@ -37,8 +37,8 @@ export async function middleware(request: NextRequest) {
 
   // Define public routes that don't require authentication
 
-  const publicRoutes = ['/login', '/signup', '/auth/callback', '/auth', '/forget-password', '/auth/reset-password', '/']
-  const isPublicRoute = publicRoutes.includes(pathname)
+  const publicRoutes = ['/login', '/signup', '/auth/callback', '/auth', '/forget-password', '/auth/reset-password', '/', '/communities', '/communities/:slug']
+  const isPublicRoute = publicRoutes.includes(pathname) || pathname.startsWith('/communities/')
   
   // OAuth callback route needs special handling - always allow it through
   const isCallbackRoute = pathname.startsWith('/auth/callback')

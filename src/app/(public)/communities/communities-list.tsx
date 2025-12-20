@@ -203,7 +203,7 @@ export default function CommunitiesList({
           {currentCommunities.map((community) => (
             <Link
               key={community.id}
-              href={`/communities/${community.slug}`}
+              href={`/communities/${community.id}`}
               className="w-full max-w-[400px]"
             >
               <Card className="hover:shadow-lg transition-shadow shadow-none cursor-pointer h-full bg-white rounded-t-[15px] pt-0 w-full max-h-[344px]">

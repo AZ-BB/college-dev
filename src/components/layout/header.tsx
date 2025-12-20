@@ -80,7 +80,7 @@ export default function Header({ userData: initialUserData }: HeaderProps) {
   ]
 
   return (
-    <header className="sticky px-10 top-0 z-50 w-full border-b border-gray-200 bg-white/95 backdrop-blur">
+    <header className="sticky lg:px-10 top-0 z-50 w-full border-b border-gray-200 bg-white/95 backdrop-blur">
       <div className="container mx-auto px-4">
         <nav className="flex items-center justify-between h-16">
           {/* Logo */}
