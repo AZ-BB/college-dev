@@ -80,7 +80,8 @@ export default function Header({ userData: initialUserData }: HeaderProps) {
   ]
 
   return (
-    <header className="sticky lg:px-10 top-0 z-50 w-full border-b border-gray-200 bg-white/95 backdrop-blur">
+    <header className="sticky lg:px-10 top-0 z-50 w-full bg-white/95 backdrop-blur">
+
       <div className="container mx-auto px-4">
         <nav className="flex items-center justify-between h-16">
           {/* Logo */}
@@ -100,7 +101,7 @@ export default function Header({ userData: initialUserData }: HeaderProps) {
               <Link
                 key={link.href}
                 href={link.href}
-                className="text-gray-600 hover:text-gray-900 transition-colors font-medium"
+                className="text-icon-black text-lg hover:text-gray-900 transition-colors font-medium"
               >
                 {link.label}
               </Link>
