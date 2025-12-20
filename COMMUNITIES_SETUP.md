@@ -20,6 +20,8 @@ Stores all community information:
 - `currency` (TEXT) - Currency (default: INR)
 - `is_active` (BOOLEAN) - Whether community is active
 - `is_public` (BOOLEAN) - Whether community is publicly visible
+- `is_free` (BOOLEAN) - Whether community is free or paid
+- `audience_size` (TEXT) - Expected audience size (under_10k, 10k_to_100k, 100k_to_1m, over_1m)
 - `created_at` / `updated_at` (TIMESTAMP)
 
 ### 2. `community_members` Table
@@ -181,13 +183,43 @@ Check if you're authenticated and policies are correct:
 SELECT * FROM pg_policies WHERE tablename = 'communities';
 ```
 
+## Community Creation Flow
+
+The community creation flow is implemented as a multi-step form with three steps:
+
+### Step 1: Choose Plan
+Users can select between:
+- **Free Community**: No cost, create up to 10 free communities
+- **Paid Community**: 3% fee per paying member, create up to 10 paid communities
+
+### Step 2: Choose Name
+Users enter a community name (max 30 characters). The slug is automatically generated from the name.
+
+### Step 3: Choose Audience Size
+Users select their expected audience size:
+- Under 10K
+- 10K to 100K
+- 100K to 1m
+- Over 1m
+
+### Access Points
+Users can access the create community flow from:
+- Communities list page: Click "Create Yours Now" link in the header
+- User dropdown menu: Click "Create Community" option (when logged in)
+- Direct URL: `/create-community` (protected route)
+
+### Route: `/create-community`
+- Location: `src/app/(protected)/create-community/page.tsx`
+- Authentication required
+- Redirects to community page after creation
+
 ## Next Steps
 
 1. ✅ Run migrations
 2. ✅ Update TypeScript types
 3. ✅ Verify setup
-4. 🔄 Customize community data
-5. 🔄 Add community detail pages
-6. 🔄 Implement community creation form
+4. ✅ Implement community creation form
+5. 🔄 Customize community data
+6. 🔄 Add community detail pages
 7. 🔄 Add member management features
 

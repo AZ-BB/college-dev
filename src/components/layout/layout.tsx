@@ -31,7 +31,7 @@ export default function Layout({
     ]
 
     return (
-        <div className="min-h-screen bg-white text-neutral-900">
+        <div className="min-h-screen bg-white text-neutral-900 relative pb-10">
             {noHeaderFooterRoutes.includes(pathname) ? null : <Header userData={userData} />}
             <div className="mx-auto max-w-6xl px-4">{children}</div>
             {noHeaderFooterRoutes.includes(pathname) || noFooterRoutes.includes(pathname) ? null : <Footer />}

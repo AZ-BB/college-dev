@@ -16,6 +16,7 @@ export type Database = {
     Tables: {
       communities: {
         Row: {
+          audience_size: string | null
           avatar: string | null
           cover_image: string | null
           created_at: string | null
@@ -24,6 +25,7 @@ export type Database = {
           description: string | null
           id: string
           is_active: boolean | null
+          is_free: boolean | null
           is_public: boolean | null
           member_count: number | null
           name: string
@@ -32,6 +34,7 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          audience_size?: string | null
           avatar?: string | null
           cover_image?: string | null
           created_at?: string | null
@@ -40,6 +43,7 @@ export type Database = {
           description?: string | null
           id?: string
           is_active?: boolean | null
+          is_free?: boolean | null
           is_public?: boolean | null
           member_count?: number | null
           name: string
@@ -48,6 +52,7 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          audience_size?: string | null
           avatar?: string | null
           cover_image?: string | null
           created_at?: string | null
@@ -56,6 +61,7 @@ export type Database = {
           description?: string | null
           id?: string
           is_active?: boolean | null
+          is_free?: boolean | null
           is_public?: boolean | null
           member_count?: number | null
           name?: string

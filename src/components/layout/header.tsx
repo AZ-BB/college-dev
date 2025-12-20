@@ -80,7 +80,8 @@ export default function Header({ userData: initialUserData }: HeaderProps) {
   ]
 
   return (
-    <header className="sticky px-10 top-0 z-50 w-full border-gray-200 bg-white/95 backdrop-blur">
+    <header className="sticky lg:px-10 top-0 z-50 w-full bg-white/95 backdrop-blur">
+
       <div className="container mx-auto px-4">
         <nav className="flex items-center justify-between h-16">
           {/* Logo */}
@@ -230,6 +231,15 @@ export default function Header({ userData: initialUserData }: HeaderProps) {
                       <Link href="/settings" className="cursor-pointer">
                         <Settings className="mr-2 h-4 w-4" />
                         <span>Settings</span>
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild>
+                      <Link href="/create-community" className="cursor-pointer text-orange-600 font-medium">
+                        <svg className="mr-2 h-4 w-4" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M10 4V16M4 10H16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                        <span>Create Community</span>
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />

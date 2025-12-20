@@ -229,6 +229,8 @@ export async function createCommunity(
     price?: number
     currency?: string
     is_public?: boolean
+    is_free?: boolean
+    audience_size?: string
   }
 ) {
   const supabase = await createClient()

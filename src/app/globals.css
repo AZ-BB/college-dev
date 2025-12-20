@@ -71,7 +71,9 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
-  --color-icon-black: #0E1011
+  --color-icon-black: #0E1011;
+  --color-orange-primary: #F7670E;
+  --color-gray-primary: #485057;
 }
 
 :root {
