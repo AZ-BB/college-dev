@@ -57,9 +57,11 @@ export default async function ProfileLayout({ children, params }: { children: Re
             </div>
 
             <div className="w-[420px]">
-                <UserProfileCard 
-                    user={user}
-                />
+                {user && (
+                    <UserProfileCard
+                        user={user}
+                    />
+                )}
             </div>
         </div>
     )
