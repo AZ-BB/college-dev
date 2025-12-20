@@ -25,7 +25,7 @@ export default async function Memberships({ params }: { params: Promise<{ id: st
 
     return (
         <div>
-            <div className="grid grid-cols-2 gap-4 pt-10 space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-10 space-y-4">
                 {memberships?.map((membership) => (
                     <Link href={`/communities/${membership.community_id}`} className="flex gap-4" key={membership.community_id}>
                         <Avatar>
@@ -51,6 +51,12 @@ export default async function Memberships({ params }: { params: Promise<{ id: st
                         </div>
                     </Link>
                 ))}
+
+                {memberships?.length === 0 && (
+                    <div className="col-span-2 text-center text-sm text-[#65707A] font-medium">
+                        No memberships found
+                    </div>
+                )}
             </div>
         </div>
     )

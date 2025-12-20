@@ -42,9 +42,9 @@ export default async function ProfileLayout({ children, params }: { children: Re
     }
 
     return (
-        <div className="flex gap-20 pt-14">
-            <div className="w-[calc(100%-420px)]">
-                <h1 className="text-6xl font-bold font-generalSans mb-8">
+        <div className="flex flex-col-reverse sm:flex-row gap-2 sm:gap-20 pt-6 sm:pt-14 pb-10 sm:pb-0">
+            <div className="w-full sm:w-[calc(100%-420px)]">
+                <h1 className="text-6xl font-bold font-generalSans mb-8 hidden sm:block">
                     {formatFullName(user?.first_name || "", user?.last_name || "")}
                 </h1>
 
@@ -56,7 +56,7 @@ export default async function ProfileLayout({ children, params }: { children: Re
                 {children}
             </div>
 
-            <div className="w-[420px]">
+            <div className="w-full sm:w-[420px]">
                 {user && (
                     <UserProfileCard
                         user={user}
