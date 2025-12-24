@@ -4,7 +4,48 @@ import { GeneralResponse } from "@/utils/general-response";
 import { createSupabaseAdminServerClient, createSupabaseServerClient } from "@/utils/supabase-server";
 import config, { OAuthProvider } from "../../config"
 
-import { SystemRoles } from "@/enums/SystemRoles";
+/**
+ * Generate a unique username by checking if it already exists
+ * If the base username is taken, append a random number
+ */
+async function generateUniqueUsername(baseUsername: string, supabaseClient: any): Promise<string | null> {
+    try {
+        // Check if base username exists
+        const { data: existingUser } = await supabaseClient
+            .from("users")
+            .select("username")
+            .eq("username", baseUsername)
+            .single();
+
+        // If base username doesn't exist, use it
+        if (!existingUser) {
+            return baseUsername;
+        }
+
+        // Try adding random numbers until we find an available username
+        for (let i = 0; i < 10; i++) {
+            const randomNum = Math.floor(Math.random() * 10000);
+            const newUsername = `${baseUsername}${randomNum}`;
+
+            const { data: user } = await supabaseClient
+                .from("users")
+                .select("username")
+                .eq("username", newUsername)
+                .single();
+
+            if (!user) {
+                return newUsername;
+            }
+        }
+
+        // If we couldn't find a unique username after 10 attempts
+        return null;
+    } catch (error) {
+        // If there's an error checking for existing username, return null
+        console.error("Error generating unique username:", error);
+        return null;
+    }
+}
 
 export async function registerUser(formData: FormData): Promise<GeneralResponse<boolean>> {
     try {
@@ -18,7 +59,6 @@ export async function registerUser(formData: FormData): Promise<GeneralResponse<
         const supabaseAdmin = await createSupabaseAdminServerClient();
         const supabaseClient = await createSupabaseServerClient();
 
-
         const { data: isEmailExists } = await supabaseAdmin
             .from("users")
             .select("*")
@@ -29,6 +69,14 @@ export async function registerUser(formData: FormData): Promise<GeneralResponse<
             return { error: "Email already exists", statusCode: 400, data: false };
         }
 
+        // Generate a default username from email
+        const baseUsername = email.split('@')[0];
+        const uniqueUsername = await generateUniqueUsername(baseUsername, supabaseAdmin);
+
+        if (!uniqueUsername) {
+            return { error: "Unable to generate a unique username. Please try again.", statusCode: 400, data: false };
+        }
+
         // Email confirmation flow
         if (config.confirmation === 'email') {
             const { data, error } = await supabaseClient.auth.signUp({
@@ -36,9 +84,6 @@ export async function registerUser(formData: FormData): Promise<GeneralResponse<
                 password,
                 options: {
                     emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/auth/callback`,
-                    data: {
-                        role: SystemRoles.ADMIN
-                    }
                 }
             })
 
@@ -51,39 +96,26 @@ export async function registerUser(formData: FormData): Promise<GeneralResponse<
                 await supabaseAdmin.from("users").insert({
                     id: data.user?.id!,
                     email,
-                    role: SystemRoles.ADMIN
+                    username: uniqueUsername,
+                    first_name: "",
+                    last_name: "",
+                    is_active: false,
                 })
             }
-            catch (error) {
+            catch (error: any) {
                 // Cleanup: delete the auth user if database insert fails
                 await supabaseAdmin.auth.admin.deleteUser(data.user?.id!);
+                console.error("Error creating user in database:", error);
+                
+                // Check if it's a unique constraint violation on username
+                if (error.code === '23505' && error.message?.includes('username')) {
+                    return { error: "Username is already taken. Please try again.", statusCode: 400, data: false };
+                }
+                
                 return { error: "Failed to create user", statusCode: 400, data: false };
             }
 
             return { data: true, statusCode: 200, error: undefined, message: "Registration successful. Please check your email to confirm your account." };
-        }
-
-        // OTP confirmation flow
-        if (config.confirmation === 'otp') {
-            // Use Supabase's built-in OTP via email
-            const { data, error } = await supabaseClient.auth.signInWithOtp({
-                email,
-                options: {
-                    shouldCreateUser: true,
-                    data: {
-                        role: SystemRoles.ADMIN
-                    }
-                }
-            })
-
-            if (error) {
-                return { error: error.message, statusCode: 400, data: false };
-            }
-
-            // Note: User will be created in auth.users but not in public.users until OTP is verified
-            // We'll create the public.users record after OTP verification
-
-            return { data: true, statusCode: 200, error: undefined, message: "Registration successful. Please check your email for OTP code." };
         }
 
         // No confirmation flow
@@ -91,9 +123,6 @@ export async function registerUser(formData: FormData): Promise<GeneralResponse<
             email,
             password,
             email_confirm: true,
-            user_metadata: {
-                role: SystemRoles.ADMIN
-            }
         })
 
         if (error) {
@@ -102,15 +131,24 @@ export async function registerUser(formData: FormData): Promise<GeneralResponse<
 
         // Create user in database
         try {
-            const { data: userData, error: userError } = await supabaseAdmin.from('users').insert({
+            await supabaseAdmin.from('users').insert({
                 id: data.user?.id,
                 email: email,
-                role: SystemRoles.ADMIN
-                
+                username: uniqueUsername,
+                first_name: "",
+                last_name: "",
+                is_active: false,
             })
         }
-        catch (error) {
+        catch (error: any) {
             await supabaseAdmin.auth.admin.deleteUser(data.user?.id);
+            console.error("Error creating user in database:", error);
+            
+            // Check if it's a unique constraint violation on username
+            if (error.code === '23505' && error.message?.includes('username')) {
+                return { error: "Username is already taken. Please try again.", statusCode: 400, data: false };
+            }
+            
             return { error: "Failed to create user", statusCode: 400, data: false };
         }
 
@@ -229,14 +267,40 @@ export async function handleOAuthCallback(provider: string): Promise<GeneralResp
             return { data: false, statusCode: 200, error: undefined, message: "User already exists" };
         }
 
-        await supabase.from("users").insert({
-            id: user?.id!,
-            first_name: user?.user_metadata?.full_name?.split(' ')[0],
-            last_name: user?.user_metadata?.full_name?.split(' ')[1],
-            email: user?.email!,
-            avatar_url: user?.user_metadata?.avatar_url,
-            role: SystemRoles.USER
-        })
+        // Generate username from email or full name
+        const email = user?.email!;
+        const baseUsername = user?.user_metadata?.full_name?.split(' ')[0]?.toLowerCase() || email.split('@')[0];
+        const supabaseAdmin = await createSupabaseAdminServerClient();
+        const uniqueUsername = await generateUniqueUsername(baseUsername, supabaseAdmin);
+
+        if (!uniqueUsername) {
+            // If we can't generate a unique username, delete the OAuth user
+            await supabaseAdmin.auth.admin.deleteUser(user?.id!);
+            return { error: "Unable to generate a unique username. Please try again.", statusCode: 400, data: false };
+        }
+
+        try {
+            await supabase.from("users").insert({
+                id: user?.id!,
+                username: uniqueUsername,
+                first_name: user?.user_metadata?.full_name?.split(' ')[0] || "",
+                last_name: user?.user_metadata?.full_name?.split(' ')[1] || "",
+                email: email,
+                avatar_url: user?.user_metadata?.avatar_url,
+            })
+        }
+        catch (error: any) {
+            // Cleanup: delete the OAuth user if database insert fails
+            await supabaseAdmin.auth.admin.deleteUser(user?.id!);
+            console.error("Error creating user in database:", error);
+            
+            // Check if it's a unique constraint violation on username
+            if (error.code === '23505' && error.message?.includes('username')) {
+                return { error: "Username is already taken. Please try again.", statusCode: 400, data: false };
+            }
+            
+            return { error: "Failed to create user", statusCode: 400, data: false };
+        }
 
         return { data: true, statusCode: 200, error: undefined, message: "User created successfully" };
 
@@ -304,11 +368,33 @@ export async function verifyOTP(email: string, otpCode: string): Promise<General
             .single();
 
         if (!existingUser) {
-            await supabaseAdmin.from("users").insert({
-                id: data.user.id,
-                email: data.user.email!,
-                role: SystemRoles.ADMIN
-            });
+            const email = data.user.email!;
+            const baseUsername = email.split('@')[0];
+            const uniqueUsername = await generateUniqueUsername(baseUsername, supabaseAdmin);
+
+            if (!uniqueUsername) {
+                return { error: "Unable to generate a unique username. Please try again.", statusCode: 400, data: false };
+            }
+
+            try {
+                await supabaseAdmin.from("users").insert({
+                    id: data.user.id,
+                    email: email,
+                    username: uniqueUsername,
+                    first_name: "",
+                    last_name: "",
+                });
+            }
+            catch (error: any) {
+                console.error("Error creating user in database:", error);
+                
+                // Check if it's a unique constraint violation on username
+                if (error.code === '23505' && error.message?.includes('username')) {
+                    return { error: "Username is already taken. Please try again.", statusCode: 400, data: false };
+                }
+                
+                return { error: "Failed to create user during OTP verification", statusCode: 400, data: false };
+            }
         }
 
         return {
@@ -323,14 +409,14 @@ export async function verifyOTP(email: string, otpCode: string): Promise<General
     }
 }
 
-// Check if user profile is complete (has first_name and last_name)
+// Check if user profile is complete (has first_name, last_name, and username)
 export async function isProfileComplete(userId: string): Promise<GeneralResponse<{ isComplete: boolean; needsOnboarding: boolean }>> {
     try {
         const supabaseAdmin = await createSupabaseAdminServerClient();
         
         const { data: user, error } = await supabaseAdmin
             .from("users")
-            .select("first_name, last_name")
+            .select("first_name, last_name, username, is_active")
             .eq("id", userId)
             .single();
 
@@ -343,7 +429,7 @@ export async function isProfileComplete(userId: string): Promise<GeneralResponse
             };
         }
 
-        const isComplete = !!(user?.first_name && user?.last_name);
+        const isComplete = !!(user?.first_name && user?.last_name && user?.username && user?.is_active);
 
         return {
             data: { 
@@ -404,11 +490,12 @@ export async function uploadAvatar(file: File, userId: string): Promise<GeneralR
 }
 
 // Update user profile information
-export async function updateUserProfile(
+export async function completeUserProfile(
     firstName: string, 
     lastName: string, 
     bio: string, 
-    avatarUrl?: string
+    avatarUrl?: string,
+    username?: string
 ): Promise<GeneralResponse<boolean>> {
     try {
         const supabase = await createSupabaseServerClient();
@@ -428,7 +515,14 @@ export async function updateUserProfile(
         const updateData: any = {
             first_name: firstName,
             last_name: lastName,
+            bio: bio || undefined,
+            is_active: true,
         };
+
+        // Add username if provided
+        if (username) {
+            updateData.username = username;
+        }
 
         // Add avatar_url if provided
         if (avatarUrl) {

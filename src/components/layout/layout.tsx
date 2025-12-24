@@ -12,7 +12,6 @@ export default function Layout({
     userData: UserData | null
 }) {
     const pathname = usePathname();
-    console.log("pathname", pathname);
 
     const noHeaderFooterRoutes = [
         '/login',

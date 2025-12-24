@@ -30,7 +30,6 @@ export async function getCommunities() {
       creator:users(id, first_name, last_name, email, avatar_url)
     `
     )
-    .eq("is_active", true)
     .eq("is_public", true)
     .order("created_at", { ascending: false })
 
@@ -57,7 +56,6 @@ export async function getCommunityBySlug(slug: string) {
     `
     )
     .eq("slug", slug)
-    .eq("is_active", true)
     .single()
 
   if (error) {
@@ -83,7 +81,6 @@ export async function getCommunityById(id: string) {
     `
     )
     .eq("id", id)
-    .eq("is_active", true)
     .single()
 
   if (error) {
@@ -108,7 +105,6 @@ export async function searchCommunities(query: string) {
       creator:users(id, first_name, last_name, email, avatar_url)
     `
     )
-    .eq("is_active", true)
     .eq("is_public", true)
     .or(`name.ilike.%${query}%,description.ilike.%${query}%`)
     .order("member_count", { ascending: false })
@@ -182,7 +178,7 @@ export async function joinCommunity(userId: string, communityId: string) {
     .insert({
       user_id: userId,
       community_id: communityId,
-      role: "member",
+      role: "MEMBER",
     })
     .select()
     .single()
@@ -237,7 +233,7 @@ export async function createCommunity(
     .from("communities")
     .insert({
       ...community,
-      creator_id: userId,
+      created_by: userId,
     })
     .select()
     .single()
