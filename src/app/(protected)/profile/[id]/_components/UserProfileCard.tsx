@@ -66,16 +66,16 @@ export default function UserProfileCard({ user }: { user: Tables<"users"> }) {
 
                         <div className="w-full flex items-center gap-2">
                             <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M6 1.5V3.75" stroke="#65707A" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round" />
-                                <path d="M12 1.5V3.75" stroke="#65707A" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round" />
-                                <path d="M2.625 6.81738H15.375" stroke="#65707A" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round" />
-                                <path d="M15.75 6.375V12.75C15.75 15 14.625 16.5 12 16.5H6C3.375 16.5 2.25 15 2.25 12.75V6.375C2.25 4.125 3.375 2.625 6 2.625H12C14.625 2.625 15.75 4.125 15.75 6.375Z" stroke="#65707A" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round" />
-                                <path d="M11.7713 10.2749H11.778" stroke="#65707A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                                <path d="M11.7713 12.5249H11.778" stroke="#65707A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                                <path d="M8.99588 10.2749H9.00262" stroke="#65707A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                                <path d="M8.99588 12.5249H9.00262" stroke="#65707A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                                <path d="M6.22049 10.2749H6.22723" stroke="#65707A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                                <path d="M6.22049 12.5249H6.22723" stroke="#65707A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                <path d="M6 1.5V3.75" stroke="#65707A" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round" />
+                                <path d="M12 1.5V3.75" stroke="#65707A" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round" />
+                                <path d="M2.625 6.81738H15.375" stroke="#65707A" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round" />
+                                <path d="M15.75 6.375V12.75C15.75 15 14.625 16.5 12 16.5H6C3.375 16.5 2.25 15 2.25 12.75V6.375C2.25 4.125 3.375 2.625 6 2.625H12C14.625 2.625 15.75 4.125 15.75 6.375Z" stroke="#65707A" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round" />
+                                <path d="M11.7713 10.2749H11.778" stroke="#65707A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                <path d="M11.7713 12.5249H11.778" stroke="#65707A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                <path d="M8.99588 10.2749H9.00262" stroke="#65707A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                <path d="M8.99588 12.5249H9.00262" stroke="#65707A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                <path d="M6.22049 10.2749H6.22723" stroke="#65707A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                <path d="M6.22049 12.5249H6.22723" stroke="#65707A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                             </svg>
 
                             <p className="text-sm text-[#65707A] font-medium">joined {format(new Date(user.created_at || ""), "MMM d, yyyy")}</p>
@@ -100,15 +100,15 @@ export default function UserProfileCard({ user }: { user: Tables<"users"> }) {
 
                         <div className="w-full flex items-center gap-3 justify-start py-1">
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M14.9902 17.5H16.5002C19.5202 17.5 22.0002 15.03 22.0002 12C22.0002 8.98 19.5302 6.5 16.5002 6.5H14.9902" stroke="#292D32" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-                                <path d="M9 6.5H7.5C4.47 6.5 2 8.97 2 12C2 15.02 4.47 17.5 7.5 17.5H9" stroke="#292D32" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-                                <path d="M8 12H16" stroke="#292D32" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                                <path d="M14.9902 17.5H16.5002C19.5202 17.5 22.0002 15.03 22.0002 12C22.0002 8.98 19.5302 6.5 16.5002 6.5H14.9902" stroke="#292D32" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                                <path d="M9 6.5H7.5C4.47 6.5 2 8.97 2 12C2 15.02 4.47 17.5 7.5 17.5H9" stroke="#292D32" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                                <path d="M8 12H16" stroke="#292D32" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                             </svg>
 
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M9 22H15C20 22 22 20 22 15V9C22 4 20 2 15 2H9C4 2 2 4 2 9V15C2 20 4 22 9 22Z" stroke="#292D32" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-                                <path d="M12 15.5C13.933 15.5 15.5 13.933 15.5 12C15.5 10.067 13.933 8.5 12 8.5C10.067 8.5 8.5 10.067 8.5 12C8.5 13.933 10.067 15.5 12 15.5Z" stroke="#292D32" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-                                <path d="M17.6361 7H17.6477" stroke="#292D32" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                <path d="M9 22H15C20 22 22 20 22 15V9C22 4 20 2 15 2H9C4 2 2 4 2 9V15C2 20 4 22 9 22Z" stroke="#292D32" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                                <path d="M12 15.5C13.933 15.5 15.5 13.933 15.5 12C15.5 10.067 13.933 8.5 12 8.5C10.067 8.5 8.5 10.067 8.5 12C8.5 13.933 10.067 15.5 12 15.5Z" stroke="#292D32" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                                <path d="M17.6361 7H17.6477" stroke="#292D32" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                             </svg>
 
                             <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -121,7 +121,7 @@ export default function UserProfileCard({ user }: { user: Tables<"users"> }) {
                             </svg>
 
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M17 2H14C12.6739 2 11.4021 2.52678 10.4645 3.46447C9.52678 4.40215 9 5.67392 9 7V10H6V14H9V22H13V14H16L17 10H13V7C13 6.73478 13.1054 6.48043 13.2929 6.29289C13.4804 6.10536 13.7348 6 14 6H17V2Z" stroke="black" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                                <path d="M17 2H14C12.6739 2 11.4021 2.52678 10.4645 3.46447C9.52678 4.40215 9 5.67392 9 7V10H6V14H9V22H13V14H16L17 10H13V7C13 6.73478 13.1054 6.48043 13.2929 6.29289C13.4804 6.10536 13.7348 6 14 6H17V2Z" stroke="black" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                             </svg>
 
                         </div>
@@ -241,9 +241,9 @@ export default function UserProfileCard({ user }: { user: Tables<"users"> }) {
                             {user.website_url && (
                                 <a href={user.website_url} target="_blank" rel="noopener noreferrer" className="hover:opacity-70 transition-opacity">
                                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M14.9902 17.5H16.5002C19.5202 17.5 22.0002 15.03 22.0002 12C22.0002 8.98 19.5302 6.5 16.5002 6.5H14.9902" stroke="#292D32" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-                                        <path d="M9 6.5H7.5C4.47 6.5 2 8.97 2 12C2 15.02 4.47 17.5 7.5 17.5H9" stroke="#292D32" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-                                        <path d="M8 12H16" stroke="#292D32" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                                        <path d="M14.9902 17.5H16.5002C19.5202 17.5 22.0002 15.03 22.0002 12C22.0002 8.98 19.5302 6.5 16.5002 6.5H14.9902" stroke="#292D32" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                                        <path d="M9 6.5H7.5C4.47 6.5 2 8.97 2 12C2 15.02 4.47 17.5 7.5 17.5H9" stroke="#292D32" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                                        <path d="M8 12H16" stroke="#292D32" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                                     </svg>
                                 </a>
                             )}
@@ -251,9 +251,9 @@ export default function UserProfileCard({ user }: { user: Tables<"users"> }) {
                             {user.instagram_url && (
                                 <a href={user.instagram_url} target="_blank" rel="noopener noreferrer" className="hover:opacity-70 transition-opacity">
                                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M9 22H15C20 22 22 20 22 15V9C22 4 20 2 15 2H9C4 2 2 4 2 9V15C2 20 4 22 9 22Z" stroke="#292D32" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-                                        <path d="M12 15.5C13.933 15.5 15.5 13.933 15.5 12C15.5 10.067 13.933 8.5 12 8.5C10.067 8.5 8.5 10.067 8.5 12C8.5 13.933 10.067 15.5 12 15.5Z" stroke="#292D32" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-                                        <path d="M17.6361 7H17.6477" stroke="#292D32" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                        <path d="M9 22H15C20 22 22 20 22 15V9C22 4 20 2 15 2H9C4 2 2 4 2 9V15C2 20 4 22 9 22Z" stroke="#292D32" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                                        <path d="M12 15.5C13.933 15.5 15.5 13.933 15.5 12C15.5 10.067 13.933 8.5 12 8.5C10.067 8.5 8.5 10.067 8.5 12C8.5 13.933 10.067 15.5 12 15.5Z" stroke="#292D32" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                                        <path d="M17.6361 7H17.6477" stroke="#292D32" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                                     </svg>
                                 </a>
                             )}
@@ -274,7 +274,7 @@ export default function UserProfileCard({ user }: { user: Tables<"users"> }) {
                             {user.facebook_url && (
                                 <a href={user.facebook_url} target="_blank" rel="noopener noreferrer" className="hover:opacity-70 transition-opacity">
                                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M17 2H14C12.6739 2 11.4021 2.52678 10.4645 3.46447C9.52678 4.40215 9 5.67392 9 7V10H6V14H9V22H13V14H16L17 10H13V7C13 6.73478 13.1054 6.48043 13.2929 6.29289C13.4804 6.10536 13.7348 6 14 6H17V2Z" stroke="black" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                                        <path d="M17 2H14C12.6739 2 11.4021 2.52678 10.4645 3.46447C9.52678 4.40215 9 5.67392 9 7V10H6V14H9V22H13V14H16L17 10H13V7C13 6.73478 13.1054 6.48043 13.2929 6.29289C13.4804 6.10536 13.7348 6 14 6H17V2Z" stroke="black" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                                     </svg>
                                 </a>
                             )}
