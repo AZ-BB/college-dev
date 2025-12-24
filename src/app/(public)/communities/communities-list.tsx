@@ -163,7 +163,7 @@ export default function CommunitiesList({
           </h1>
           <p className="text-lg text-neutral-600 mb-8">
             Join outcome-driven communities or{" "}
-            <Link href="/create" className="text-orange-500 hover:underline">
+            <Link href="/create-community" className="text-orange-500 hover:underline">
               Create Yours Now
             </Link>
           </p>
@@ -203,7 +203,7 @@ export default function CommunitiesList({
           {currentCommunities.map((community) => (
             <Link
               key={community.id}
-              href={`/communities/${community.slug}`}
+              href={`/communities/${community.id}`}
               className="w-full max-w-[400px]"
             >
               <Card className="hover:shadow-lg transition-shadow shadow-none cursor-pointer h-full bg-white rounded-t-[15px] pt-0 w-full max-h-[344px]">

@@ -16,15 +16,18 @@ export type Database = {
     Tables: {
       communities: {
         Row: {
-          about: string | null
-          audience_size: Database["public"]["Enums"]["audience_size_enum"]
+          audience_size: string | null
+          avatar: string | null
           cover_image: string | null
-          created_at: string
-          created_by: string
-          description: string
-          id: number
-          is_public: boolean
-          member_count: number
+          created_at: string | null
+          creator_id: string
+          currency: string | null
+          description: string | null
+          id: string
+          is_active: boolean | null
+          is_free: boolean | null
+          is_public: boolean | null
+          member_count: number | null
           name: string
           price: number
           slug: string
@@ -32,15 +35,18 @@ export type Database = {
           updated_at: string
         }
         Insert: {
-          about?: string | null
-          audience_size?: Database["public"]["Enums"]["audience_size_enum"]
+          audience_size?: string | null
+          avatar?: string | null
           cover_image?: string | null
-          created_at?: string
-          created_by: string
-          description: string
-          id?: number
-          is_public?: boolean
-          member_count?: number
+          created_at?: string | null
+          creator_id: string
+          currency?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_free?: boolean | null
+          is_public?: boolean | null
+          member_count?: number | null
           name: string
           price?: number
           slug: string
@@ -48,15 +54,18 @@ export type Database = {
           updated_at?: string
         }
         Update: {
-          about?: string | null
-          audience_size?: Database["public"]["Enums"]["audience_size_enum"]
+          audience_size?: string | null
+          avatar?: string | null
           cover_image?: string | null
-          created_at?: string
-          created_by?: string
-          description?: string
-          id?: number
-          is_public?: boolean
-          member_count?: number
+          created_at?: string | null
+          creator_id?: string
+          currency?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_free?: boolean | null
+          is_public?: boolean | null
+          member_count?: number | null
           name?: string
           price?: number
           slug?: string

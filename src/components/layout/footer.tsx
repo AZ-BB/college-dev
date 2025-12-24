@@ -5,12 +5,12 @@ export default function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="mt-4 border-t border-gray-200 bg-white">
+    <footer className="mt-4 border-t border-gray-200 bg-white lg:absolute  bottom-0 w-full">
       <div className="container mx-auto px-4">
-        <div className="flex flex-col items-center gap-4 py-6 md:flex-row md:justify-between">
+        <div className="flex flex-col items-center gap-4 py-6 lg:flex-row md:justify-between">
 
           {/* Center: Logo + Links */}
-          <ul className="flex flex-wrap items-center justify-center gap-6 text-sm text-gray-600 mx-auto">
+          <ul className="flex flex-col lg:flex-row items-center justify-center gap-6 text-sm text-gray-600 mx-auto">
             <li>
               <Link href="/" className="flex items-center">
                 <Image
