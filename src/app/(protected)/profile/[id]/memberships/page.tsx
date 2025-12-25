@@ -1,3 +1,4 @@
+import { getUserJoinedCommunitiesByUsername } from "@/action/profile";
 import { AvatarImage } from "@/components/ui/avatar";
 import { getUserData } from "@/utils/get-user-data";
 import { createSupabaseServerClient } from "@/utils/supabase-server";
@@ -6,21 +7,12 @@ import Link from "next/link";
 
 export default async function Memberships({ params }: { params: Promise<{ id: string }> }) {
     const { id } = await params;
-    const supabase = await createSupabaseServerClient();
 
-    const { data: memberships, error } = await supabase
-        .from("community_members")
-        .select(`
-            community_id,
-            user_id,
-            communities!community_members_community_id_fkey(id, name, avatar, slug, member_count, is_public)
-            `)
-        .eq("user_id", id)
-        .order("joined_at", { ascending: true });
+    const { data: memberships, error: membershipsError } = await getUserJoinedCommunitiesByUsername(id);
 
-    if (error) {
-        console.error("Error fetching communities:", error);
-        return <div>Error fetching communities</div>;
+    if (membershipsError || !memberships) {
+        console.error("Error fetching communities:", membershipsError);
+        return <div className="text-center text-sm text-red-300 font-medium">Error fetching communities</div>;
     }
 
     return (
@@ -29,23 +21,23 @@ export default async function Memberships({ params }: { params: Promise<{ id: st
                 {memberships?.map((membership) => (
                     <Link href={`/communities/${membership.community_id}`} className="flex gap-4" key={membership.community_id}>
                         <Avatar>
-                            <AvatarImage className="w-[52px] h-[52px] rounded-lg" src={membership.communities.avatar || ""} />
+                            <AvatarImage className="w-[52px] h-[52px] rounded-lg" src={membership.community.avatar || ""} />
                             <AvatarFallback>
                                 <div className="w-[52px] h-[52px] flex items-center justify-center rounded-lg border border-[#DDDDDD] bg-[#0D121C] text-[#F8FAFC]">
-                                    {membership.communities.name.charAt(0).toUpperCase()}
+                                    {membership.community.name.charAt(0).toUpperCase()}
                                 </div>
                             </AvatarFallback>
                         </Avatar>
 
                         <div className="space-y-2">
-                            <h2 className="text-sm font-bold">{membership.communities.name}</h2>
-                            <p className="text-sm text-[#485057] font-medium flex items-center">
+                            <h2 className="text-sm font-bold">{membership.community.name}</h2>
+                            <p className="text-sm text-gray-primaryfont-medium flex items-center">
                                 <span>
-                                    {membership.communities.member_count} members
+                                    {membership.community.member_count} members
                                 </span>
                                 <div className="w-1 h-1 rounded-full bg-[#CBCFD4] mx-1" />
                                 <span>
-                                    {membership.communities.is_public ? "Free" : "Paid"}
+                                    {membership.community.is_public ? "Free" : "Paid"}
                                 </span>
                             </p>
                         </div>
