@@ -3,14 +3,9 @@ import { Geist, Geist_Mono, Instrument_Sans, } from "next/font/google";
 import "@/app/globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { RoleProvider } from "@/contexts/role-context";
-import { getUserRole } from "@/utils/get-user-role";
 import { getUserData } from "@/utils/get-user-data";
-import { createSupabaseServerClient } from "@/utils/supabase-server";
-import Footer from "../components/layout/footer";
-import Header from "../components/layout/header";
-import { headers } from "next/headers";
 import Layout from "@/components/layout/layout";
-import { SystemRoles } from "@/enums/SystemRoles";
+import { SystemRoles } from "@/enums/enums";
 
 
 const instrumentSans = Instrument_Sans({
