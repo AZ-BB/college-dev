@@ -10,6 +10,7 @@ import Footer from "../components/layout/footer";
 import Header from "../components/layout/header";
 import { headers } from "next/headers";
 import Layout from "@/components/layout/layout";
+import { SystemRoles } from "@/enums/SystemRoles";
 
 
 const instrumentSans = Instrument_Sans({
@@ -53,7 +54,6 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const userRole = await getUserRole();
   const userData = await getUserData();
 
 
@@ -68,7 +68,7 @@ export default async function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <RoleProvider initialRole={userRole}>
+          <RoleProvider initialRole={SystemRoles.USER}>
             <Layout userData={userData}>
               {children}
             </Layout>

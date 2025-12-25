@@ -13,7 +13,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { AlertCircle } from "lucide-react"
-import { updateUserProfile, uploadAvatar } from "@/action/auth"
+import { completeUserProfile, uploadAvatar } from "@/action/auth"
 import { createSupabaseBrowserClient } from "@/utils/supabase-browser"
 
 export function OnboardingForm({
@@ -89,7 +89,7 @@ export function OnboardingForm({
       }
 
       // Update user profile
-      const result = await updateUserProfile(firstName, lastName, bio, avatarUrl)
+      const result = await completeUserProfile(firstName, lastName, bio, avatarUrl)
       
       if (result.error) {
         setError(result.error)

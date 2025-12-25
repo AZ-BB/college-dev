@@ -1,4 +1,7 @@
-import React from 'react';
+"use client"
+import React, { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 
 const colors = [
     "#FEF0E7",
@@ -21,6 +24,7 @@ const getDaysInMonth = (monthIndex: number, year: number) => {
 
 const ContributionHeatmap = () => {
     const year = 2025;
+    const [isExpanded, setIsExpanded] = useState(false);
 
     // Generate mock data for each day of the year
     const generateMockActivity = (monthIndex: number, day: number) => {
@@ -33,21 +37,32 @@ const ContributionHeatmap = () => {
     };
 
     return (
-        <div className="w-full">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-12 gap-y-8">
+        <div className="w-full flex flex-col-reverse sm:flex-col">
+            {!isExpanded && (
+                <div className="sm:hidden mt-4">
+                    <button
+                        className="text-sm font-semibold text-[#F9853E] border-[#F9853E] hover:bg-[#FEF0E7] hover:text-[#E15E0D] h-11"
+                        onClick={() => setIsExpanded(true)}>
+                        Show More
+                    </button>
+                </div>
+            )}
+
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-x-4 sm:gap-x-12 gap-y-8">
                 {months.map((month, monthIndex) => {
                     const daysInMonth = getDaysInMonth(monthIndex, year);
-                    
+                    const isHiddenOnMobile = !isExpanded && monthIndex >= 2;
+
                     return (
-                        <div key={month} className="flex flex-col gap-3">
+                        <div key={month} className={cn("flex flex-col gap-3", isHiddenOnMobile ? "hidden sm:flex" : "flex")}>
                             <span className="text-sm font-semibold text-[#0F172A] font-generalSans">{month}</span>
-                            <div className="grid grid-cols-7 gap-1">
+                            <div className="grid grid-cols-7 gap-1 w-fit">
                                 {/* Squares for each day of the month */}
                                 {Array.from({ length: daysInMonth }).map((_, i) => {
                                     const day = i + 1;
                                     const level = generateMockActivity(monthIndex, day);
                                     const backgroundColor = level === 0 ? emptyColor : colors[level - 1];
-                                    
+
                                     return (
                                         <div
                                             key={day}
@@ -63,7 +78,7 @@ const ContributionHeatmap = () => {
                 })}
             </div>
 
-            <div className="mt-12 flex items-center justify-between text-sm text-[#94A3B8]">
+            <div className="sm:mt-12 mb-4 sm:mb-0 space-y-2 sm:space-y-0 flex-col sm:flex items-start justify-between text-sm text-[#94A3B8]">
                 <div className="font-medium text-[#64748B]">
                     Comments and posts by John
                 </div>
