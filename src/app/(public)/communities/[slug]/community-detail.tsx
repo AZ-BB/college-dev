@@ -308,15 +308,15 @@ export default function CommunityDetailPage({
                   </svg>
 
                   <span className="font-medium">
-                    {community.price && community.currency
-                      ? formatPrice(Number(community.price), community.currency)
+                    {community.price
+                      ? formatPrice(Number(community.price), "INR")
                       : "Free"}
                   </span>
                 </div>
 
                 <div className="flex items-center gap-2 text-sm">
                   <Avatar className="w-[24px] h-[24px]">
-                    {community.creator?.avatar_url ? (
+                    {/* {community.created_by ? (
                       <AvatarImage
                         className="w-full h-full object-cover"
                         src={community.creator?.avatar_url}
@@ -328,11 +328,11 @@ export default function CommunityDetailPage({
                           ?.charAt(0)
                           .toUpperCase() || "Unknown"}
                       </div>
-                    )}
+                    )} */}
                   </Avatar>
                   <span className="font-medium">
-                    By {community.creator?.first_name || "Unknown"}{" "}
-                    {community.creator?.last_name || ""}
+                    {/* By {community.created_by?.first_name || "Unknown"}{" "}
+                    {community.created_by?.last_name || ""} */}
                   </span>
                 </div>
               </div>
@@ -352,7 +352,7 @@ export default function CommunityDetailPage({
               <div className="lg:hidden mb-6">
                 {/* Creator Info */}
                 <div className="flex items-center gap-2 mb-4">
-                  <Avatar className="w-[24px] h-[24px]">
+                  {/* <Avatar className="w-[24px] h-[24px]">
                     {community.creator?.avatar_url ? (
                       <AvatarImage
                         className="w-full h-full object-cover"
@@ -370,7 +370,7 @@ export default function CommunityDetailPage({
                   <span className="text-sm text-gray-700">
                     By {community.creator?.first_name || "Unknown"}{" "}
                     {community.creator?.last_name || ""}
-                  </span>
+                  </span> */}
                 </div>
 
                 {/* Start Here Links */}
@@ -419,8 +419,8 @@ export default function CommunityDetailPage({
                 {/* Join Button */}
                 <Button className="w-full bg-orange-primary hover:bg-orange-primary/90 text-white font-semibold text-base h-[52px] rounded-2xl mb-3">
                   Join For{" "}
-                  {community.price && community.currency
-                    ? formatPrice(Number(community.price), community.currency)
+                  {community.price
+                    ? formatPrice(Number(community.price), "INR")
                     : "Free"}
                 </Button>
 
@@ -715,8 +715,8 @@ export default function CommunityDetailPage({
             </div>
             <Button className="w-full bg-orange-primary text-xs hover:bg-orange-primary/90 cursor-pointer font-semibold text-white mt-6 h-[45px] rounded-[16px]">
               Join For{" "}
-              {community.price && community.currency
-                ? formatPrice(Number(community.price), community.currency)
+              {community.price
+                ? formatPrice(Number(community.price), "INR")
                 : "Free"}
             </Button>
             <Button className="w-full text-black bg-[#F4F4F6] text-xs hover:bg-[#bbbbc4] cursor-pointer font-semibold mt-3 h-[45px] rounded-[16px]">
