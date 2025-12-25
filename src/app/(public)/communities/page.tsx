@@ -1,4 +1,4 @@
-import { getCommunities, searchCommunities } from "@/action/communities"
+import { getCommunities } from "@/action/communities"
 import CommunitiesList from "./communities-list"
 
 export const metadata = {
@@ -18,12 +18,13 @@ export default async function CommunitiesPage({ searchParams }: PageProps) {
 
   // Fetch communities based on search query
   const communities = query
-    ? await searchCommunities(query)
+    // ? await searchCommunities(query)
+    ? ""
     : await getCommunities()
 
   return (
     <CommunitiesList
-      initialCommunities={communities}
+      initialCommunities={communities || []}
       initialQuery={query}
       initialPage={page}
     />

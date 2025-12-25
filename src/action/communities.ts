@@ -1,4 +1,10 @@
 "use server"
-import { createSupabaseServerClient as createClient } from "@/utils/supabase-server"
-import { Database, Tables } from "@/database.types"
 
+export async function getCommunities() {
+  try {
+
+  }
+  catch (error) {
+    console.error("Error fetching communities:", error)
+  }
+}
