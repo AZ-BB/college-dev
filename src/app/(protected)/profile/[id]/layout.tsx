@@ -7,16 +7,18 @@ import { createSupabaseServerClient } from "@/utils/supabase-server";
 import { getUserData, UserData } from "@/utils/get-user-data";
 import { formatFullName } from "@/lib/utils";
 import getUserProfileByUsername from "@/action/profile";
+import { notFound } from "next/navigation";
+import NotFound from "./not-found";
 
 export default async function ProfileLayout({ children, params }: { children: React.ReactNode, params: Promise<{ id: string }> }) {
 
     const { id } = await params;
     const supabase = await createSupabaseServerClient();
 
-   const { data: user, error: userError } = await getUserProfileByUsername(id);
+    const { data: user, error: userError } = await getUserProfileByUsername(id);
 
-    if (userError) {
-        return <div>Error fetching user profile</div>;
+    if (!user) {
+        return <NotFound />;
     }
 
 
