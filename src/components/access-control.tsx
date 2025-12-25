@@ -1,6 +1,6 @@
 "use client"
 
-import { SystemRoles } from "@/enums/SystemRoles"
+import { SystemRoles } from "@/enums/enums"
 import { useUserRole } from "@/contexts/role-context"
 
 interface AccessControlProps {
