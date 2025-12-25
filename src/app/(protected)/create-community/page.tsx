@@ -5,13 +5,12 @@ import { useRouter } from "next/navigation"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { createCommunity } from "@/action/communities"
 import { getUserData } from "@/utils/get-user-data"
 import { CheckCircle2 } from "lucide-react"
 import Check from "@/components/icons/check"
+import { AudienceSize } from "@/enums/enums"
 
 type PlanType = "free" | "paid"
-type AudienceSize = "under_10k" | "10k_to_100k" | "100k_to_1m" | "over_1m"
 
 interface CommunityFormData {
   plan: PlanType | null
@@ -63,13 +62,16 @@ export default function CreateCommunityPage() {
         .replace(/^-|-$/g, "")
 
       // Create the community
-      const result = await createCommunity(userData.id, {
-        name: formData.name,
-        slug,
-        is_free: formData.plan === "free",
-        audience_size: formData.audienceSize,
-        is_public: true,
-      })
+      // const result = await createCommunity(userData.id, {
+      //   name: formData.name,
+      //   slug,
+      //   is_free: formData.plan === "free",
+      //   audience_size: formData.audienceSize,
+      //   is_public: true,
+      // })
+
+      let result
+        : any = {}
 
       if (result.success && result.data) {
         // Redirect to the community page
@@ -212,39 +214,39 @@ export default function CreateCommunityPage() {
                     <path
                       d="M14.0003 14.0002C17.222 14.0002 19.8337 11.3885 19.8337 8.16683C19.8337 4.94517 17.222 2.3335 14.0003 2.3335C10.7787 2.3335 8.16699 4.94517 8.16699 8.16683C8.16699 11.3885 10.7787 14.0002 14.0003 14.0002Z"
                       stroke="#F7670E"
-                      stroke-width="1.5"
-                      stroke-linecap="round"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
                       stroke-linejoin="round"
                     />
                     <path
                       d="M3.97852 25.6667C3.97852 21.1517 8.47018 17.5 14.0002 17.5C15.1202 17.5 16.2052 17.6517 17.2202 17.9317"
                       stroke="#F7670E"
-                      stroke-width="1.5"
-                      stroke-linecap="round"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
                       stroke-linejoin="round"
                     />
                     <path
                       d="M25.6663 21.0002C25.6663 21.3735 25.6197 21.7352 25.5263 22.0852C25.4213 22.5518 25.2347 23.0068 24.9897 23.4035C24.1847 24.7568 22.703 25.6668 20.9997 25.6668C19.798 25.6668 18.713 25.2118 17.8963 24.4651C17.5463 24.1618 17.243 23.8002 17.0097 23.4035C16.578 22.7035 16.333 21.8752 16.333 21.0002C16.333 19.7402 16.8347 18.5852 17.6513 17.7452C18.503 16.8702 19.693 16.3335 20.9997 16.3335C22.3763 16.3335 23.6247 16.9285 24.4647 17.8852C25.2113 18.7135 25.6663 19.8102 25.6663 21.0002Z"
                       stroke="#F7670E"
-                      stroke-width="1.5"
+                      strokeWidth="1.5"
                       stroke-miterlimit="10"
-                      stroke-linecap="round"
+                      strokeLinecap="round"
                       stroke-linejoin="round"
                     />
                     <path
                       d="M22.7384 20.9766H19.2617"
                       stroke="#F7670E"
-                      stroke-width="1.5"
+                      strokeWidth="1.5"
                       stroke-miterlimit="10"
-                      stroke-linecap="round"
+                      strokeLinecap="round"
                       stroke-linejoin="round"
                     />
                     <path
                       d="M21 19.2734V22.7618"
                       stroke="#F7670E"
-                      stroke-width="1.5"
+                      strokeWidth="1.5"
                       stroke-miterlimit="10"
-                      stroke-linecap="round"
+                      strokeLinecap="round"
                       stroke-linejoin="round"
                     />
                   </svg>
@@ -312,43 +314,43 @@ export default function CreateCommunityPage() {
                     <path
                       d="M20.9998 8.3535C20.9298 8.34183 20.8481 8.34183 20.7781 8.3535C19.1681 8.29517 17.8848 6.97683 17.8848 5.3435C17.8848 3.67516 19.2264 2.3335 20.8948 2.3335C22.5631 2.3335 23.9048 3.68683 23.9048 5.3435C23.8931 6.97683 22.6098 8.29517 20.9998 8.3535Z"
                       stroke="#F7670E"
-                      stroke-width="1.5"
-                      stroke-linecap="round"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
                       stroke-linejoin="round"
                     />
                     <path
                       d="M19.7977 16.847C21.396 17.1154 23.1577 16.8353 24.3944 16.007C26.0394 14.9103 26.0394 13.1137 24.3944 12.017C23.146 11.1887 21.361 10.9087 19.7627 11.1887"
                       stroke="#F7670E"
-                      stroke-width="1.5"
-                      stroke-linecap="round"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
                       stroke-linejoin="round"
                     />
                     <path
                       d="M6.96457 8.3535C7.03457 8.34183 7.11624 8.34183 7.18624 8.3535C8.79624 8.29517 10.0796 6.97683 10.0796 5.3435C10.0796 3.67516 8.73791 2.3335 7.06957 2.3335C5.40124 2.3335 4.05957 3.68683 4.05957 5.3435C4.07124 6.97683 5.35457 8.29517 6.96457 8.3535Z"
                       stroke="#F7670E"
-                      stroke-width="1.5"
-                      stroke-linecap="round"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
                       stroke-linejoin="round"
                     />
                     <path
                       d="M8.16635 16.847C6.56802 17.1154 4.80635 16.8353 3.56969 16.007C1.92469 14.9103 1.92469 13.1137 3.56969 12.017C4.81802 11.1887 6.60302 10.9087 8.20135 11.1887"
                       stroke="#F7670E"
-                      stroke-width="1.5"
-                      stroke-linecap="round"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
                       stroke-linejoin="round"
                     />
                     <path
                       d="M13.9998 17.0683C13.9298 17.0567 13.8481 17.0567 13.7781 17.0683C12.1681 17.01 10.8848 15.6917 10.8848 14.0583C10.8848 12.39 12.2264 11.0483 13.8948 11.0483C15.5631 11.0483 16.9048 12.4017 16.9048 14.0583C16.8931 15.6917 15.6098 17.0217 13.9998 17.0683Z"
                       stroke="#F7670E"
-                      stroke-width="1.5"
-                      stroke-linecap="round"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
                       stroke-linejoin="round"
                     />
                     <path
                       d="M10.6048 20.7434C8.95984 21.8401 8.95984 23.6367 10.6048 24.7334C12.4715 25.9817 15.5282 25.9817 17.3948 24.7334C19.0398 23.6367 19.0398 21.8401 17.3948 20.7434C15.5398 19.5068 12.4715 19.5068 10.6048 20.7434Z"
                       stroke="#F7670E"
-                      stroke-width="1.5"
-                      stroke-linecap="round"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
                       stroke-linejoin="round"
                     />
                   </svg>
@@ -367,10 +369,10 @@ export default function CreateCommunityPage() {
 
             <div className="space-y-3 lg:w-1/3 w-full">
               {[
-                { value: "under_10k", label: "Under 10 K" },
-                { value: "10k_to_100k", label: "10K to 100K" },
-                { value: "100k_to_1m", label: "100K to 1m" },
-                { value: "over_1m", label: "Over 1m" },
+                { value: AudienceSize.UNDER_10K, label: "Under 10 K" },
+                { value: AudienceSize._10K_TO_100K, label: "10K to 100K" },
+                { value: AudienceSize._100K_TO_1M, label: "100K to 1m" },
+                { value: AudienceSize.OVER_1M, label: "Over 1m" },
               ].map((option) => {
                 const isSelected = formData.audienceSize === option.value
                 return (
@@ -381,18 +383,16 @@ export default function CreateCommunityPage() {
                     }
                     disabled={isLoading}
                     className={`cursor-pointer border-2 w-full text-sm h-10 text-[#2B3034] bg-[#F4F4F6] px-3 rounded-lg hover:border-icon-black
-                         hover:bg-icon-black/10 transition-all text-left font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center ${
-                           isSelected ? "border-icon-black " : ""
-                         }`}
+                         hover:bg-icon-black/10 transition-all text-left font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center ${isSelected ? "border-icon-black " : ""
+                      }`}
                   >
                     <span
-                      className={`w-4 h-4 rounded-full flex items-center justify-center border-2 mr-2 ${
-                        isSelected
-                          ? "border-icon-black"
-                          : "border-gray-400"
-                      }`}
+                      className={`w-4 h-4 rounded-full flex items-center justify-center border-2 mr-2 ${isSelected
+                        ? "border-icon-black"
+                        : "border-gray-400"
+                        }`}
                     >
-                        {isSelected && <span className="w-2 h-2 rounded-full bg-icon-black"></span>}
+                      {isSelected && <span className="w-2 h-2 rounded-full bg-icon-black"></span>}
                     </span>
                     {option.label}
                   </button>
