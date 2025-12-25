@@ -21,7 +21,7 @@ export default function ProfileTabs({ userId, ownershipsCount, membershipsCount 
     };
 
     return (
-        <Tabs value={getCurrentTab()} className="w-full overflow-x-scroll">
+        <Tabs value={getCurrentTab()} className="w-full lg:overflow-hidden overflow-x-scroll">
             <TabsList variant="underline">
                 <TabsTrigger value="activity">
                     <Link href={`/profile/${userId}`}>
