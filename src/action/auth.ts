@@ -152,6 +152,11 @@ export async function registerUser(formData: FormData): Promise<GeneralResponse<
             return { error: "Failed to create user", statusCode: 400, data: false };
         }
 
+        await supabaseClient.auth.signInWithPassword({
+            email,
+            password,
+        })
+
         return { data: true, statusCode: 200, error: undefined, message: "Registration successful" };
     }
     catch (error) {
