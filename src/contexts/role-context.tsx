@@ -1,6 +1,6 @@
 "use client"
 
-import { SystemRoles } from "@/enums/SystemRoles"
+import { SystemRoles } from "@/enums/enums"
 import { createContext, useContext, ReactNode } from "react"
 
 interface RoleContextType {
