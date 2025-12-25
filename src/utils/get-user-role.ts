@@ -1,4 +1,4 @@
-import { SystemRoles } from "@/enums/SystemRoles"
+import { SystemRoles } from "@/enums/enums"
 import { createSupabaseServerClient } from "@/utils/supabase-server"
 
 // export async function getUserRole(): Promise<SystemRoles | null> {
