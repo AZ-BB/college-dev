@@ -37,7 +37,7 @@ export async function middleware(request: NextRequest) {
 
   // Define public routes that don't require authentication
 
-  const publicRoutes = ['/login', '/signup', '/auth/callback', '/auth', '/forget-password', '/auth/reset-password', '/', '/communities', '/communities/:slug']
+  const publicRoutes = ['/login', '/signup', '/auth/callback', '/auth', '/forget-password', '/auth/reset-password', '/', '/communities']
   const isPublicRoute = publicRoutes.includes(pathname) || pathname.startsWith('/communities/')
   
   // OAuth callback route needs special handling - always allow it through
@@ -57,7 +57,7 @@ export async function middleware(request: NextRequest) {
     const isUserProfileComplete = await isProfileComplete(user.id) 
     if (isUserProfileComplete.data?.needsOnboarding) {
       return NextResponse.redirect(new URL('/onboarding', request.url))
-    } else if (pathname !== "/" && pathname !== "/communities" && pathname.startsWith("/communities/")) {
+    } else if (pathname !== "/" && pathname !== "/communities" && !pathname.startsWith("/communities/")) {
       return NextResponse.redirect(new URL('/', request.url))
     }
   }

@@ -1,14 +1,11 @@
 "use client"
 
 import { useState } from "react"
-import { useRouter } from "next/navigation"
-import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { getUserData } from "@/utils/get-user-data"
-import { CheckCircle2 } from "lucide-react"
 import Check from "@/components/icons/check"
 import { AudienceSize } from "@/enums/enums"
+import { createCommunity } from "@/action/communities"
 
 type PlanType = "free" | "paid"
 
@@ -19,7 +16,6 @@ interface CommunityFormData {
 }
 
 export default function CreateCommunityPage() {
-  const router = useRouter()
   const [step, setStep] = useState(1)
   const [isLoading, setIsLoading] = useState(false)
   const [formData, setFormData] = useState<CommunityFormData>({
@@ -44,44 +40,31 @@ export default function CreateCommunityPage() {
   }
 
   const handleCreateCommunity = async () => {
-    if (!formData.audienceSize) return
+    if (!formData.audienceSize || !formData.name.trim()) return
 
     setIsLoading(true)
 
     try {
-      // Get current user
-      const userData = await getUserData()
-      if (!userData) {
-        throw new Error("User not authenticated")
+      const result = await createCommunity({
+        name: formData.name.trim(),
+        audience_size: formData.audienceSize,
+      })
+
+      // If there's an error, handle it
+      if (result.error) {
+        throw new Error(result.message || "Failed to create community")
       }
 
-      // Create slug from name
-      const slug = formData.name
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, "-")
-        .replace(/^-|-$/g, "")
-
-      // Create the community
-      // const result = await createCommunity(userData.id, {
-      //   name: formData.name,
-      //   slug,
-      //   is_free: formData.plan === "free",
-      //   audience_size: formData.audienceSize,
-      //   is_public: true,
-      // })
-
-      let result
-        : any = {}
-
-      if (result.success && result.data) {
-        // Redirect to the community page
-        router.push(`/communities/${result.data.id}`)
-      } else {
-        throw new Error(result.error || "Failed to create community")
-      }
+      // If successful, the server action will redirect automatically
+      // Next.js handles redirect() errors internally, so we won't reach here on success
     } catch (error) {
+      // Ignore redirect errors (Next.js handles them automatically)
+      if (error && typeof error === 'object' && 'digest' in error && String(error.digest).startsWith('NEXT_REDIRECT')) {
+        return
+      }
+      
       console.error("Error creating community:", error)
-      alert("Failed to create community. Please try again.")
+      alert(error instanceof Error ? error.message : "Failed to create community. Please try again.")
       setIsLoading(false)
     }
   }

@@ -17,14 +17,18 @@ export default async function CommunitiesPage({ searchParams }: PageProps) {
   const page = Number(params.page) || 1
 
   // Fetch communities based on search query
-  const communities = query
-    // ? await searchCommunities(query)
-    ? ""
-    : await getCommunities()
+  const communities = await getCommunities({
+    search: query,
+    page: page,
+  })
+
+  if (communities.error) {
+    return <div>Error: {communities.message}</div>
+  }
 
   return (
     <CommunitiesList
-      initialCommunities={communities || []}
+      initialCommunities={communities.data?.communities || []}
       initialQuery={query}
       initialPage={page}
     />

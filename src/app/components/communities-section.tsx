@@ -1,4 +1,3 @@
-import { getCommunities } from "@/action/communities"
 import {
   Card,
   CardContent,
@@ -14,11 +13,10 @@ import { formatPrice, formatMemberCount } from "@/utils/communities"
 
 export default async function CommunitiesSection() {
   // Fetch communities
-  const communities = await getCommunities()
-  
-  // Show only first 6 communities for the landing page
-  const displayCommunities = communities.slice(0, 6)
+  const communities = []
 
+  // Show only first 6 communities for the landing page
+  const displayCommunities: any = []
   if (displayCommunities.length === 0) {
     return null
   }
@@ -41,7 +39,7 @@ export default async function CommunitiesSection() {
 
         {/* Communities Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 lg:gap-10 justify-items-center">
-          {displayCommunities.map((community) => (
+          {displayCommunities.map((community: any) => (
             <Link
               key={community.id}
               href={`/communities/${community.slug}`}

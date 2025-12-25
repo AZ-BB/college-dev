@@ -23,11 +23,11 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination"
 import Image from "next/image"
-import { Community } from "@/action/communities"
+import { Tables } from "@/database.types"
 import { formatPrice, formatMemberCount } from "@/utils/communities"
 
 interface CommunitiesListProps {
-  initialCommunities: Community[]
+  initialCommunities: Tables<"communities">[]
   initialQuery?: string
   initialPage?: number
 }
@@ -145,7 +145,7 @@ export default function CommunitiesList({
   useEffect(() => {
     const query = searchParams.get("q") || ""
     const page = Number(searchParams.get("page")) || 1
-    
+
     setSearchQuery(query)
     setCurrentPage(page)
   }, [searchParams])
@@ -196,14 +196,13 @@ export default function CommunitiesList({
 
         {/* Communities Grid */}
         <div
-          className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 lg:gap-10 justify-items-center transition-opacity ${
-            isPending ? "opacity-50" : "opacity-100"
-          }`}
+          className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 lg:gap-10 justify-items-center transition-opacity ${isPending ? "opacity-50" : "opacity-100"
+            }`}
         >
           {currentCommunities.map((community) => (
             <Link
               key={community.id}
-              href={`/communities/${community.id}`}
+              href={`/communities/${community.slug}`}
               className="w-full max-w-[400px]"
             >
               <Card className="hover:shadow-lg transition-shadow shadow-none cursor-pointer h-full bg-white rounded-t-[15px] pt-0 w-full max-h-[344px]">
@@ -335,8 +334,8 @@ export default function CommunitiesList({
                       </svg>
 
                       <span>
-                        {community.price && community.currency
-                          ? formatPrice(Number(community.price), community.currency)
+                        {community.price
+                          ? formatPrice(Number(community.price), "INR")
                           : "Free"}
                       </span>
                     </div>
