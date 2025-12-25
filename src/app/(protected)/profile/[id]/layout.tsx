@@ -4,42 +4,21 @@ import { Button } from "@/components/ui/button";
 import UserProfileCard from "./_components/UserProfileCard";
 import ProfileTabs from "./_components/ProfileTabs";
 import { createSupabaseServerClient } from "@/utils/supabase-server";
-import { getUserData } from "@/utils/get-user-data";
+import { getUserData, UserData } from "@/utils/get-user-data";
 import { formatFullName } from "@/lib/utils";
+import getUserProfileByUsername from "@/action/profile";
 
 export default async function ProfileLayout({ children, params }: { children: React.ReactNode, params: Promise<{ id: string }> }) {
 
     const { id } = await params;
     const supabase = await createSupabaseServerClient();
 
-    const { data: user, error: userError } = await supabase
-        .from("users")
-        .select("*")
-        .eq("id", id)
-        .single();
+   const { data: user, error: userError } = await getUserProfileByUsername(id);
 
-    // Fetch ownerships count
-    const { count: ownershipsCount, error: ownershipsError } = await supabase
-        .from("communities")
-        .select("*", {
-            count: "exact",
-            head: true
-        })
-        .eq("creator_id", user?.id || "");
-
-    // Fetch memberships count
-    const { count: membershipsCount, error: membershipsError } = await supabase
-        .from("community_members")
-        .select("*", {
-            count: "exact",
-            head: true
-        })
-        .eq("user_id", user?.id || "");
-
-    if (ownershipsError || membershipsError) {
-        console.error("Error fetching counts:", ownershipsError || membershipsError);
-        return <div>Error fetching profile data</div>;
+    if (userError) {
+        return <div>Error fetching user profile</div>;
     }
+
 
     return (
         <div className="flex flex-col-reverse sm:flex-row gap-2 sm:gap-20 pt-6 sm:pt-14 pb-10 sm:pb-0">
@@ -50,8 +29,8 @@ export default async function ProfileLayout({ children, params }: { children: Re
 
                 <ProfileTabs
                     userId={id}
-                    ownershipsCount={ownershipsCount || 0}
-                    membershipsCount={membershipsCount || 0}
+                    ownershipsCount={user?.owned_communities_count || 0}
+                    membershipsCount={user?.joined_communities_count || 0}
                 />
                 {children}
             </div>

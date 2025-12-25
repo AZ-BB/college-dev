@@ -6,6 +6,7 @@ export interface UserData {
   first_name?: string
   last_name?: string
   avatar_url?: string
+  username?: string
 }
 
 export async function getUserData(): Promise<UserData | null> {
@@ -17,7 +18,7 @@ export async function getUserData(): Promise<UserData | null> {
 
     const { data: dbUser, error } = await supabase
       .from("users")
-      .select("id, email, first_name, last_name, avatar_url")
+      .select("id, email, first_name, last_name, avatar_url, username")
       .eq("id", user.id)
       .single()
 
