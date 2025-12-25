@@ -1,4 +1,4 @@
-import { getCommunityById } from "@/action/communities"
+
 import { notFound } from "next/navigation"
 import CommunityDetailPage from "./community-detail"
 
@@ -8,7 +8,7 @@ interface PageProps {
 
 export async function generateMetadata({ params }: PageProps) {
   const { id } = await params
-  const community = await getCommunityById(id)
+  const community = undefined as any
   console.log(community)
   if (!community) {
     return {
@@ -24,7 +24,7 @@ export async function generateMetadata({ params }: PageProps) {
 
 export default async function CommunityPage({ params }: PageProps) {
   const { id } = await params
-  const community = await getCommunityById(id)
+  const community = undefined as any
 
   if (!community) {
     notFound()
