@@ -36,7 +36,7 @@ export default async function ProfileLayout({ children, params }: { children: Re
     ]
 
     return (
-        <div className="flex flex-col-reverse sm:flex-row gap-2 sm:gap-20 pt-6 sm:pt-14 pb-10 sm:pb-0">
+        <div className="max-w-7xl mx-auto flex flex-col-reverse sm:flex-row gap-2 sm:gap-20 pt-6 sm:pt-14 pb-10 sm:pb-0">
             <div className="w-full sm:w-[70%]">
                 <h1 className="text-5xl font-bold font-generalSans mb-8 hidden sm:block">
                     {formatFullName(user?.first_name || "", user?.last_name || "")}
