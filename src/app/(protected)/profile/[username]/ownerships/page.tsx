@@ -21,36 +21,44 @@ export default async function Ownershipts({ params }: { params: Promise<{ userna
 
     return (
         <div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-10 space-y-4">
-                {communities.map((community) => (
-                    <Link href={`/communities/${community.slug}`} className="flex gap-4" key={community.id}>
-                        <Avatar>
-                            <AvatarImage className="w-[52px] h-[52px] rounded-lg" src={community.avatar || ""} />
-                            <AvatarFallback>
-                                <div className="w-[52px] h-[52px] flex items-center justify-center rounded-lg border border-[#DDDDDD] bg-[#0D121C] text-[#F8FAFC]">
-                                    {community.name.charAt(0).toUpperCase()}
-                                </div>
-                            </AvatarFallback>
-                        </Avatar>
+            {
+                communities?.length > 0 && (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-10 ">
+                        {communities.map((community) => (
+                            <Link href={`/communities/${community.slug}`} className="flex gap-4 hover:bg-gray-200 rounded-xl p-2.5 transition-colors duration-200" key={community.id}>
+                                <Avatar>
+                                    <AvatarImage className="w-[52px] h-[52px] rounded-lg" src={community.avatar || ""} />
+                                    <AvatarFallback>
+                                        <div className="w-[52px] h-[52px] flex items-center justify-center rounded-lg border border-[#DDDDDD] bg-[#0D121C] text-[#F8FAFC]">
+                                            {community.name.charAt(0).toUpperCase()}
+                                        </div>
+                                    </AvatarFallback>
+                                </Avatar>
 
-                        <div className="space-y-2">
-                            <h2 className="text-sm font-bold">{community.name}</h2>
-                            <p className="text-sm text-gray-primary font-medium flex items-center">
-                                <span>
-                                    {community.member_count} members
-                                </span>
-                                <div className="w-1 h-1 rounded-full bg-[#CBCFD4] mx-1" />
-                                <span>
-                                    {community.is_public ? "Free" : "Paid"}
-                                </span>
-                            </p>
-                        </div>
-                    </Link>
-                ))}
+                                <div className="space-y-2">
+                                    <h2 className="text-sm font-bold">{community.name}</h2>
+                                    <p className="text-sm text-gray-primary font-medium flex items-center">
+                                        <span>
+                                            {community.member_count} members
+                                        </span>
+                                        <div className="w-1 h-1 rounded-full bg-[#CBCFD4] mx-1" />
+                                        <span>
+                                            {community.is_public ? "Free" : "Paid"}
+                                        </span>
+                                    </p>
+                                </div>
+                            </Link>
+                        ))}
+                    </div>
+                )
+            }
+
+            <div className="text-gray-500 font-medium text-sm pt-4">
+                *Earnings till date since launch
             </div>
 
             {(communities?.length === 0 && isCurrentUser) && (
-                <div className="text-center text-sm text-[#65707A] font-medium w-full gap-8 flex flex-col items-center justify-center">
+                <div className="text-center text-sm text-gray-600 font-medium w-full gap-8 flex flex-col items-center justify-center">
                     <Image
                         src="/placeholders/ownership.png"
                         alt="Empty state"
@@ -68,7 +76,7 @@ export default async function Ownershipts({ params }: { params: Promise<{ userna
             )}
 
             {(communities?.length === 0 && !isCurrentUser) && (
-                <div className="text-center w-full gap-8 flex flex-col items-center justify-center">
+                <div className="text-center w-full gap-8 flex flex-col items-center justify-center pt-4">
                     <span className="text-base font-medium text-gray-600">No Ownerships Found</span>
                 </div>
             )}

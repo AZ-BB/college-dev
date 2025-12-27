@@ -55,7 +55,7 @@ export default async function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${instrumentSans.variable} antialiased font-instrumentSans`}
+        className={`${instrumentSans.variable} antialiased font-instrumentSans text-gray-900`}
       >
         <ThemeProvider
           attribute="class"
