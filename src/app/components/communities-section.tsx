@@ -10,14 +10,18 @@ import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import Image from "next/image"
 import { formatPrice, formatMemberCount } from "@/utils/communities"
+import { getCommunities } from "@/action/communities"
 
 export default async function CommunitiesSection() {
   // Fetch communities
-  const communities = []
+  const communities = await getCommunities({
+    page: 1,
+    limit: 6,
+  })
 
   // Show only first 6 communities for the landing page
-  const displayCommunities: any = []
-  if (displayCommunities.length === 0) {
+  const displayCommunities = communities.data?.communities || []
+  if (communities.error || displayCommunities.length === 0) {
     return null
   }
 

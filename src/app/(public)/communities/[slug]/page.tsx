@@ -2,6 +2,7 @@
 import CommunityDetailPage from "./community-detail"
 import { getCommunityBySlug } from "@/action/communities"
 import NotFound from "./not-found"
+import { notFound } from "next/navigation"
 
 interface PageProps {
   params: Promise<{ slug: string }>
@@ -28,7 +29,7 @@ export default async function CommunityPage({ params }: PageProps) {
   const { data: community, error } = await getCommunityBySlug(slug)
 
   if (error || !community) {
-    return <NotFound />
+    return notFound()
   }
 
   return <CommunityDetailPage community={community} />
