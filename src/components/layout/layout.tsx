@@ -23,7 +23,8 @@ export default function Layout({
 
     // Todo: Add a better way to handle child routes
     const noFooterRoutes = [
-        'profile'
+        'profile',
+        'settings'
     ]
 
     return (
