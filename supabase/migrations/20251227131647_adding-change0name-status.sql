@@ -1,0 +1,1 @@
+ALTER TABLE users ADD COLUMN is_name_changed0 BOOLEAN DEFAULT FALSE;

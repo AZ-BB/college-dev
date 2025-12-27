@@ -187,7 +187,7 @@ export default function Header({ userData: initialUserData }: HeaderProps) {
                 </Button>
 
                 {/* User Avatar Dropdown */}
-                <DropdownMenu>
+                <DropdownMenu modal={false}>
                   <DropdownMenuTrigger asChild>
                     <Button
                       variant="ghost"
