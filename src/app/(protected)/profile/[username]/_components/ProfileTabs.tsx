@@ -5,18 +5,18 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 interface ProfileTabsProps {
-    userId: string;
+    username: string;
     ownershipsCount: number;
     membershipsCount: number;
 }
 
-export default function ProfileTabs({ userId, ownershipsCount, membershipsCount }: ProfileTabsProps) {
+export default function ProfileTabs({ username, ownershipsCount, membershipsCount }: ProfileTabsProps) {
     const pathname = usePathname();
 
     const getCurrentTab = () => {
-        if (pathname === `/profile/${userId}/contribution`) return 'contribution';
-        if (pathname === `/profile/${userId}/ownerships`) return 'ownerships';
-        if (pathname === `/profile/${userId}/memberships`) return 'memberships';
+        if (pathname === `/profile/${username}/contribution`) return 'contribution';
+        if (pathname === `/profile/${username}/ownerships`) return 'ownerships';
+        if (pathname === `/profile/${username}/memberships`) return 'memberships';
         return 'activity';
     };
 
@@ -24,17 +24,17 @@ export default function ProfileTabs({ userId, ownershipsCount, membershipsCount 
         <Tabs value={getCurrentTab()} className="w-full lg:overflow-hidden overflow-x-scroll">
             <TabsList variant="underline">
                 <TabsTrigger value="activity">
-                    <Link href={`/profile/${userId}`}>
+                    <Link href={`/profile/${username}`}>
                         Activity
                     </Link>
                 </TabsTrigger>
                 <TabsTrigger value="contribution">
-                    <Link href={`/profile/${userId}/contribution`} >
+                    <Link href={`/profile/${username}/contribution`} >
                         Contribution
                     </Link>
                 </TabsTrigger>
                 <TabsTrigger value="ownerships">
-                    <Link href={`/profile/${userId}/ownerships`}>
+                    <Link href={`/profile/${username}/ownerships`}>
                         Ownerships
                         <span className="ml-2 px-1.5 py-0.5 text-sm font-semibold bg-[#F1F5F9] text-[#64748B] rounded-md">
                             {ownershipsCount}
@@ -42,7 +42,7 @@ export default function ProfileTabs({ userId, ownershipsCount, membershipsCount 
                     </Link>
                 </TabsTrigger>
                 <TabsTrigger value="memberships">
-                    <Link href={`/profile/${userId}/memberships`}>
+                    <Link href={`/profile/${username}/memberships`}>
                         Memberships
                         <span className="ml-2 px-1.5 py-0.5 text-sm font-semibold bg-[#F1F5F9] text-[#64748B] rounded-md">
                             {membershipsCount}

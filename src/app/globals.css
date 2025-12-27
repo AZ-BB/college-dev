@@ -74,10 +74,21 @@
   --color-icon-black: #0E1011;
   --color-orange-primary: #F7670E;
   --color-gray-primary: #485057;
+
+  --color-orange-500: #F7670E;
+  --color-orange-400: #F9853E;
+  --color-orange-200: #FBB990;
+  --color-orange-100: #FDD0B4;
+  --color-orange-50: #FEF0E7;
+
+  --color-gray-900: #0E1011;
+  --color-gray-700: #485057;
+  --color-gray-500: #858F9A;
+  --color-gray-200: #F4F4F6;
 }
 
 :root {
-  --radius: 0.625rem;
+  --radius: 12px;
   --font-general-sans: "General Sans", "Inter", system-ui, -apple-system, sans-serif;
   --font-instrument-sans: "Instrument Sans", "Inter", system-ui, -apple-system, sans-serif;
   --background: oklch(1 0 0);

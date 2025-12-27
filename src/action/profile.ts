@@ -6,6 +6,7 @@ export interface UserProfile extends Tables<"users"> {
   owned_communities_count: number
   joined_communities_count: number
 }
+
 export default async function getUserProfileByUsername(
   username: string
 ): Promise<GeneralResponse<UserProfile>> {

@@ -5,12 +5,12 @@ import { createSupabaseServerClient } from "@/utils/supabase-server";
 import { Avatar, AvatarFallback } from "@radix-ui/react-avatar";
 import Link from "next/link";
 
-export default async function Ownershipts({ params }: { params: Promise<{ id: string }> }) {
-    const { id } = await params;
+export default async function Ownershipts({ params }: { params: Promise<{ username: string }> }) {
+    const { username } = await params;
     const supabase = await createSupabaseServerClient();
 
 
-    const { data: communities, error: communitiesError } = await getUserOwnedCommunitiesByUsername(id);
+    const { data: communities, error: communitiesError } = await getUserOwnedCommunitiesByUsername(username);
 
     if (communitiesError || !communities) {
         console.error("Error fetching communities:", communitiesError);
