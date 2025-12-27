@@ -54,6 +54,23 @@ const ContributionHeatmap = ({ username }: { username: string }) => {
 
     const visibleMonthRange = getCurrentMonthRange();
 
+    // Determine the 2 months to show on mobile (current month and previous month)
+    const getMobileMonthRange = () => {
+        const currentDate = new Date();
+        const currentMonth = currentDate.getMonth(); // 0-11
+
+        // Show current month and previous month
+        // If current month is January (0), show January and February (0, 1)
+        // Otherwise, show previous month and current month
+        const previousMonth = currentMonth === 0 ? 1 : currentMonth - 1;
+        const startMonth = currentMonth === 0 ? 0 : previousMonth;
+        const endMonth = currentMonth === 0 ? 1 : currentMonth;
+
+        return [startMonth, endMonth];
+    };
+
+    const mobileMonthRange = getMobileMonthRange();
+
     // Generate mock data for each day of the year
     const generateMockActivity = (monthIndex: number, day: number) => {
         // Random level between 0 and 5
@@ -69,7 +86,7 @@ const ContributionHeatmap = ({ username }: { username: string }) => {
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-x-4 sm:gap-x-12 gap-y-8">
                 {months.map((month, monthIndex) => {
                     const daysInMonth = getDaysInMonth(monthIndex, year);
-                    const isHiddenOnMobile = !isExpanded && monthIndex >= 2;
+                    const isHiddenOnMobile = !isExpanded && !mobileMonthRange.includes(monthIndex);
                     const isHiddenOnDesktop = !isExpanded && !visibleMonthRange.includes(monthIndex);
 
                     return (

@@ -33,5 +33,3 @@ export async function getUserData(): Promise<UserData | null> {
     return null
   }
 }
-
-

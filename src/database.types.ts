@@ -26,6 +26,7 @@ export type Database = {
           id: number
           is_active: boolean
           is_deleted: boolean
+          is_free: boolean
           is_public: boolean
           member_count: number
           name: string
@@ -45,6 +46,7 @@ export type Database = {
           id?: number
           is_active?: boolean
           is_deleted?: boolean
+          is_free?: boolean
           is_public?: boolean
           member_count?: number
           name: string
@@ -64,6 +66,7 @@ export type Database = {
           id?: number
           is_active?: boolean
           is_deleted?: boolean
+          is_free?: boolean
           is_public?: boolean
           member_count?: number
           name?: string
