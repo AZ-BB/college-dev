@@ -9,7 +9,7 @@ const colors = [
     "#FDD0B4",
     "#FBB990",
     "#F9853E",
-    "#E15E0D",
+    "#F7670E",
 ];
 
 const emptyColor = "#F4F4F6"; // Very light grey for no activity
@@ -106,7 +106,7 @@ const ContributionHeatmap = ({ username }: { username: string }) => {
                                     return (
                                         <div
                                             key={day}
-                                            className="w-[16px] h-[16px] rounded-[6px] transition-colors hover:ring-1 hover:ring-orange-300 cursor-default"
+                                            className="w-[16px] h-[16px] rounded-[4px] transition-colors hover:ring-1 hover:ring-orange-300 cursor-default"
                                             style={{ backgroundColor }}
                                             title={`${month} ${day}, ${year}: ${level === 0 ? 'No' : level} contributions`}
                                         />
