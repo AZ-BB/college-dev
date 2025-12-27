@@ -2,12 +2,11 @@ import { redirect } from "next/navigation";
 import { getCurrentUserProfile } from "@/action/profile";
 import EditIcon from "@/components/icons/edit";
 import { Button } from "@/components/ui/button";
-import { createSupabaseServerClient } from "@/utils/supabase-server";
+import { createSupabaseAdminServerClient, createSupabaseServerClient } from "@/utils/supabase-server";
 import SignOutEveryWhereButton from "./_components/SignOutEveryWhereButton";
+import { PasswordSection } from "./_components/PasswordSection";
 
 export default async function SettingsAccountPage() {
-    const supabase = await createSupabaseServerClient();
-
     const result = await getCurrentUserProfile();
 
 
@@ -29,21 +28,12 @@ export default async function SettingsAccountPage() {
                         <span className="text-base font-medium">{result.data.email}</span>
                     </div>
 
-                    <div className="p-1.5 hover:bg-gray-100 rounded-lg cursor-pointer transition-colors duration-200">
+                    <div className="p-1.5 hover:bg-gray-100 rounded-lg cursor-not-allowed opacity-50 transition-colors duration-200">
                         <EditIcon />
                     </div>
                 </div>
 
-                <div className="flex items-center gap-2 justify-between">
-                    <div className="flex flex-col gap-1">
-                        <span className="text-base font-bold">Password</span>
-                        <span className="text-base font-medium">Change your password</span>
-                    </div>
-
-                    <div className="p-1.5 hover:bg-gray-100 rounded-lg cursor-pointer transition-colors duration-200">
-                        <EditIcon />
-                    </div>
-                </div>
+                <PasswordSection />
 
                 <div className="flex sm:items-center gap-2 sm:flex-row flex-col justify-start items-start sm:justify-between">
                     <div className="flex flex-col gap-1">
