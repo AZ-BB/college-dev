@@ -83,6 +83,7 @@
 
   --color-gray-900: #0E1011;
   --color-gray-700: #485057;
+  --color-gray-600: #65707A;
   --color-gray-500: #858F9A;
   --color-gray-200: #F4F4F6;
 }
@@ -194,4 +195,14 @@ body {
     box-shadow: 0px 3px 6px 0px #00000014;
   }
 
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
 }
+

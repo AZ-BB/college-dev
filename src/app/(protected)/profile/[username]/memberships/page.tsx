@@ -1,12 +1,16 @@
 import { getUserJoinedCommunitiesByUsername } from "@/action/profile";
 import { AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import { getUserData } from "@/utils/get-user-data";
 import { createSupabaseServerClient } from "@/utils/supabase-server";
 import { Avatar, AvatarFallback } from "@radix-ui/react-avatar";
 import Link from "next/link";
+import Image from "next/image";
 
 export default async function Memberships({ params }: { params: Promise<{ username: string }> }) {
     const { username } = await params;
+    const user = await getUserData();
+    const isCurrentUser = user?.username === username;
 
     const { data: memberships, error: membershipsError } = await getUserJoinedCommunitiesByUsername(username);
 
@@ -43,13 +47,31 @@ export default async function Memberships({ params }: { params: Promise<{ userna
                         </div>
                     </Link>
                 ))}
-
-                {memberships?.length === 0 && (
-                    <div className="col-span-2 text-center text-sm text-[#65707A] font-medium">
-                        No memberships found
-                    </div>
-                )}
             </div>
+
+            {(memberships?.length === 0 && isCurrentUser) && (
+                <div className="text-center text-sm text-[#65707A] font-medium w-full gap-8 flex flex-col items-center justify-center">
+                    <Image
+                        src="/placeholders/memberships.png"
+                        alt="Empty state"
+                        width={900}
+                        height={900}
+                        className="w-[300px] h-[300px] object-cover"
+                    />
+                    <div className="flex flex-col items-center justify-center gap-4">
+                        <span className="text-xl font-medium text-gray-900">Real progress doesn't happen alone.</span>
+                        <Button variant="default" className=" bg-orange-500 hover:bg-orange-600 text-white text-base">
+                            Join a community
+                        </Button>
+                    </div>
+                </div>
+            )}
+
+            {(memberships?.length === 0 && !isCurrentUser) && (
+                <div className="text-center w-full gap-8 flex flex-col items-center justify-center">
+                    <span className="text-base font-medium text-gray-600">No Memberships Found</span>
+                </div>
+            )}
         </div>
     )
 }

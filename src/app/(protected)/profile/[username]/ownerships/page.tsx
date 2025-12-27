@@ -4,11 +4,13 @@ import { getUserData } from "@/utils/get-user-data";
 import { createSupabaseServerClient } from "@/utils/supabase-server";
 import { Avatar, AvatarFallback } from "@radix-ui/react-avatar";
 import Link from "next/link";
+import Image from "next/image";
+import { Button } from "@/components/ui/button";
 
 export default async function Ownershipts({ params }: { params: Promise<{ username: string }> }) {
     const { username } = await params;
-    const supabase = await createSupabaseServerClient();
-
+    const user = await getUserData();
+    const isCurrentUser = user?.username === username;
 
     const { data: communities, error: communitiesError } = await getUserOwnedCommunitiesByUsername(username);
 
@@ -45,13 +47,31 @@ export default async function Ownershipts({ params }: { params: Promise<{ userna
                         </div>
                     </Link>
                 ))}
-
-                {communities?.length === 0 && (
-                    <div className="col-span-2 text-center text-sm text-[#65707A] font-medium">
-                        No ownerships found
-                    </div>
-                )}
             </div>
+
+            {(communities?.length === 0 && isCurrentUser) && (
+                <div className="text-center text-sm text-[#65707A] font-medium w-full gap-8 flex flex-col items-center justify-center">
+                    <Image
+                        src="/placeholders/ownership.png"
+                        alt="Empty state"
+                        width={900}
+                        height={900}
+                        className="w-[300px] h-[300px] object-cover"
+                    />
+                    <div className="flex flex-col items-center justify-center gap-4">
+                        <span className="text-xl font-medium text-gray-900">Turn what you know into monthly income.</span>
+                        <Button variant="default" className=" bg-orange-500 hover:bg-orange-600 text-white text-base">
+                            Start a community
+                        </Button>
+                    </div>
+                </div>
+            )}
+
+            {(communities?.length === 0 && !isCurrentUser) && (
+                <div className="text-center w-full gap-8 flex flex-col items-center justify-center">
+                    <span className="text-base font-medium text-gray-600">No Ownerships Found</span>
+                </div>
+            )}
         </div>
     )
 }

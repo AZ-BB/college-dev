@@ -22,6 +22,19 @@ export default async function ProfileLayout({ children, params }: { children: Re
     }
 
 
+    const tabs = username === userData?.username ? [
+        { label: "Activity", value: "activity", href: `/profile/${username}` },
+        { label: "Contribution", value: "contribution", href: `/profile/${username}/contribution` },
+        { label: "Saved Posts", value: "saved-posts", href: `/profile/${username}/saved-posts`, count: 0 },
+        { label: "Ownerships", value: "ownerships", href: `/profile/${username}/ownerships`, count: user?.owned_communities_count || 0 },
+        { label: "Memberships", value: "memberships", href: `/profile/${username}/memberships`, count: user?.joined_communities_count || 0 },
+    ] : [
+        { label: "Activity", value: "activity", href: `/profile/${username}` },
+        { label: "Contribution", value: "contribution", href: `/profile/${username}/contribution` },
+        { label: "Ownerships", value: "ownerships", href: `/profile/${username}/ownerships`, count: user?.owned_communities_count || 0 },
+        { label: "Memberships", value: "memberships", href: `/profile/${username}/memberships`, count: user?.joined_communities_count || 0 },
+    ]
+
     return (
         <div className="flex flex-col-reverse sm:flex-row gap-2 sm:gap-20 pt-6 sm:pt-14 pb-10 sm:pb-0">
             <div className="w-full sm:w-[70%]">
@@ -31,8 +44,7 @@ export default async function ProfileLayout({ children, params }: { children: Re
 
                 <ProfileTabs
                     username={user?.username}
-                    ownershipsCount={user?.owned_communities_count || 0}
-                    membershipsCount={user?.joined_communities_count || 0}
+                    tabs={tabs}
                 />
                 {children}
             </div>
