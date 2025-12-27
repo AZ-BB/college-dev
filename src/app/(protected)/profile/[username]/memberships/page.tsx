@@ -5,10 +5,10 @@ import { createSupabaseServerClient } from "@/utils/supabase-server";
 import { Avatar, AvatarFallback } from "@radix-ui/react-avatar";
 import Link from "next/link";
 
-export default async function Memberships({ params }: { params: Promise<{ id: string }> }) {
-    const { id } = await params;
+export default async function Memberships({ params }: { params: Promise<{ username: string }> }) {
+    const { username } = await params;
 
-    const { data: memberships, error: membershipsError } = await getUserJoinedCommunitiesByUsername(id);
+    const { data: memberships, error: membershipsError } = await getUserJoinedCommunitiesByUsername(username);
 
     if (membershipsError || !memberships) {
         console.error("Error fetching communities:", membershipsError);

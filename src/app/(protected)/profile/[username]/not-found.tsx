@@ -1,7 +1,7 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 
-export default function NotFound() {
+export default function ProfileNotFound() {
   return (
     <div className="h-[calc(100vh-300px)] bg-white flex items-center justify-center px-4">
       <div className="text-center max-w-md">
