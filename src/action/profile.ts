@@ -200,6 +200,7 @@ export interface UpdateUserProfileData {
   linkedin_url?: string | null
   youtube_url?: string | null
   website_url?: string | null
+  is_name_changed?: boolean
 }
 
 export async function updateUserProfile(
@@ -244,7 +245,11 @@ export async function updateUserProfile(
     if (data.linkedin_url !== undefined) updateData.linkedin_url = data.linkedin_url || null
     if (data.youtube_url !== undefined) updateData.youtube_url = data.youtube_url || null
     if (data.website_url !== undefined) updateData.website_url = data.website_url || null
-
+    
+    // Check if name is changed
+    if (updateData.first_name !== undefined || updateData.last_name !== undefined) {
+      updateData.is_name_changed = true
+    } 
     // Update user profile in database
     const { error: updateError } = await supabase
       .from("users")

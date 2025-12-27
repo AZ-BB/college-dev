@@ -308,6 +308,7 @@ export type Database = {
           id: string
           instagram_url: string | null
           is_active: boolean
+          is_name_changed: boolean | null
           is_online: boolean
           last_name: string
           likes_count: number
@@ -335,6 +336,7 @@ export type Database = {
           id: string
           instagram_url?: string | null
           is_active?: boolean
+          is_name_changed?: boolean | null
           is_online?: boolean
           last_name: string
           likes_count?: number
@@ -362,6 +364,7 @@ export type Database = {
           id?: string
           instagram_url?: string | null
           is_active?: boolean
+          is_name_changed?: boolean | null
           is_online?: boolean
           last_name?: string
           likes_count?: number

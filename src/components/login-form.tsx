@@ -123,11 +123,8 @@ export function LoginForm({
             placeholder="Your email"
             value={emailValue}
             onChange={(e) => setEmailValue(e.target.value)}
-            style={{
-              background: "#F4F4F6",
-            }}
             required
-            className="h-12 rounded-[16px] text-black font-instrumentSans border border-[#F4F4F6] bg-[#F4F4F6] text-base placeholder:text-gray-400 focus-visible:border-[#f89b63] focus-visible:ring-2 focus-visible:ring-[#f89b63]/40"
+            className="h-12 rounded-[16px] text-black font-instrumentSans border border-[#F4F4F6] text-base placeholder:text-gray-400 focus-visible:border-[#f89b63] focus-visible:ring-2 focus-visible:ring-[#f89b63]/40"
           />
         </Field>
         <Field>
@@ -142,9 +139,6 @@ export function LoginForm({
             value={passwordValue}
             onChange={(e) => setPasswordValue(e.target.value)}
             required
-            style={{  
-              background: "#F4F4F6",
-            }}
             className="h-12 rounded-[16px] text-black font-instrumentSans border border-[#F4F4F6] bg-[#F4F4F6] text-base placeholder:text-gray-400 focus-visible:border-[#f89b63] focus-visible:ring-2 focus-visible:ring-[#f89b63]/40"
           />
         </Field>
