@@ -221,6 +221,42 @@ export async function resetPassword(code: string, newPassword: string): Promise<
     }
 }
 
+export async function updatePassword(newPassword: string): Promise<GeneralResponse<boolean>> {
+    try {
+        if (!newPassword) {
+            return { error: "Password is required", statusCode: 400, data: false };
+        }
+
+        if (newPassword.length < 8) {
+            return { error: "Password must be at least 8 characters long", statusCode: 400, data: false };
+        }
+
+        const supabase = await createSupabaseServerClient();
+
+        // Check if user is authenticated
+        const { data: { user }, error: authError } = await supabase.auth.getUser();
+
+        if (authError || !user) {
+            return { error: "Not authenticated", statusCode: 401, data: false };
+        }
+
+        // Update password
+        const { error: updateError } = await supabase.auth.updateUser({
+            password: newPassword
+        });
+
+        if (updateError) {
+            return { error: updateError.message, statusCode: 400, data: false };
+        }
+
+        return { data: true, statusCode: 200, error: undefined, message: "Password updated successfully" };
+    }
+    catch (error) {
+        console.error(error);
+        return { error: "Failed to update password", statusCode: 500, data: false };
+    }
+}
+
 export async function signInWithGoogleUser(nextPath: string): Promise<GeneralResponse<string | null>> {
     try {
         const supabase = await createSupabaseServerClient();

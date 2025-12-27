@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { createSupabaseBrowserClient } from "@/utils/supabase-browser"
-import { useRouter } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 
 interface HeaderProps {
   userData: UserData | null
@@ -26,6 +26,9 @@ export default function Header({ userData: initialUserData }: HeaderProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [userData, setUserData] = useState<UserData | null>(initialUserData)
   const router = useRouter()
+
+  const pathname = usePathname()
+  const isLandingPage = pathname === "/"
 
   // Listen for auth state changes
   useEffect(() => {
@@ -71,7 +74,7 @@ export default function Header({ userData: initialUserData }: HeaderProps) {
     router.refresh()
   }
 
-  const navLinks = [
+  const landingPageNavLinks = [
     { href: "#community", label: "Community" },
     { href: "#learn", label: "Learn" },
     { href: "#usecase", label: "Use Case" },
@@ -97,7 +100,7 @@ export default function Header({ userData: initialUserData }: HeaderProps) {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-8">
-            {navLinks.map((link) => (
+            {isLandingPage && landingPageNavLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
@@ -237,7 +240,7 @@ export default function Header({ userData: initialUserData }: HeaderProps) {
                     <DropdownMenuItem asChild>
                       <Link href="/create-community" className="cursor-pointer text-orange-600 font-medium">
                         <svg className="mr-2 h-4 w-4" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M10 4V16M4 10H16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                          <path d="M10 4V16M4 10H16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                         </svg>
                         <span>Create Community</span>
                       </Link>
@@ -285,7 +288,7 @@ export default function Header({ userData: initialUserData }: HeaderProps) {
         {isOpen && (
           <div className="md:hidden pb-4 border-t border-gray-200">
             <div className="flex flex-col gap-4 py-4">
-              {navLinks.map((link) => (
+              {isLandingPage && landingPageNavLinks.map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}
