@@ -9,7 +9,7 @@ import CommunitiesSection from "./components/communities-section";
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-white text-neutral-900">
+    <div className="min-h-screen max-w-7xl mx-auto sm:px-14 bg-white text-neutral-900">
       <Hero />
       <FeaturesSection />
       <CommunitiesSection />
