@@ -29,9 +29,8 @@ export default function CTASection() {
 
           {/* CTA Button */}
           <Button
-            size="lg"
-            className="mt-4 bg-orange-500 hover:bg-orange-600 text-white px-8"
-            asChild
+            className="mt-4 px-4 py-7"
+            variant="default"
           >
             <Link href="/signup">
               Create your community

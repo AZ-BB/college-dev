@@ -7,18 +7,17 @@ export default function FeaturesSection() {
 
 
   return (
-    <section className="py-4 md:py-6 lg:py-8 bg-white">
+    <section className="py-4 md:py-6 lg:py-8 mt-24 bg-white">
       <div className="container mx-auto px-4">
         <div className="max-w-3xl mx-auto text-center mb-16">
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4">
+          <h2 className="text-6xl font-generalSans font-bold mb-4">
             This is where it all <br /> comes together.
           </h2>
-          <p className="text-lg text-gray-600">
-          Your community, finally organized.
+          <p className="text-lg text-gray-700">
+            Your community, finally organized.
           </p>
           <Button
-            size="lg"
-            className="bg-orange-500 hover:bg-orange-600 text-white px-8 mt-5"
+            className="px-5 mt-5 py-7"
             asChild
           >
             <Link href="/signup">
@@ -26,10 +25,6 @@ export default function FeaturesSection() {
             </Link>
           </Button>
         </div>
-
-
-
-
       </div>
     </section>
   );

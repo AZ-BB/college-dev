@@ -763,8 +763,8 @@ export default function CommunityDetailPage({
                 <span className="text-xs text-gray-primary">online</span>
               </div>
               <div className="flex flex-col items-center gap-1">
-                <span className="text-sm font-bold text-icon-black">12K</span>
-                <span className="text-xs text-gray-primary">followers</span>
+                <span className="text-sm font-bold text-icon-black">12</span>
+                <span className="text-xs text-gray-primary">admins</span>
               </div>
             </div>
             <Button className="w-full bg-orange-primary text-xs hover:bg-orange-primary/90 cursor-pointer font-semibold text-white mt-6 h-[45px] rounded-[16px]">

@@ -1,5 +1,6 @@
 'use client';
 
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Check } from "lucide-react";
 import Image from "next/image";
@@ -45,23 +46,21 @@ export default function PricingSection() {
   return (
     <section className="py-16 md:py-24 lg:py-32 bg-white">
       <div className="container mx-auto px-4">
-        <div className="max-w-3xl mx-auto text-center mb-16">
-          <div className="inline-block mb-4 px-4 py-1 bg-orange-100 text-orange-600 rounded-full text-sm font-medium">
+        <div className="text-center mb-12 flex flex-col items-center justify-center">
+          <Badge className="mb-4 text-base bg-[#FEF0E7] text-[#F7670E]">
             Launch
+          </Badge>
+
+          <div className="relative inline-block">
+            <h2 className="text-4xl sm:text-5xl text-neutral-900 mb-4 font-generalSans font-bold">
+              Simple and transparent pricing
+            </h2>
+
           </div>
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4">
-            Simple and transparent pricing
-          </h2>
-          <p className="text-lg text-gray-600">
-            Zero cost to start. Zero limit to grow. Forever.<br /> <span>We earn, only when you earn. We grow, only when you grow.</span>
+
+          <p className="text-lg text-neutral-700 mb-8 font-bold">
+            Start free. Pay 2% only while you grow. Switch to ₹2,999/month once you scale - no fees after that.
           </p>
-          <Image
-            src="/Vector 155.svg"
-            alt="vector"
-            width={1}
-            height={1}
-            className="mx-auto w-100 h-10"
-          />
         </div>
 
         <section className="py-20 bg-white">
@@ -157,6 +156,19 @@ export default function PricingSection() {
             </div>
           </div>
         </section>
+
+        <div className="flex flex-col items-center justify-center">
+          <p className="text-neutral-700 font-bold text-base">
+            We earn, only when you earn. We grow, only when you grow.
+          </p>
+          <Image
+            src="/Vector 155.svg"
+            alt="vector"
+            width={1}
+            height={1}
+            className="mx-auto w-100 h-10"
+          />
+        </div>
       </div>
     </section>
   );

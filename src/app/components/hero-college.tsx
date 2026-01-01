@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 
 export function HeroCollage() {
   // Array of rotating quotes
@@ -18,6 +19,27 @@ export function HeroCollage() {
     "I can't scale without more people.",
   ]
   const [currentQuoteIndex, setCurrentQuoteIndex] = useState(0)
+  const mobileContentRef = useRef<HTMLDivElement>(null)
+  const desktopContentRef = useRef<HTMLDivElement>(null)
+  const [mobileQuoteWidth, setMobileQuoteWidth] = useState<number | "auto">("auto")
+  const [desktopQuoteWidth, setDesktopQuoteWidth] = useState<number | "auto">("auto")
+
+  // Measure content width when quote changes
+  useEffect(() => {
+    // Use setTimeout to ensure DOM has updated
+    const timer = setTimeout(() => {
+      if (mobileContentRef.current) {
+        const width = mobileContentRef.current.scrollWidth
+        setMobileQuoteWidth(width)
+      }
+      if (desktopContentRef.current) {
+        const width = desktopContentRef.current.scrollWidth
+        setDesktopQuoteWidth(width)
+      }
+    }, 0)
+
+    return () => clearTimeout(timer)
+  }, [currentQuoteIndex])
 
   // Rotate quotes every 3 seconds
   useEffect(() => {
@@ -97,14 +119,34 @@ export function HeroCollage() {
       {/* ===== MOBILE (2x2 GRID – STRAIGHT) ===== */}
       <div className="md:hidden">
         <div className="max-w-3xl mx-auto text-center">
-          <div className="inline-block mb-4 px-2 py-1 bg-orange-100 text-orange-600 rounded-full text-sm font-medium">
-            <span
-              key={currentQuoteIndex}
-              className="inline-block transition-opacity duration-500 animate-fade-in"
-            >
-              "{quotes[currentQuoteIndex]}"
-            </span>{" "}
-            <span className="text-sm ml-1 text-icon-black bg-white rounded-full px-2 py-0.5">Creator Interviews, 2026</span>
+          <div className="flex justify-center mb-4">
+            <div className="relative inline-block">
+              <motion.div
+                layout
+                className="inline-block px-2 py-1 bg-orange-100 text-orange-600 rounded-full text-sm font-medium"
+                transition={{
+                  layout: { duration: 0.4, ease: "easeInOut" },
+                  opacity: { duration: 0.3 }
+                }}
+              >
+                <div ref={mobileContentRef} className="inline-block">
+                  <AnimatePresence mode="wait">
+                    <motion.span
+                      key={currentQuoteIndex}
+                      layout
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.3 }}
+                      className="inline-block"
+                    >
+                      "{quotes[currentQuoteIndex]}"
+                    </motion.span>
+                  </AnimatePresence>
+                </div>
+              </motion.div>
+              <span className="text-sm ml-1 text-icon-black bg-white rounded-full px-2 py-0.5">Creator Interviews, 2026</span>
+            </div>
           </div>
           <h1 className="text-4xl md:text-5xl lg:text-6xl tracking-tighter mb-6"
             style={{
@@ -233,34 +275,50 @@ export function HeroCollage() {
       {/* ===== DESKTOP (FLOATING COLLAGE – ANGLED) ===== */}
       <div className="hidden md:block h-[650px] sticky top-20 pt-10 space-y-10">
         <div className="max-w-3xl mx-auto text-center">
-          <div className="inline-block mb-4 px-2 py-1 bg-orange-100 text-orange-600 rounded-full text-sm font-medium">
-            <span
-              key={currentQuoteIndex}
-              className="inline-block transition-opacity duration-500 animate-fade-in"
-            >
-              "{quotes[currentQuoteIndex]}"
-            </span>
-            <span className="text-sm ml-1 text-icon-black bg-white rounded-full px-2 py-0.5">Creator Interviews, 2026</span>
+
+          <div className="flex justify-center mb-4">
+            <div className="relative inline-block bg-orange-50 rounded-full py-1 px-2.5">
+              <div ref={desktopContentRef} className="inline-block">
+                <AnimatePresence mode="wait">
+                  <motion.span
+                    key={currentQuoteIndex}
+                    initial={{ y: 10, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    exit={{ y: -10, opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                    className="inline-block text-orange-500 font-medium"
+                  >
+                    "{quotes[currentQuoteIndex]}"
+                  </motion.span>
+                </AnimatePresence>
+              </div>
+              <span className="font-medium text-sm ml-1 text-icon-black bg-white rounded-full px-2 py-0.5">Creator Interviews, 2026</span>
+            </div>
           </div>
-          <h1 className="text-4xl md:text-5xl lg:text-6xl tracking-tighter mb-6"
+
+          {/* TODO: Convert this to action component for SEO */}
+          <h1 className="mb-6 font-bold font-generalSans"
             style={{
-              fontFamily: "General Sans",
-              fontWeight: 700,
-              fontSize: "64px",
+              fontSize: "60px",
               lineHeight: "64px",
-              letterSpacing: "-2%",
-              textAlign: "center",
+              letterSpacing: "-0.5px",
+              textAlign: "center"
             }}
           >
-            The Better Place To Run Creator Programs
+            The Better Place To Run <br /> Creator Programs
           </h1>
-          <p className="text-lg text-gray-600 mb-8 max-w-3xl mx-auto">
+          <p className="text-lg text-gray-700 mb-8 max-w-3xl mx-auto"
+            style={{
+              lineHeight: "27px",
+            }}
+          >
             Host your free or paid communities, courses, conversations and payments all in one place.<br /> <span>No ads, no algorithms, no monthly fees. You fully own and control everything.</span>
           </p>
+
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button
-              size="lg"
-              className="bg-orange-500 hover:bg-orange-600 text-white px-8"
+              variant="default"
+              className="py-7"
               asChild
             >
               <Link href="/signup">
@@ -268,8 +326,8 @@ export function HeroCollage() {
               </Link>
             </Button>
             <Button
-              size="lg"
-              className="px-8 text-gray-900 bg-gray-200 hover:bg-gray-100 hover:text-gray-900"
+              className="py-7"
+              variant="secondary"
               asChild
             >
               <Link href="#explore">
@@ -350,7 +408,7 @@ export function HeroCollage() {
           </div>
 
           <div
-            className="md:-translate-x-[15%] lg:-translate-x-[12%] flex justify-center will-change-transform"
+            className="md:-translate-x-[11%] lg:-translate-x-[12.5%] flex justify-center will-change-transform"
             style={{
               opacity: "var(--scroll-progress)",
             } as React.CSSProperties}
