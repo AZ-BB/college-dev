@@ -46,11 +46,11 @@ export default function CommunityDetailPage({
   }
 
   return (
-    <div className="flex max-w-7xl mx-auto">
+    <div className="flex  mx-auto">
       {/* Left Side */}
       <div className="min-h-screen bg-white w-full">
         {/* Top Header Section - Desktop */}
-        <div className="border-b bg-white hidden lg:block">
+        <div className=" bg-white hidden lg:block">
           <div className="w-full px-4 sm:px-6 lg:px-8 py-6">
             <div className="flex items-start justify-between gap-8">
               {/* Left - Community Info */}
@@ -91,7 +91,7 @@ export default function CommunityDetailPage({
         {/* Image Gallery Section */}
         <div className="bg-white">
           {/* Desktop Image Gallery */}
-          <div className="hidden lg:block border-b">
+          <div className="hidden lg:block">
             <div className="w-full px-4 sm:px-6 lg:px-8">
               <div className="gap-8">
                 {/* Left - Main Image and Thumbnails */}
@@ -314,27 +314,29 @@ export default function CommunityDetailPage({
                   </span>
                 </div>
 
-                <div className="flex items-center gap-2 text-sm">
+                <a className="flex items-center gap-2 text-sm cursor-pointer"
+                href={`/profile/${community.created_by?.username}`}
+                >
                   <Avatar className="w-[24px] h-[24px]">
-                    {/* {community.created_by ? (
+                    {community.created_by?.avatar_url ? (
                       <AvatarImage
                         className="w-full h-full object-cover"
-                        src={community.creator?.avatar_url}
-                        alt={community.creator?.first_name || "Unknown"}
+                        src={community.created_by?.avatar_url || ""}
+                        alt={community.created_by?.first_name || "Unknown"}
                       />
                     ) : (
                       <div className="w-full text-xs h-full bg-[#cbcad0] flex items-center justify-center">
-                        {community.creator?.first_name
+                        {community.created_by?.first_name
                           ?.charAt(0)
                           .toUpperCase() || "Unknown"}
                       </div>
-                    )} */}
+                    )}
                   </Avatar>
                   <span className="font-medium">
-                    {/* By {community.created_by?.first_name || "Unknown"}{" "}
-                    {community.created_by?.last_name || ""} */}
+                    By {community.created_by?.first_name || "Unknown"}{" "}
+                    {community.created_by?.last_name || ""}
                   </span>
-                </div>
+                </a>
               </div>
 
               {/* Mobile "About" Section */}
@@ -475,7 +477,7 @@ export default function CommunityDetailPage({
                 </div>
 
                 {/* Badges */}
-                <div className="flex items-center gap-2 text-sm pb-6 border-b">
+                <div className="flex items-center gap-2 text-sm pb-6">
                   <span className="text-base">🏆</span>
                   <span className="text-xs">3x Skool Games Winner</span>
                   <span className="text-gray-400">|</span>
@@ -484,7 +486,7 @@ export default function CommunityDetailPage({
                 </div>
               </div>
               {/* Badges - Desktop Only */}
-              <div className="hidden lg:flex flex-wrap items-center gap-2 mb-6 pb-6 border-b">
+              <div className="hidden lg:flex flex-wrap items-center gap-2 mb-6 pb-6">
                 <span className="text-base">🏆</span>
                 <span className="text-sm">3x Skool Games Winner</span>
                 <span className="text-gray-400">|</span>
@@ -568,7 +570,59 @@ export default function CommunityDetailPage({
                     <span className="mr-2">•</span>
                     <span>Expert Guest Speakers</span>
                   </li>
+                  <li className="text-gray-700 flex items-start text-sm lg:text-base">
+                    <span className="mr-2">•</span>
+                    <span>$6,000 Hackathons</span>
+                  </li>
+                  <li className="text-gray-700 flex items-start text-sm lg:text-base">
+                    <span className="mr-2">•</span>
+                    <span>AIS+ Affiliate Program</span>
+                  </li>
+                  <li className="text-gray-700 flex items-start text-sm lg:text-base">
+                    <span className="mr-2">🎁</span>
+                    <span>Annual Member Bonus - $3M+ Perks</span>
+                  </li>
+                  <li className="text-gray-700 flex items-start text-sm lg:text-base">
+                    <span className="mr-2">✅</span>
+                    <span>$1,000 in Airtable credits</span>
+                  </li>
+                  <li className="text-gray-700 flex items-start text-sm lg:text-base">
+                    <span className="mr-2">✅</span>
+                    <span>$2,000 in Google Cloud credits</span>
+                  </li>
+                  <li className="text-gray-700 flex items-start text-sm lg:text-base">
+                    <span className="mr-2">•</span>
+                    <span>...plus 530+ other exclusive deals.</span>
+                  </li>
                 </ul>
+              </div>
+
+              {/* Who Is This For? */}
+              <div className="mb-8">
+                <h2 className="text-xl lg:text-xl font-bold text-gray-900 mb-4">
+                  Who Is This For?
+                </h2>
+                <ul className="space-y-3">
+                  <li className="text-gray-700 flex items-start text-sm lg:text-base">
+                    <span className="mr-2">•</span>
+                    <span>Beginners looking for structured guidance</span>
+                  </li>
+                  <li className="text-gray-700 flex items-start text-sm lg:text-base">
+                    <span className="mr-2">•</span>
+                    <span>SMB Owners looking to automate and scale</span>
+                  </li>
+                  <li className="text-gray-700 flex items-start text-sm lg:text-base">
+                    <span className="mr-2">•</span>
+                    <span>Aspiring AI Agency Owners & Freelancers</span>
+                  </li>
+                </ul>
+              </div>
+
+              {/* Price Warning */}
+              <div className="mb-8">
+                <p className="text-gray-700 text-sm lg:text-base">
+                  ⚠️ PRICE INCREASES SOON. Join today and lock in your membership for LIFE at
+                </p>
               </div>
             </div>
           </div>
