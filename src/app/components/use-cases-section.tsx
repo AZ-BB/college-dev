@@ -1,3 +1,4 @@
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import Link from "next/link";
@@ -46,17 +47,20 @@ export default function UseCasesSection() {
     <section className="bg-white py-20 md:py-28">
       <div className="container mx-auto px-4">
         {/* Header */}
-        <div className="mb-16 text-center">
-          <span className="mb-4 inline-block rounded-full bg-orange-100 px-4 py-1 text-sm font-medium text-orange-600">
+        <div className="text-center mb-12 flex flex-col items-center justify-center">
+          <Badge className="mb-4 text-base bg-[#FEF0E7] text-[#F7670E]">
             Use Cases
-          </span>
+          </Badge>
 
-          <h2 className="mt-4 text-4xl font-bold md:text-5xl">
-            How people use College
-          </h2>
+          <div className="relative inline-block">
+            <h2 className="text-4xl sm:text-5xl text-neutral-900 mb-4 font-generalSans font-bold">
+              How people use College
+            </h2>
 
-          <p className="mt-4 text-lg text-gray-600">
-            Communities. Courses. Payments. Posts. Members. Analytics etc.
+          </div>
+
+          <p className="text-lg text-neutral-600 mb-8">
+            Communities. Courses. Conversations. Payments. Analytics etc.
           </p>
         </div>
 
@@ -91,8 +95,8 @@ export default function UseCasesSection() {
         {/* CTA Button */}
         <div className="mt-16 text-center">
           <Button
-            size="lg"
-            className="bg-orange-500 hover:bg-orange-600 text-white px-8"
+            className="px-4 py-7"
+            variant="default"
             asChild
           >
             <Link href="/use-cases">
