@@ -260,7 +260,7 @@ export default function Header({ userData: initialUserData }: HeaderProps) {
               <>
                 <Button
                   variant="default"
-                  className="bg-white font-semibold"
+                  className="bg-[#f4f4f6] text-gray-900 hover:bg-gray-400 font-semibold"
                   asChild
                 >
                   <Link href="/login">Log In</Link>

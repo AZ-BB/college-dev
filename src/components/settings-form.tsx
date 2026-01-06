@@ -14,7 +14,6 @@ import { Input } from "@/components/ui/input"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { AlertCircle, CheckCircle2 } from "lucide-react"
 import { updateUserProfile } from "@/action/profile"
-import { uploadAvatar } from "@/action/auth"
 import { createSupabaseBrowserClient } from "@/utils/supabase-browser"
 import { Tables } from "@/database.types"
 import { Switch } from "@/components/ui/switch"
@@ -285,9 +284,9 @@ export function SettingsForm({
         return
       }
 
-      // Validate file size (max 5MB)
-      if (file.size > 5 * 1024 * 1024) {
-        setError("Image size should be less than 5MB")
+      // Validate file size (max 10MB)
+      if (file.size > 10 * 1024 * 1024) {
+        setError("Image size should be less than 10MB")
         return
       }
 
@@ -323,17 +322,26 @@ export function SettingsForm({
 
       let avatarUrl: string | undefined = undefined
 
-      // Upload avatar if selected
+      // Upload avatar if selected using API route
       if (avatarFile) {
-        const uploadResult = await uploadAvatar(avatarFile, authUser.id)
+        const formData = new FormData()
+        formData.append('file', avatarFile)
+        formData.append('userId', authUser.id)
 
-        if (uploadResult.error) {
-          setError(uploadResult.error)
+        const uploadResponse = await fetch('/api/upload-avatar', {
+          method: 'POST',
+          body: formData,
+        })
+
+        if (!uploadResponse.ok) {
+          const errorData = await uploadResponse.json()
+          setError(errorData.error || 'Failed to upload avatar')
           setIsLoading(false)
           return
         }
 
-        avatarUrl = uploadResult.data?.url
+        const uploadResult = await uploadResponse.json()
+        avatarUrl = uploadResult.url
       }
 
       // Update user profile (name is changed separately via modal)

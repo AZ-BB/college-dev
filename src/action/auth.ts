@@ -490,46 +490,6 @@ export async function isProfileComplete(userId: string): Promise<GeneralResponse
     }
 }
 
-// Upload avatar to Supabase Storage
-export async function uploadAvatar(file: File, userId: string): Promise<GeneralResponse<{ url: string } | null>> {
-    try {
-        const supabase = await createSupabaseServerClient();
-        
-        // Generate unique filename with user folder
-        const fileExt = file.name.split('.').pop();
-        const fileName = `${Date.now()}.${fileExt}`;
-        const filePath = `${userId}/${fileName}`;
-
-        // Upload to Supabase Storage
-        const { error: uploadError } = await supabase.storage
-            .from('avatars')
-            .upload(filePath, file, {
-                cacheControl: '3600',
-                upsert: true
-            });
-
-        if (uploadError) {
-            console.error("Error uploading avatar:", uploadError);
-            return { error: "Failed to upload avatar", statusCode: 500, data: null };
-        }
-
-        // Get public URL
-        const { data: { publicUrl } } = supabase.storage
-            .from('avatars')
-            .getPublicUrl(filePath);
-
-        return {
-            data: { url: publicUrl },
-            statusCode: 200,
-            error: undefined,
-            message: "Avatar uploaded successfully"
-        };
-    } catch (error) {
-        console.error(error);
-        return { error: "Failed to upload avatar", statusCode: 500, data: null };
-    }
-}
-
 // Update user profile information
 export async function completeUserProfile(
     firstName: string, 

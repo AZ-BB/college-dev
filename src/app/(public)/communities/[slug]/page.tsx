@@ -11,7 +11,7 @@ interface PageProps {
 export default async function CommunityPage({ params }: PageProps) {
   const { slug } = await params
   const { data: community, error } = await getCommunityBySlug(slug)
-
+  
   if (error || !community) {
     return notFound()
   }
