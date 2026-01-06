@@ -1,12 +1,12 @@
 'use client';
 
 import { useEffect, useRef, useState } from "react";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs as TabsComponent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 
-export default function CommunityTabs({ tabs }: { tabs: { label: string, value: string, href: string, count?: number }[] }) {
+export default function Tabs({ tabs }: { tabs: { label: string, value: string, href: string, count?: number, icon?: any | null }[] }) {
     const pathname = usePathname();
     const scrollContainerRef = useRef<HTMLDivElement>(null);
     const [canScrollLeft, setCanScrollLeft] = useState(false);
@@ -58,26 +58,30 @@ export default function CommunityTabs({ tabs }: { tabs: { label: string, value: 
                 aria-hidden="true"
             />
 
-            <Tabs
+            <TabsComponent
                 value={getCurrentTab()}
                 className="w-full lg:overflow-hidden overflow-x-auto scrollbar-hide"
                 ref={scrollContainerRef}
             >
                 <TabsList variant="underline">
-                    {tabs.map((tab) => (
-                        <TabsTrigger key={tab.value} value={tab.value}>
-                            <Link href={tab.href}>
-                                {tab.label}
-                            </Link>
-                            {tab.count !== undefined && (
-                                <span className="ml-2 px-1.5 py-0.5 text-sm font-semibold bg-gray-200 text-gray-600 rounded-md">
-                                    {tab.count}
-                                </span>
-                            )}
-                        </TabsTrigger>
-                    ))}
+                    {tabs.map((tab) => {
+                        const isActive = pathname === tab.href;
+                        return (
+                            <TabsTrigger key={tab.value} value={tab.value}>
+                                <Link href={tab.href} className="flex gap-2 items-center">
+                                    {tab.icon && <tab.icon className={`w-5 h-5 ${isActive ? 'stroke-orange-500' : 'stroke-gray-700'}`} />}
+                                    {tab.label}
+                                </Link>
+                                {tab.count !== undefined && (
+                                    <span className="ml-2 px-1.5 py-0.5 text-sm font-semibold bg-gray-200 text-gray-600 rounded-md">
+                                        {tab.count}
+                                    </span>
+                                )}
+                            </TabsTrigger>
+                        );
+                    })}
                 </TabsList>
-            </Tabs>
+            </TabsComponent>
         </div>
     );
 }
