@@ -212,7 +212,7 @@ export default function CreateCommunityPage() {
                       d="M25.6663 21.0002C25.6663 21.3735 25.6197 21.7352 25.5263 22.0852C25.4213 22.5518 25.2347 23.0068 24.9897 23.4035C24.1847 24.7568 22.703 25.6668 20.9997 25.6668C19.798 25.6668 18.713 25.2118 17.8963 24.4651C17.5463 24.1618 17.243 23.8002 17.0097 23.4035C16.578 22.7035 16.333 21.8752 16.333 21.0002C16.333 19.7402 16.8347 18.5852 17.6513 17.7452C18.503 16.8702 19.693 16.3335 20.9997 16.3335C22.3763 16.3335 23.6247 16.9285 24.4647 17.8852C25.2113 18.7135 25.6663 19.8102 25.6663 21.0002Z"
                       stroke="#F7670E"
                       strokeWidth="1.5"
-                      stroke-miterlimit="10"
+                      strokeMiterlimit="10"
                       strokeLinecap="round"
                       stroke-linejoin="round"
                     />
@@ -220,7 +220,7 @@ export default function CreateCommunityPage() {
                       d="M22.7384 20.9766H19.2617"
                       stroke="#F7670E"
                       strokeWidth="1.5"
-                      stroke-miterlimit="10"
+                      strokeMiterlimit="10"
                       strokeLinecap="round"
                       stroke-linejoin="round"
                     />
@@ -228,7 +228,7 @@ export default function CreateCommunityPage() {
                       d="M21 19.2734V22.7618"
                       stroke="#F7670E"
                       strokeWidth="1.5"
-                      stroke-miterlimit="10"
+                      strokeMiterlimit="10"
                       strokeLinecap="round"
                       stroke-linejoin="round"
                     />
