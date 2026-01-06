@@ -6,7 +6,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 
-export default function ProfileTabs({ tabs, username }: { tabs: { label: string, value: string, href: string, count?: number }[], username: string }) {
+export default function CommunityTabs({ tabs }: { tabs: { label: string, value: string, href: string, count?: number }[] }) {
     const pathname = usePathname();
     const scrollContainerRef = useRef<HTMLDivElement>(null);
     const [canScrollLeft, setCanScrollLeft] = useState(false);
