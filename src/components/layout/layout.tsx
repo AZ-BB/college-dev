@@ -24,13 +24,14 @@ export default function Layout({
     // Todo: Add a better way to handle child routes
     const noFooterRoutes = [
         'profile',
-        'settings'
+        'settings',
+        'communities'
     ]
 
     return (
         <div className="min-h-screen  bg-white text-neutral-900 relative pb-10">
             {noHeaderFooterRoutes.includes(pathname) ? null : <Header userData={userData} />}
-            <div className="mx-auto max-w-7xl mx-auto">{children}</div>
+            <div className="mx-auto max-w-7xl">{children}</div>
             {noHeaderFooterRoutes.includes(pathname) || noFooterRoutes.filter((route) => pathname.includes(route)).length > 0 ? null : <Footer />}
         </div>
     );
