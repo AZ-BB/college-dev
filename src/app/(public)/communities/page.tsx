@@ -1,5 +1,5 @@
 import { getCommunities } from "@/action/communities"
-import CommunitiesList from "./communities-list"
+import CommunitiesList from "./_components/communities-list"
 
 export const metadata = {
   title: "Communities | theCollege",

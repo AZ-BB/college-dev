@@ -28,9 +28,9 @@ export default function Layout({
     ]
 
     return (
-        <div className="min-h-screen bg-white text-neutral-900 relative pb-10">
+        <div className="min-h-screen  bg-white text-neutral-900 relative pb-10">
             {noHeaderFooterRoutes.includes(pathname) ? null : <Header userData={userData} />}
-            <div className="mx-auto w-full px-14">{children}</div>
+            <div className="mx-auto max-w-7xl mx-auto">{children}</div>
             {noHeaderFooterRoutes.includes(pathname) || noFooterRoutes.filter((route) => pathname.includes(route)).length > 0 ? null : <Footer />}
         </div>
     );

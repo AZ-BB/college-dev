@@ -51,7 +51,6 @@ export default async function RootLayout({
 }>) {
   const userData = await getUserData();
 
-
   return (
     <html lang="en" suppressHydrationWarning>
       <body
