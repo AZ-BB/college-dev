@@ -7,7 +7,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 
-export default async function Ownershipts({ params }: { params: Promise<{ username: string }> }) {
+export default async function Ownerships({ params }: { params: Promise<{ username: string }> }) {
     const { username } = await params;
     const user = await getUserData();
     const isCurrentUser = user?.username === username;
@@ -37,7 +37,7 @@ export default async function Ownershipts({ params }: { params: Promise<{ userna
 
                                 <div className="space-y-2">
                                     <h2 className="text-sm font-bold">{community.name}</h2>
-                                    <p className="text-sm text-gray-primary font-medium flex items-center">
+                                    <div className="text-sm text-gray-primary font-medium flex items-center">
                                         <span>
                                             {community.member_count} members
                                         </span>
@@ -45,7 +45,7 @@ export default async function Ownershipts({ params }: { params: Promise<{ userna
                                         <span>
                                             {community.is_public ? "Free" : "Paid"}
                                         </span>
-                                    </p>
+                                    </div>
                                 </div>
                             </Link>
                         ))}

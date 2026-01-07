@@ -13,6 +13,7 @@ export type Community = Tables<"communities"> & {
   community_cta_links: Tables<"community_cta_links">[],
   created_by: Tables<"users">,
   community_gallery_media: Tables<"community_gallery_media">[],
+  posts_count: { count: number }[],
 };
 
 // GET
@@ -128,7 +129,8 @@ export async function getCommunityBySlug(slug: string): Promise<GeneralResponse<
     .select(`*, 
       community_cta_links(*), 
       created_by(*),
-      community_gallery_media(*)
+      community_gallery_media(*),
+      posts_count: posts(count)
       `)
     .eq("slug", slug).single();
 
