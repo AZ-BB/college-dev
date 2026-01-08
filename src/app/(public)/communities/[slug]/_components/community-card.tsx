@@ -80,7 +80,7 @@ export default async function CommunityCard({ slug }: { slug: string }) {
                         variant="secondary"
                         className="w-full py-7"
                     >
-                        Configure
+                        CONFIGURE
                     </Button>
                 </div>
 
