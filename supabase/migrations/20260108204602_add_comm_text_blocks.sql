@@ -1,0 +1,9 @@
+CREATE TABLE community_text_blocks (
+    id SERIAL PRIMARY KEY,
+    title TEXT NOT NULL,
+    description TEXT NOT NULL,
+    index INTEGER NOT NULL,
+    community_id INTEGER NOT NULL REFERENCES communities(id) ON DELETE CASCADE,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
