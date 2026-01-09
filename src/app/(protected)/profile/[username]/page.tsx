@@ -20,8 +20,8 @@ export default async function Profile({ params }: { params: Promise<{ username: 
                     </div>
 
                     <div className="space-x-1">
-                        <span className="text-base font-semibold text-gray-900 font-generalSans">89</span>
-                        <span className="text-base font-medium text-gray-700 font-generalSans">Likes</span>
+                        <span className="text-base font-semibold text-grey-900 font-generalSans">89</span>
+                        <span className="text-base font-medium text-grey-700 font-generalSans">Likes</span>
                     </div>
                 </div>
 
@@ -31,8 +31,8 @@ export default async function Profile({ params }: { params: Promise<{ username: 
                     </div>
 
                     <div className="space-x-1">
-                        <span className="text-base font-semibold text-gray-900 font-generalSans">89</span>
-                        <span className="text-base font-medium text-gray-700 font-generalSans">Posts</span>
+                        <span className="text-base font-semibold text-grey-900 font-generalSans">89</span>
+                        <span className="text-base font-medium text-grey-700 font-generalSans">Posts</span>
                     </div>
                 </div>
 
@@ -42,8 +42,8 @@ export default async function Profile({ params }: { params: Promise<{ username: 
                     </div>
 
                     <div className="space-x-1">
-                        <span className="text-base font-semibold text-gray-900 font-generalSans">89</span>
-                        <span className="text-base font-medium text-gray-700 font-generalSans">Comments</span>
+                        <span className="text-base font-semibold text-grey-900 font-generalSans">89</span>
+                        <span className="text-base font-medium text-grey-700 font-generalSans">Comments</span>
                     </div>
                 </div>
 
@@ -53,21 +53,21 @@ export default async function Profile({ params }: { params: Promise<{ username: 
                     </div>
 
                     <div className="space-x-1">
-                        <span className="text-base font-semibold text-gray-900 font-generalSans">89</span>
-                        <span className="text-base font-medium text-gray-700 font-generalSans">Poll Votes</span>
+                        <span className="text-base font-semibold text-grey-900 font-generalSans">89</span>
+                        <span className="text-base font-medium text-grey-700 font-generalSans">Poll Votes</span>
                     </div>
                 </div>
 
             </div>
 
             <div className="w-full flex items-center gap-3 pb-4 pt-6 sm:pt-0">
-                <span className="text-sm font-semibold text-gray-900">{new Date().getFullYear()}</span>
+                <span className="text-sm font-semibold text-grey-900">{new Date().getFullYear()}</span>
 
-                <div className="h-px bg-gray-200 w-full flex-1">
+                <div className="h-px bg-grey-200 w-full flex-1">
 
                 </div>
 
-                <span className="block sm:hidden text-sm font-medium text-gray-500">*Comments and posts by you</span>
+                <span className="block sm:hidden text-sm font-medium text-grey-500">*Comments and posts by you</span>
             </div>
 
             <ContributionHeatmap username={username === user?.username ? 'you' : username || ''} />

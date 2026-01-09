@@ -16,7 +16,7 @@ export default async function SettingsAccountPage() {
 
     return (
         <div className="w-full">
-            <h1 className="text-2xl font-semibold text-gray-900 font-generalSans mb-6">
+            <h1 className="text-2xl font-semibold text-grey-900 font-generalSans mb-6">
                 Account
             </h1>
 
@@ -28,7 +28,7 @@ export default async function SettingsAccountPage() {
                         <span className="text-base font-medium">{result.data.email}</span>
                     </div>
 
-                    <div className="p-1.5 hover:bg-gray-100 rounded-lg cursor-not-allowed opacity-50 transition-colors duration-200">
+                    <div className="p-1.5 hover:bg-grey-100 rounded-lg cursor-not-allowed opacity-50 transition-colors duration-200">
                         <EditIcon />
                     </div>
                 </div>

@@ -151,7 +151,7 @@ export function VerifyEmailForm({
     >
       <FieldGroup className="gap-6">
         <div className="flex flex-col items-center gap-2 text-center">
-          <h1 className="text-[32px] font-semibold text-gray-900 font-generalSans">
+          <h1 className="text-[32px] font-semibold text-grey-900 font-generalSans">
             Verify Your Email
           </h1>
           <p className="text-sm font-instrumentSans text-[#7c7c7c]">

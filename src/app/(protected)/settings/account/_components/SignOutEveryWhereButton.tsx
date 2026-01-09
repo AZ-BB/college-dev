@@ -13,7 +13,7 @@ export default function SignOutEveryWhereButton() {
                 });
                 redirect("/login");
             }}
-            className="bg-gray-200 px-4 py-6 hover:bg-gray-300 transition-colors duration-200 text-gray-900 font-semibold text-sm">
+            className="bg-grey-200 px-4 py-6 hover:bg-grey-300 transition-colors duration-200 text-grey-900 font-semibold text-sm">
             Log Out Everywhere
         </Button>
     )

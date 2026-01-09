@@ -40,25 +40,41 @@ function PaginationItem({ ...props }: React.ComponentProps<"li">) {
 type PaginationLinkProps = {
   isActive?: boolean
 } & Pick<React.ComponentProps<typeof Button>, "size"> &
-  React.ComponentProps<"a">
+  React.ComponentProps<"div">
 
 function PaginationLink({
   className,
   isActive,
   size = "icon",
+  children,
   ...props
 }: PaginationLinkProps) {
   return (
-    <a
+    <div
       aria-current={isActive ? "page" : undefined}
       data-slot="pagination-link"
       data-active={isActive}
       className={cn(
-        `flex mx-1 items-center justify-center border-icon-black ${isActive ? "font-semibold text-icon-black" : "text-[#485057]"} rounded-full w-[32px] h-[32px]`,
+        `flex mx-1 items-center justify-center rounded-full w-[32px] h-[32px]`,
         className
       )}
       {...props}
-    />
+    >
+      {children}
+    </div>
+  )
+}
+
+function PaginationNumber({
+  className,
+  isActive,
+  children,
+  ...props
+}: React.ComponentProps<typeof PaginationLink>) {
+  return (
+    <PaginationLink className={cn("w-[32px] h-[32px] cursor-pointer  rounded-[8px] hover:bg-grey-200 hover:text-grey-900 transition-all duration-300", isActive ? "text-grey-900 bg-grey-200 font-semibold" : "bg-transparent text-grey-700", className)} {...props} >
+      {children}
+    </PaginationLink>
   )
 }
 
@@ -66,30 +82,19 @@ function PaginationPrevious({
   className,
   ...props
 }: React.ComponentProps<typeof PaginationLink>) {
+  const isDisabled = props["aria-disabled"] === true || props["aria-disabled"] === "true"
   return (
     <PaginationLink
       aria-label="Go to previous page"
       size="default"
       className={cn(
-        "flex items-center justify-center border-[3px] border-icon-black rounded-full",
+        `flex items-center justify-center w-8 h-8 border-2 border-grey-900 cursor-pointer hover:bg-grey-200 hover:text-grey-900 transition-all duration-300`,
+        isDisabled && "border-grey-400 text-grey-400 cursor-not-allowed hover:bg-transparent",
         className
       )}
       {...props}
     >
-      <div className="flex items-center justify-center">
-        <svg
-          width="7"
-          height="12"
-          viewBox="0 0 7 12"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            d="M5.70333 11.41C5.45 11.41 5.19667 11.3167 4.99667 11.1167L0.29 6.41C-0.0966667 6.02333 -0.0966667 5.38333 0.29 4.99667L4.99667 0.29C5.38333 -0.0966666 6.02333 -0.0966666 6.41 0.29C6.79667 0.676667 6.79667 1.31667 6.41 1.70333L2.41 5.70333L6.41 9.70333C6.79667 10.09 6.79667 10.73 6.41 11.1167C6.22333 11.3167 5.97 11.41 5.70333 11.41Z"
-            fill="#0E1011"
-          />
-        </svg>
-      </div>
+      <ChevronLeftIcon className={cn("size-6 text-grey-900", isDisabled && "text-grey-400")} />
     </PaginationLink>
   )
 }
@@ -98,30 +103,19 @@ function PaginationNext({
   className,
   ...props
 }: React.ComponentProps<typeof PaginationLink>) {
+  const isDisabled = props["aria-disabled"] === true || props["aria-disabled"] === "true"
   return (
     <PaginationLink
       aria-label="Go to next page"
       size="default"
       className={cn(
-        "flex items-center justify-center border-[3px] border-icon-black rounded-full",
+        `flex items-center justify-center w-8 h-8 border-2 border-grey-900 cursor-pointer hover:bg-grey-200 hover:text-grey-900 transition-all duration-300`,
+        isDisabled && "border-grey-400 text-grey-400 cursor-not-allowed hover:bg-transparent",
         className
       )}
       {...props}
     >
-      <div className="flex items-center justify-center">
-        <svg
-          width="7"
-          height="12"
-          viewBox="0 0 7 12"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            d="M0.996666 11.41C0.743333 11.41 0.49 11.3167 0.29 11.1167C-0.0966667 10.73 -0.0966667 10.09 0.29 9.70333L4.29 5.70333L0.29 1.70333C-0.0966667 1.31667 -0.0966667 0.676667 0.29 0.29C0.676667 -0.0966666 1.31667 -0.0966666 1.70333 0.29L6.41 4.99667C6.79667 5.38333 6.79667 6.02333 6.41 6.41L1.70333 11.1167C1.50333 11.3167 1.25 11.41 0.996666 11.41Z"
-            fill="#0E1011"
-          />
-        </svg>
-      </div>
+      <ChevronRightIcon className={cn("size-6 text-grey-900", isDisabled && "text-grey-400")} />
     </PaginationLink>
   )
 }
@@ -137,8 +131,7 @@ function PaginationEllipsis({
       className={cn("flex size-9 items-center justify-center", className)}
       {...props}
     >
-      <MoreHorizontalIcon className="size-4" />
-      <span className="sr-only">More pages</span>
+      <MoreHorizontalIcon className="size-4 text-grey-700" />
     </span>
   )
 }
@@ -151,4 +144,5 @@ export {
   PaginationPrevious,
   PaginationNext,
   PaginationEllipsis,
+  PaginationNumber,
 }

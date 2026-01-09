@@ -130,9 +130,9 @@ export default function CommunityMedia({
                 media.length === 0 && (
                     <div
                         onClick={() => setIsModalOpen(true)}
-                        className="w-full h-[500px] bg-gray-200 rounded-[12px] flex items-center justify-center gap-2 cursor-pointer hover:bg-gray-300 transition-all duration-300">
-                        <UploadIcon className="w-6 h-6 stroke-gray-700" />
-                        <span className="font-semibold text-gray-600">
+                        className="w-full h-[500px] bg-grey-200 rounded-[12px] flex items-center justify-center gap-2 cursor-pointer hover:bg-grey-300 transition-all duration-300">
+                        <UploadIcon className="w-6 h-6 stroke-grey-700" />
+                        <span className="font-semibold text-grey-600">
                             Upload videos or images
                         </span>
                     </div>
@@ -198,7 +198,7 @@ export default function CommunityMedia({
                                         onClick={() => setSelectedMedia(index)}
                                         className={cn("relative cursor-pointer group rounded-[14px]", selectedMedia === index ? "border-3 border-orange-500" : 'p-[3px]')}>
                                         <div className="z-10 absolute opacity-0 p-1 group-hover:opacity-100 hover:bg-orange-500 transition-all duration-300 cursor-pointer -top-1 -right-2 bg-white rounded-full flex items-center justify-center text-white text-xl font-semibold shrink-0">
-                                            <X className="w-4 h-4 hover:text-white text-gray-900" onClick={(e) => {
+                                            <X className="w-4 h-4 hover:text-white text-grey-900" onClick={(e) => {
                                                 e.stopPropagation();
                                                 handleDeleteMedia(item.id, item.url, item.type);
                                             }} />
@@ -221,12 +221,12 @@ export default function CommunityMedia({
                                         onClick={() => setSelectedMedia(index)}
                                         className={cn("relative cursor-pointer group rounded-[14px]", selectedMedia === index ? "border-3 border-orange-500" : 'p-[3px]')}>
                                         <div className="z-10 absolute opacity-0 p-1 group-hover:opacity-100 hover:bg-orange-500 transition-all duration-300 cursor-pointer -top-1 -right-2 bg-white rounded-full flex items-center justify-center text-white text-xl font-semibold shrink-0">
-                                            <X className="w-4 h-4 hover:text-white text-gray-900" onClick={(e) => {
+                                            <X className="w-4 h-4 hover:text-white text-grey-900" onClick={(e) => {
                                                 e.stopPropagation();
                                                 handleDeleteMedia(item.id, item.url, item.type);
                                             }} />
                                         </div>
-                                        <div className="relative w-[80px] h-[80px] rounded-lg overflow-hidden bg-gray-200">
+                                        <div className="relative w-[80px] h-[80px] rounded-lg overflow-hidden bg-grey-200">
                                             <Image
                                                 className="w-full h-full object-cover"
                                                 src={getYouTubeThumbnail(item.url)}
@@ -251,13 +251,13 @@ export default function CommunityMedia({
                                         onClick={() => setSelectedMedia(index)}
                                         className={cn("relative cursor-pointer group rounded-[14px]", selectedMedia === index ? "border-3 border-orange-500" : 'p-[3px]')}>
                                         <div className="z-10 absolute opacity-0 p-1 group-hover:opacity-100 hover:bg-orange-500 transition-all duration-300 cursor-pointer -top-1 -right-2 bg-white rounded-full flex items-center justify-center text-white text-xl font-semibold shrink-0">
-                                            <X className="w-4 h-4 hover:text-white text-gray-900"
+                                            <X className="w-4 h-4 hover:text-white text-grey-900"
                                                 onClick={(e) => {
                                                     e.stopPropagation();
                                                     handleDeleteMedia(item.id, item.url, item.type);
                                                 }} />
                                         </div>
-                                        <div className="relative w-[80px] h-[80px] rounded-lg overflow-hidden bg-gray-200 flex items-center justify-center">
+                                        <div className="relative w-[80px] h-[80px] rounded-lg overflow-hidden bg-grey-200 flex items-center justify-center">
                                             <div className="absolute inset-0 bg-gradient-to-br from-purple-500 to-blue-500" />
                                             <div className="relative flex items-center justify-center">
                                                 <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
@@ -276,12 +276,12 @@ export default function CommunityMedia({
                                         onClick={() => setSelectedMedia(index)}
                                         className={cn("relative cursor-pointer group rounded-[14px]", selectedMedia === index ? "border-3 border-orange-500" : 'p-[3px]')}>
                                         <div className="z-10 absolute opacity-0 p-1 group-hover:opacity-100 hover:bg-orange-500 transition-all duration-300 cursor-pointer -top-1 -right-2 bg-white rounded-full flex items-center justify-center text-white text-xl font-semibold shrink-0">
-                                            <X className="w-4 h-4 hover:text-white text-gray-900" onClick={(e) => {
+                                            <X className="w-4 h-4 hover:text-white text-grey-900" onClick={(e) => {
                                                 e.stopPropagation();
                                                 handleDeleteMedia(item.id, item.url, item.type);
                                             }} />
                                         </div>
-                                        <div className="relative w-[80px] h-[80px] rounded-lg overflow-hidden bg-gray-200 flex items-center justify-center">
+                                        <div className="relative w-[80px] h-[80px] rounded-lg overflow-hidden bg-grey-200 flex items-center justify-center">
                                             <div className="absolute inset-0 bg-gradient-to-br from-cyan-500 to-blue-600" />
                                             <div className="relative flex items-center justify-center">
                                                 <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
@@ -298,7 +298,7 @@ export default function CommunityMedia({
 
                 <div
                     onClick={() => setIsModalOpen(true)}
-                    className="relative w-[80px] h-[80px] opacity-100 flex items-center justify-center hover:bg-gray-200 transition-all duration-300 rounded-lg cursor-pointer">
+                    className="relative w-[80px] h-[80px] opacity-100 flex items-center justify-center hover:bg-grey-200 transition-all duration-300 rounded-lg cursor-pointer">
                     <svg
                         className="absolute inset-0 w-full h-full"
                         width="80"
@@ -352,8 +352,8 @@ export default function CommunityMedia({
                             </TabsTrigger>
                         </TabsList>
 
-                        <TabsContent value="image" className="space-y-4 mt-4">
-                            <div className="space-y-3">
+                        <TabsContent value="image" className="space-y-4 mt-4 w-full max-w-full">
+                            <div className="space-y-3 w-full max-w-full">
                                 <Button
                                     type="button"
                                     variant="outline"
@@ -379,15 +379,15 @@ export default function CommunityMedia({
 
                                 {/* Image Selected Indicator */}
                                 {selectedFile && (
-                                    <div className="flex items-center gap-3 p-3 bg-green-50 border border-green-200 rounded-lg">
+                                    <div className="flex items-center gap-3 p-3 bg-green-50 border border-green-200 rounded-lg w-full overflow-hidden">
                                         <div className="shrink-0 w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
                                             <Check className="w-5 h-5 text-green-600" />
                                         </div>
-                                        <div className="flex-1 min-w-0">
-                                            <p className="text-sm font-medium text-green-900 truncate">
+                                        <div className="flex-1 min-w-0 w-0 overflow-hidden">
+                                            <p className="text-sm font-medium text-green-900 truncate whitespace-nowrap overflow-hidden text-ellipsis" title={selectedFile.name}>
                                                 {selectedFile.name}
                                             </p>
-                                            <p className="text-xs text-green-600">
+                                            <p className="text-xs text-green-600 truncate whitespace-nowrap overflow-hidden text-ellipsis">
                                                 {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
                                             </p>
                                         </div>
@@ -395,7 +395,7 @@ export default function CommunityMedia({
                                             type="button"
                                             variant="ghost"
                                             size="icon"
-                                            className="h-8 w-8"
+                                            className="h-8 w-8 shrink-0"
                                             onClick={() => {
                                                 setSelectedFile(null);
                                                 if (fileInputRef.current) {

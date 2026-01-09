@@ -25,7 +25,7 @@ export default async function Ownerships({ params }: { params: Promise<{ usernam
                 communities?.length > 0 && (
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-10 ">
                         {communities.map((community) => (
-                            <Link href={`/communities/${community.slug}`} className="flex gap-4 hover:bg-gray-200 rounded-xl p-2.5 transition-colors duration-200" key={community.id}>
+                            <Link href={`/communities/${community.slug}`} className="flex gap-4 hover:bg-grey-200 rounded-xl p-2.5 transition-colors duration-200" key={community.id}>
                                 <Avatar>
                                     <AvatarImage className="w-[52px] h-[52px] rounded-lg" src={community.avatar || ""} />
                                     <AvatarFallback>
@@ -37,7 +37,7 @@ export default async function Ownerships({ params }: { params: Promise<{ usernam
 
                                 <div className="space-y-2">
                                     <h2 className="text-sm font-bold">{community.name}</h2>
-                                    <div className="text-sm text-gray-primary font-medium flex items-center">
+                                    <div className="text-sm text-grey-primary font-medium flex items-center">
                                         <span>
                                             {community.member_count} members
                                         </span>
@@ -53,12 +53,12 @@ export default async function Ownerships({ params }: { params: Promise<{ usernam
                 )
             }
 
-            <div className="text-gray-500 font-medium text-sm pt-4">
+            <div className="text-grey-500 font-medium text-sm pt-4">
                 *Earnings till date since launch
             </div>
 
             {(communities?.length === 0 && isCurrentUser) && (
-                <div className="text-center text-sm text-gray-600 font-medium w-full gap-8 flex flex-col items-center justify-center">
+                <div className="text-center text-sm text-grey-600 font-medium w-full gap-8 flex flex-col items-center justify-center">
                     <Image
                         src="/placeholders/ownership.png"
                         alt="Empty state"
@@ -67,7 +67,7 @@ export default async function Ownerships({ params }: { params: Promise<{ usernam
                         className="w-[300px] h-[300px] object-cover"
                     />
                     <div className="flex flex-col items-center justify-center gap-4">
-                        <span className="text-xl font-medium text-gray-900">Turn what you know into monthly income.</span>
+                        <span className="text-xl font-medium text-grey-900">Turn what you know into monthly income.</span>
                         <Button variant="default" className=" bg-orange-500 hover:bg-orange-600 text-white text-base">
                             Start a community
                         </Button>
@@ -77,7 +77,7 @@ export default async function Ownerships({ params }: { params: Promise<{ usernam
 
             {(communities?.length === 0 && !isCurrentUser) && (
                 <div className="text-center w-full gap-8 flex flex-col items-center justify-center pt-4">
-                    <span className="text-base font-medium text-gray-600">No Ownerships Found</span>
+                    <span className="text-base font-medium text-grey-600">No Ownerships Found</span>
                 </div>
             )}
         </div>

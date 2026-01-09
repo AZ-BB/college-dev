@@ -412,7 +412,7 @@ export function SettingsForm({
       className={cn("flex flex-col gap-6 w-full ", className)}
       onSubmit={handleSubmit}
     >
-      <h1 className="text-2xl font-semibold text-gray-900 font-generalSans">
+      <h1 className="text-2xl font-semibold text-grey-900 font-generalSans">
         Details
       </h1>
 
@@ -454,9 +454,9 @@ export function SettingsForm({
                 className="h-16 w-16 rounded-2xl object-cover"
               />
             ) : (
-              <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gray-200">
+              <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-grey-200">
                 <svg
-                  className="h-12 w-12 text-gray-400"
+                  className="h-12 w-12 text-grey-400"
                   fill="currentColor"
                   viewBox="0 0 24 24"
                 >
@@ -491,7 +491,7 @@ export function SettingsForm({
           <Field className="gap-1">
             <FieldLabel
               htmlFor="firstName"
-              className="text-sm font-medium text-gray-900"
+              className="text-sm font-medium text-grey-900"
             >
               First Name
             </FieldLabel>
@@ -501,7 +501,7 @@ export function SettingsForm({
               type="text"
               value={firstName}
               readOnly
-              className="h-11 rounded-lg text-black border border-gray-300 bg-gray-50 text-base placeholder:text-gray-400 cursor-not-allowed"
+              className="h-11 rounded-lg text-black border border-grey-300 bg-grey-50 text-base placeholder:text-grey-400 cursor-not-allowed"
             />
           </Field>
 
@@ -509,7 +509,7 @@ export function SettingsForm({
           <Field className="gap-1">
             <FieldLabel
               htmlFor="lastName"
-              className="text-sm font-medium text-gray-900"
+              className="text-sm font-medium text-grey-900"
             >
               Last Name
             </FieldLabel>
@@ -519,12 +519,12 @@ export function SettingsForm({
               type="text"
               value={lastName}
               readOnly
-              className="h-11 rounded-lg text-black border border-gray-300 bg-gray-50 text-base placeholder:text-gray-400 cursor-not-allowed"
+              className="h-11 rounded-lg text-black border border-grey-300 bg-grey-50 text-base placeholder:text-grey-400 cursor-not-allowed"
             />
           </Field>
         </div>
         <div className="">
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-grey-600">
             You can only change your name once, and you must use your real name.{" "}
             {!user.is_name_changed && (
               <button
@@ -540,7 +540,7 @@ export function SettingsForm({
       </div>
       {/* URL */}
       <Field className="gap-1">
-        <FieldLabel htmlFor="url" className="text-sm font-medium text-gray-900">
+        <FieldLabel htmlFor="url" className="text-sm font-medium text-grey-900">
           URL
         </FieldLabel>
         <Input
@@ -550,10 +550,10 @@ export function SettingsForm({
           value={profileUrl}
           disabled={!canChangeUrl}
           readOnly
-          className="h-11 rounded-lg text-black border border-gray-300 text-base placeholder:text-gray-400 focus-visible:border-orange-primary focus-visible:ring-1 focus-visible:ring-orange-primary disabled:cursor-not-allowed"
+          className="h-11 rounded-lg text-black border border-grey-300 text-base placeholder:text-grey-400 focus-visible:border-orange-primary focus-visible:ring-1 focus-visible:ring-orange-primary disabled:cursor-not-allowed"
         />
         <div className="mt-2">
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-grey-600">
             {canChangeUrl
               ? "You can change your URL."
               : `You can change your URL once you've got 90 contributions.`}
@@ -563,7 +563,7 @@ export function SettingsForm({
 
       {/* Bio */}
       <Field className="gap-1">
-        <FieldLabel htmlFor="bio" className="text-sm font-medium text-gray-900">
+        <FieldLabel htmlFor="bio" className="text-sm font-medium text-grey-900">
           Bio
         </FieldLabel>
         <div className="relative">
@@ -574,9 +574,9 @@ export function SettingsForm({
             value={bio}
             onChange={(e) => setBio(e.target.value)}
             maxLength={150}
-            className="h-24 w-full rounded-lg bg-[#F4F4F6] text-black border border-gray-300 px-3 py-2 text-base placeholder:text-gray-400 focus-visible:border-orange-primary focus-visible:ring-1 focus-visible:ring-orange-primary resize-none"
+            className="h-24 w-full rounded-lg bg-[#F4F4F6] text-black border border-grey-300 px-3 py-2 text-base placeholder:text-grey-400 focus-visible:border-orange-primary focus-visible:ring-1 focus-visible:ring-orange-primary resize-none"
           />
-          <div className="absolute bottom-2 right-3 text-xs text-gray-500">
+          <div className="absolute bottom-2 right-3 text-xs text-grey-500">
             {bio.length}/150
           </div>
         </div>
@@ -586,7 +586,7 @@ export function SettingsForm({
       <Field className="gap-1">
         <FieldLabel
           htmlFor="location"
-          className="text-sm font-medium text-gray-900"
+          className="text-sm font-medium text-grey-900"
         >
           Location
         </FieldLabel>
@@ -596,7 +596,7 @@ export function SettingsForm({
           type="text"
           value={location}
           onChange={(e) => setLocation(e.target.value)}
-          className="h-11 rounded-lg text-black border border-gray-300 text-base placeholder:text-gray-400 focus-visible:border-orange-primary focus-visible:ring-1 focus-visible:ring-orange-primary"
+          className="h-11 rounded-lg text-black border border-grey-300 text-base placeholder:text-grey-400 focus-visible:border-orange-primary focus-visible:ring-1 focus-visible:ring-orange-primary"
         />
       </Field>
 
@@ -620,14 +620,14 @@ export function SettingsForm({
                 placeholder="https://example.com"
                 value={websiteUrl}
                 onChange={(e) => setWebsiteUrl(e.target.value)}
-                className="h-11 rounded-lg text-black border border-gray-300 text-base placeholder:text-gray-400 focus-visible:border-orange-primary focus-visible:ring-1 focus-visible:ring-orange-primary"
+                className="h-11 rounded-lg text-black border border-grey-300 text-base placeholder:text-grey-400 focus-visible:border-orange-primary focus-visible:ring-1 focus-visible:ring-orange-primary"
               />
             </Field>
 
             <Field className="gap-1">
               <FieldLabel
                 htmlFor="xUrl"
-                className="text-sm font-medium text-gray-900"
+                className="text-sm font-medium text-grey-900"
               >
                 X
               </FieldLabel>
@@ -638,14 +638,14 @@ export function SettingsForm({
                 placeholder="https://x.com/yourprofile"
                 value={xUrl}
                 onChange={(e) => setXUrl(e.target.value)}
-                className="h-11 rounded-lg text-black border border-gray-300 text-base placeholder:text-gray-400 focus-visible:border-orange-primary focus-visible:ring-1 focus-visible:ring-orange-primary"
+                className="h-11 rounded-lg text-black border border-grey-300 text-base placeholder:text-grey-400 focus-visible:border-orange-primary focus-visible:ring-1 focus-visible:ring-orange-primary"
               />
             </Field>
 
             <Field className="gap-1">
               <FieldLabel
                 htmlFor="linkedinUrl"
-                className="text-sm font-medium text-gray-900"
+                className="text-sm font-medium text-grey-900"
               >
                 LinkedIn
               </FieldLabel>
@@ -656,7 +656,7 @@ export function SettingsForm({
                 placeholder="https://linkedin.com/in/yourprofile"
                 value={linkedinUrl}
                 onChange={(e) => setLinkedinUrl(e.target.value)}
-                className="h-11 rounded-lg text-black border border-gray-300 text-base placeholder:text-gray-400 focus-visible:border-orange-primary focus-visible:ring-1 focus-visible:ring-orange-primary"
+                className="h-11 rounded-lg text-black border border-grey-300 text-base placeholder:text-grey-400 focus-visible:border-orange-primary focus-visible:ring-1 focus-visible:ring-orange-primary"
               />
             </Field>
           </div>
@@ -666,7 +666,7 @@ export function SettingsForm({
             <Field className="gap-1">
               <FieldLabel
                 htmlFor="instagramUrl"
-                className="text-sm font-medium text-gray-900"
+                className="text-sm font-medium text-grey-900"
               >
                 Instagram
               </FieldLabel>
@@ -677,14 +677,14 @@ export function SettingsForm({
                 placeholder="https://instagram.com/yourprofile"
                 value={instagramUrl}
                 onChange={(e) => setInstagramUrl(e.target.value)}
-                className="h-11 rounded-lg text-black border border-gray-300 text-base placeholder:text-gray-400 focus-visible:border-orange-primary focus-visible:ring-1 focus-visible:ring-orange-primary"
+                className="h-11 rounded-lg text-black border border-grey-300 text-base placeholder:text-grey-400 focus-visible:border-orange-primary focus-visible:ring-1 focus-visible:ring-orange-primary"
               />
             </Field>
 
             <Field className="gap-1">
               <FieldLabel
                 htmlFor="youtubeUrl"
-                className="text-sm font-medium text-gray-900"
+                className="text-sm font-medium text-grey-900"
               >
                 YouTube
               </FieldLabel>
@@ -695,14 +695,14 @@ export function SettingsForm({
                 placeholder="https://youtube.com/@yourchannel"
                 value={youtubeUrl}
                 onChange={(e) => setYoutubeUrl(e.target.value)}
-                className="h-11 rounded-lg text-black border border-gray-300 text-base placeholder:text-gray-400 focus-visible:border-orange-primary focus-visible:ring-1 focus-visible:ring-orange-primary"
+                className="h-11 rounded-lg text-black border border-grey-300 text-base placeholder:text-grey-400 focus-visible:border-orange-primary focus-visible:ring-1 focus-visible:ring-orange-primary"
               />
             </Field>
 
             <Field className="gap-1">
               <FieldLabel
                 htmlFor="facebookUrl"
-                className="text-sm font-medium text-gray-900"
+                className="text-sm font-medium text-grey-900"
               >
                 Facebook
               </FieldLabel>
@@ -713,7 +713,7 @@ export function SettingsForm({
                 placeholder="https://facebook.com/yourprofile"
                 value={facebookUrl}
                 onChange={(e) => setFacebookUrl(e.target.value)}
-                className="h-11 rounded-lg text-black border border-gray-300 text-base placeholder:text-gray-400 focus-visible:border-orange-primary focus-visible:ring-1 focus-visible:ring-orange-primary"
+                className="h-11 rounded-lg text-black border border-grey-300 text-base placeholder:text-grey-400 focus-visible:border-orange-primary focus-visible:ring-1 focus-visible:ring-orange-primary"
               />
             </Field>
           </div>
@@ -721,10 +721,10 @@ export function SettingsForm({
       </div>
 
       {/* Hide profile from search engines */}
-      <div className="flex items-center justify-between pt-4 text-gray-primary border-gray-200">
+      <div className="flex items-center justify-between pt-4 text-grey-primary border-grey-200">
         <label
           htmlFor="hideFromSearch"
-          className="text-sm font-medium text-gray-900 cursor-pointer"
+          className="text-sm font-medium text-grey-900 cursor-pointer"
         >
           Hide profile from search engines
         </label>
@@ -758,7 +758,7 @@ export function SettingsForm({
       >
         <DialogContent className="sm:max-w-md" showCloseButton={false}>
           <DialogHeader>
-            <DialogTitle className="text-xl font-semibold text-gray-900">
+            <DialogTitle className="text-xl font-semibold text-grey-900">
               Change Name
             </DialogTitle>
           </DialogHeader>
@@ -782,7 +782,7 @@ export function SettingsForm({
             <Field className="gap-1">
               <FieldLabel
                 htmlFor="modalFirstName"
-                className="text-sm font-medium text-gray-900"
+                className="text-sm font-medium text-grey-900"
               >
                 First Name
               </FieldLabel>
@@ -795,14 +795,14 @@ export function SettingsForm({
                 onChange={(e) => setModalFirstName(e.target.value)}
                 required
                 disabled={isChangingName}
-                className="h-11 rounded-lg text-black border border-gray-300 bg-white text-base placeholder:text-gray-400 focus-visible:border-orange-primary focus-visible:ring-1 focus-visible:ring-orange-primary"
+                className="h-11 rounded-lg text-black border border-grey-300 bg-white text-base placeholder:text-grey-400 focus-visible:border-orange-primary focus-visible:ring-1 focus-visible:ring-orange-primary"
               />
             </Field>
 
             <Field className="gap-1">
               <FieldLabel
                 htmlFor="modalLastName"
-                className="text-sm font-medium text-gray-900"
+                className="text-sm font-medium text-grey-900"
               >
                 Last Name
               </FieldLabel>
@@ -815,7 +815,7 @@ export function SettingsForm({
                 onChange={(e) => setModalLastName(e.target.value)}
                 required
                 disabled={isChangingName}
-                className="h-11 rounded-lg text-black border border-gray-300 bg-white text-base placeholder:text-gray-400 focus-visible:border-orange-primary focus-visible:ring-1 focus-visible:ring-orange-primary"
+                className="h-11 rounded-lg text-black border border-grey-300 bg-white text-base placeholder:text-grey-400 focus-visible:border-orange-primary focus-visible:ring-1 focus-visible:ring-orange-primary"
               />
             </Field>
           </div>
@@ -844,7 +844,7 @@ export function SettingsForm({
               type="button"
               onClick={() => setIsChangeNameModalOpen(false)}
               disabled={isChangingName}
-              className="h-11 rounded-lg font-medium text-base text-gray-700 bg-gray-100 hover:bg-gray-200 border border-gray-300"
+              className="h-11 rounded-lg font-medium text-base text-grey-700 bg-grey-100 hover:bg-grey-200 border border-grey-300"
             >
               Cancel
             </Button>

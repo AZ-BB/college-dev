@@ -192,8 +192,8 @@ export default function TextEditor({
     if (isLoading) {
         return (
             <div className="flex flex-col gap-4">
-                <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-                    <p className="text-gray-500">Loading text blocks...</p>
+                <div className="bg-white rounded-lg shadow-sm border border-grey-200 p-4">
+                    <p className="text-grey-500">Loading text blocks...</p>
                 </div>
             </div>
         )
@@ -213,17 +213,17 @@ export default function TextEditor({
                 return (
                     <div
                         key={block.id}
-                        className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 relative group"
+                        className="bg-white rounded-lg shadow-sm border border-grey-200 p-4 relative group"
                     >
-                        <div className="absolute border border-gray-200 -top-2 -right-2 opacity-0 group-hover:opacity-100 bg-white rounded-full p-0.5 hover:bg-gray-200">
-                            <X className="size-4 text-gray-500 hover:text-gray-700 cursor-pointer" onClick={(e) => {
+                        <div className="absolute border border-grey-200 -top-2 -right-2 opacity-0 group-hover:opacity-100 bg-white rounded-full p-0.5 hover:bg-grey-200">
+                            <X className="size-4 text-grey-500 hover:text-grey-700 cursor-pointer" onClick={(e) => {
                                 e.stopPropagation();
                                 handleDelete(block.id);
                             }} />
                         </div>
 
                         <div className="flex items-start justify-between mb-4">
-                            <h2 className="text-lg font-semibold text-gray-900">
+                            <h2 className="text-lg font-semibold text-grey-900">
                                 Text Block {block.index + 1}
                             </h2>
                         </div>
@@ -237,9 +237,9 @@ export default function TextEditor({
                                     value={edit.title}
                                     onChange={(e) => handleInputChange(block.id, "title", e.target.value)}
                                     maxLength={50}
-                                    className="h-10 rounded-lg bg-[#F4F4F6] border border-[#F4F4F6] text-black placeholder:text-gray-400 focus-visible:border-[#f89b63] focus-visible:ring-2 focus-visible:ring-[#f89b63]/40 pr-12"
+                                    className="h-10 rounded-lg bg-[#F4F4F6] border border-[#F4F4F6] text-black placeholder:text-grey-400 focus-visible:border-[#f89b63] focus-visible:ring-2 focus-visible:ring-[#f89b63]/40 pr-12"
                                 />
-                                <div className="absolute bottom-2 right-3 text-xs text-gray-500 pointer-events-none">
+                                <div className="absolute bottom-2 right-3 text-xs text-grey-500 pointer-events-none">
                                     {edit.title.length}/50
                                 </div>
                             </div>
@@ -253,9 +253,9 @@ export default function TextEditor({
                                     value={edit.description}
                                     onChange={(e) => handleInputChange(block.id, "description", e.target.value)}
                                     maxLength={1000}
-                                    className="w-full h-24 rounded-lg bg-[#F4F4F6] border border-[#F4F4F6] text-black placeholder:text-gray-400 focus-visible:border-[#f89b63] focus-visible:ring-2 focus-visible:ring-[#f89b63]/40 px-3 py-2 text-base resize-none outline-none"
+                                    className="w-full h-24 rounded-lg bg-[#F4F4F6] border border-[#F4F4F6] text-black placeholder:text-grey-400 focus-visible:border-[#f89b63] focus-visible:ring-2 focus-visible:ring-[#f89b63]/40 px-3 py-2 text-base resize-none outline-none"
                                 />
-                                <div className="absolute bottom-2 right-3 text-xs text-gray-500">
+                                <div className="absolute bottom-2 right-3 text-xs text-grey-500">
                                     {edit.description.length}/1000
                                 </div>
                             </div>

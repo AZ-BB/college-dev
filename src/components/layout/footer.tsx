@@ -5,12 +5,12 @@ export default function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="mt-4 border-t border-gray-200 bg-white lg:absolute  bottom-0 w-full">
+    <footer className="mt-4 border-t border-grey-200 bg-white lg:absolute  bottom-0 w-full">
       <div className="container mx-auto px-4">
         <div className="flex flex-col items-center gap-4 py-6 lg:flex-row md:justify-between">
 
           {/* Center: Logo + Links */}
-          <ul className="flex flex-col lg:flex-row items-center justify-center gap-6 text-sm text-gray-600 mx-auto">
+          <ul className="flex flex-col lg:flex-row items-center justify-center gap-6 text-sm text-grey-600 mx-auto">
             <li>
               <Link href="/" className="flex items-center">
                 <Image
@@ -30,7 +30,7 @@ export default function Footer() {
             <li><Link href="/features">Features</Link></li>
             <li><Link href="/pricing">Pricing</Link></li>
             <li><Link href="/privacy">Privacy</Link></li>
-            <li><p className="text-sm text-gray-500">
+            <li><p className="text-sm text-grey-500">
               © {currentYear}
             </p></li>
           </ul>

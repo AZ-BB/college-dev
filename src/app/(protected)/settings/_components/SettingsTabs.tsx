@@ -26,7 +26,7 @@ export default function SettingsTabs({ ownershipsCount, membershipsCount }: Sett
                         "flex items-center gap-2 px-4 py-3 rounded-lg text-sm font-medium transition-colors whitespace-nowrap shrink-0",
                         isActive('/settings/ownership')
                             ? "bg-orange-primary text-white"
-                            : "text-gray-600"
+                            : "text-grey-600"
                     )}
                 >
                     <span>Ownership</span>
@@ -45,7 +45,7 @@ export default function SettingsTabs({ ownershipsCount, membershipsCount }: Sett
                         "flex items-center gap-2 px-4 py-3 rounded-lg text-sm font-medium transition-colors whitespace-nowrap shrink-0",
                         isActive('/settings/memberships')
                             ? "bg-orange-primary text-white"
-                            : "text-gray-600"
+                            : "text-grey-600"
                     )}
                 >
                     <span>Memberships</span>
@@ -64,7 +64,7 @@ export default function SettingsTabs({ ownershipsCount, membershipsCount }: Sett
                         "flex items-center gap-2 px-4 py-3 rounded-lg text-sm font-medium transition-colors whitespace-nowrap shrink-0",
                         isActive('/settings/details')
                             ? "bg-orange-primary text-white"
-                            : "text-gray-600"
+                            : "text-grey-600"
                     )}
                 >
                     <span>Details</span>
@@ -75,7 +75,7 @@ export default function SettingsTabs({ ownershipsCount, membershipsCount }: Sett
                         "flex items-center gap-2 px-4 py-3 rounded-lg text-sm font-medium transition-colors whitespace-nowrap shrink-0",
                         isActive('/settings/account')
                             ? "bg-orange-primary text-white"
-                            : "text-gray-600"
+                            : "text-grey-600"
                     )}
                 >
                     <span>Account</span>
@@ -86,7 +86,7 @@ export default function SettingsTabs({ ownershipsCount, membershipsCount }: Sett
                         "flex items-center gap-2 px-4 py-3 rounded-lg text-sm font-medium transition-colors whitespace-nowrap shrink-0",
                         isActive('/settings/payouts')
                             ? "bg-orange-primary text-white"
-                            : "text-gray-600"
+                            : "text-grey-600"
                     )}
                 >
                     <span>Payouts</span>
@@ -97,7 +97,7 @@ export default function SettingsTabs({ ownershipsCount, membershipsCount }: Sett
                         "flex items-center gap-2 px-4 py-3 rounded-lg text-sm font-medium transition-colors whitespace-nowrap shrink-0",
                         isActive('/settings/payments')
                             ? "bg-orange-primary text-white"
-                            : "text-gray-600"
+                            : "text-grey-600"
                     )}
                 >
                     <span>Payments</span>
@@ -107,15 +107,15 @@ export default function SettingsTabs({ ownershipsCount, membershipsCount }: Sett
             {/* Desktop: Vertical sidebar */}
             <div className="hidden sm:flex flex-col gap-6">
                 <div className="flex flex-col gap-3">
-                    <p className="text-sm font-semibold text-gray-700 uppercase tracking-wide">COMMUNITY</p>
+                    <p className="text-sm font-semibold text-grey-700 uppercase tracking-wide">COMMUNITY</p>
                     <div className="flex flex-col gap-2">
                         <Link
                             href="/settings/ownership"
                             className={cn(
                                 "flex items-center justify-start gap-2 px-4 py-3 rounded-lg text-sm font-medium transition-colors",
                                 isActive('/settings/ownership')
-                                    ? "bg-white text-gray-900"
-                                    : "text-gray-600 hover:text-gray-900"
+                                    ? "bg-white text-grey-900"
+                                    : "text-grey-600 hover:text-grey-900"
                             )}
                         >
                             <span>Ownership</span>
@@ -129,7 +129,7 @@ export default function SettingsTabs({ ownershipsCount, membershipsCount }: Sett
                                 "flex items-center justify-start gap-2 px-4 py-3 rounded-lg text-sm font-medium transition-colors",
                                 isActive('/settings/memberships')
                                     ? "bg-orange-primary text-white"
-                                    : "text-gray-600 hover:text-gray-900"
+                                    : "text-grey-600 hover:text-grey-900"
                             )}
                         >
                             <span>Memberships</span>
@@ -145,7 +145,7 @@ export default function SettingsTabs({ ownershipsCount, membershipsCount }: Sett
                     </div>
                 </div>
                 <div className="flex flex-col gap-3">
-                    <p className="text-sm font-semibold text-gray-700 uppercase tracking-wide">PROFILE</p>
+                    <p className="text-sm font-semibold text-grey-700 uppercase tracking-wide">PROFILE</p>
                     <div className="flex flex-col gap-2">
                         <Link
                             href="/settings/details"
@@ -153,7 +153,7 @@ export default function SettingsTabs({ ownershipsCount, membershipsCount }: Sett
                                 "px-4 py-3 rounded-lg text-sm font-medium transition-colors",
                                 isActive('/settings/details')
                                     ? "bg-orange-primary text-white"
-                                    : "text-gray-600 hover:text-gray-900"
+                                    : "text-grey-600 hover:text-grey-900"
                             )}
                         >
                             Details
@@ -164,7 +164,7 @@ export default function SettingsTabs({ ownershipsCount, membershipsCount }: Sett
                                 "px-4 py-3 rounded-lg text-sm font-medium transition-colors",
                                 isActive('/settings/account')
                                     ? "bg-orange-primary text-white"
-                                    : "text-gray-600 hover:text-gray-900"
+                                    : "text-grey-600 hover:text-grey-900"
                             )}
                         >
                             Account
@@ -175,7 +175,7 @@ export default function SettingsTabs({ ownershipsCount, membershipsCount }: Sett
                                 "px-4 py-3 rounded-lg text-sm font-medium transition-colors",
                                 isActive('/settings/payouts')
                                     ? "bg-orange-primary text-white"
-                                    : "text-gray-600 hover:text-gray-900"
+                                    : "text-grey-600 hover:text-grey-900"
                             )}
                         >
                             Payouts
@@ -186,7 +186,7 @@ export default function SettingsTabs({ ownershipsCount, membershipsCount }: Sett
                                 "px-4 py-3 rounded-lg text-sm font-medium transition-colors",
                                 isActive('/settings/payments')
                                     ? "bg-orange-primary text-white"
-                                    : "text-gray-600 hover:text-gray-900"
+                                    : "text-grey-600 hover:text-grey-900"
                             )}
                         >
                             Payments

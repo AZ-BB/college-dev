@@ -24,7 +24,7 @@ export default async function SettingsOwnershipPage() {
 
     return (
         <div className="w-full">
-            <h1 className="text-2xl font-semibold text-gray-900 font-generalSans mb-6">
+            <h1 className="text-2xl font-semibold text-grey-900 font-generalSans mb-6">
                 Ownership
             </h1>
             <div className="space-y-4">
@@ -32,14 +32,14 @@ export default async function SettingsOwnershipPage() {
                     communities.map((community) => (
                         <div
                             key={community.id}
-                            className="p-4 border border-gray-200 rounded-lg"
+                            className="p-4 border border-grey-200 rounded-lg"
                         >
                             <h2 className="text-lg font-semibold">{community.name}</h2>
-                            <p className="text-sm text-gray-600">{community.description}</p>
+                            <p className="text-sm text-grey-600">{community.description}</p>
                         </div>
                     ))
                 ) : (
-                    <p className="text-gray-500">You don't own any communities yet.</p>
+                    <p className="text-grey-500">You don't own any communities yet.</p>
                 )}
             </div>
         </div>

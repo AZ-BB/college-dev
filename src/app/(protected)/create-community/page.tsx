@@ -79,12 +79,12 @@ export default function CreateCommunityPage() {
               <div className="inline-block px-3 py-1 bg-[#FEF0E7] text-orange-primary text-sm font-medium rounded-full mb-2">
                 Monetize
               </div>
-              <h1 className="text-4xl font-bold text-gray-900">
+              <h1 className="text-4xl font-bold text-grey-900">
                 Build a community that
                 <br />
                 pays you every month
               </h1>
-              <p className="text-gray-600 text-sm">
+              <p className="text-grey-600 text-sm">
                 Turn your knowledge into recurring income with members who
                 actually stay and succeed
               </p>
@@ -107,7 +107,7 @@ export default function CreateCommunityPage() {
                 >
                   Create Free Community
                 </Button>
-                <ul className="space-y-3 mt-6 text-sm text-gray-700">
+                <ul className="space-y-3 mt-6 text-sm text-grey-700">
                   <li className="flex items-start gap-2">
                     <Check />
                     <span>Create up to 10 free communities</span>
@@ -139,7 +139,7 @@ export default function CreateCommunityPage() {
                   </p>
                   <h2 className="text-3xl font-bold text-icon-black mb-1">
                     3% Fee{" "}
-                    <span className="text-base font-normal text-gray-600">
+                    <span className="text-base font-normal text-grey-600">
                       Per Paying Member
                     </span>
                   </h2>
@@ -150,7 +150,7 @@ export default function CreateCommunityPage() {
                 >
                   Start For Free
                 </Button>
-                <ul className="space-y-3 mt-6 text-sm text-gray-700">
+                <ul className="space-y-3 mt-6 text-sm text-grey-700">
                   <li className="flex items-start gap-2">
                     <Check />
                     <span>Create up to 10 paid communities</span>
@@ -199,14 +199,14 @@ export default function CreateCommunityPage() {
                       stroke="#F7670E"
                       strokeWidth="1.5"
                       strokeLinecap="round"
-                      stroke-linejoin="round"
+                      strokeLinejoin="round"
                     />
                     <path
                       d="M3.97852 25.6667C3.97852 21.1517 8.47018 17.5 14.0002 17.5C15.1202 17.5 16.2052 17.6517 17.2202 17.9317"
                       stroke="#F7670E"
                       strokeWidth="1.5"
                       strokeLinecap="round"
-                      stroke-linejoin="round"
+                      strokeLinejoin="round"
                     />
                     <path
                       d="M25.6663 21.0002C25.6663 21.3735 25.6197 21.7352 25.5263 22.0852C25.4213 22.5518 25.2347 23.0068 24.9897 23.4035C24.1847 24.7568 22.703 25.6668 20.9997 25.6668C19.798 25.6668 18.713 25.2118 17.8963 24.4651C17.5463 24.1618 17.243 23.8002 17.0097 23.4035C16.578 22.7035 16.333 21.8752 16.333 21.0002C16.333 19.7402 16.8347 18.5852 17.6513 17.7452C18.503 16.8702 19.693 16.3335 20.9997 16.3335C22.3763 16.3335 23.6247 16.9285 24.4647 17.8852C25.2113 18.7135 25.6663 19.8102 25.6663 21.0002Z"
@@ -214,7 +214,7 @@ export default function CreateCommunityPage() {
                       strokeWidth="1.5"
                       strokeMiterlimit="10"
                       strokeLinecap="round"
-                      stroke-linejoin="round"
+                      strokeLinejoin="round"
                     />
                     <path
                       d="M22.7384 20.9766H19.2617"
@@ -222,7 +222,7 @@ export default function CreateCommunityPage() {
                       strokeWidth="1.5"
                       strokeMiterlimit="10"
                       strokeLinecap="round"
-                      stroke-linejoin="round"
+                      strokeLinejoin="round"
                     />
                     <path
                       d="M21 19.2734V22.7618"
@@ -230,7 +230,7 @@ export default function CreateCommunityPage() {
                       strokeWidth="1.5"
                       strokeMiterlimit="10"
                       strokeLinecap="round"
-                      stroke-linejoin="round"
+                      strokeLinejoin="round"
                     />
                   </svg>
                 </div>
@@ -242,7 +242,7 @@ export default function CreateCommunityPage() {
 
             <div className="space-y-4 mt-8 lg:w-1/2 w-full">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-grey-700 mb-2">
                   Community Name
                 </label>
                 <Input
@@ -258,13 +258,13 @@ export default function CreateCommunityPage() {
                     background: "#F4F4F6",
                   }}
                   required
-                  className="h-12 w-full rounded-[16px] text-black font-instrumentSans border border-[#F4F4F6] bg-[#F4F4F6] text-base placeholder:text-gray-400 focus-visible:border-[#f89b63] focus-visible:ring-2 focus-visible:ring-[#f89b63]/40"
+                  className="h-12 w-full rounded-[16px] text-black font-instrumentSans border border-[#F4F4F6] bg-[#F4F4F6] text-base placeholder:text-grey-400 focus-visible:border-[#f89b63] focus-visible:ring-2 focus-visible:ring-[#f89b63]/40"
                 />
                 <div className="flex justify-between items-center">
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-grey-600">
                     You can change this later
                   </p>
-                  <p className="text-sm text-gray-500 mt-2 text-right">
+                  <p className="text-sm text-grey-500 mt-2 text-right">
                     {formData.name.length}/30
                   </p>
                 </div>
@@ -299,42 +299,42 @@ export default function CreateCommunityPage() {
                       stroke="#F7670E"
                       strokeWidth="1.5"
                       strokeLinecap="round"
-                      stroke-linejoin="round"
+                      strokeLinejoin="round"
                     />
                     <path
                       d="M19.7977 16.847C21.396 17.1154 23.1577 16.8353 24.3944 16.007C26.0394 14.9103 26.0394 13.1137 24.3944 12.017C23.146 11.1887 21.361 10.9087 19.7627 11.1887"
                       stroke="#F7670E"
                       strokeWidth="1.5"
                       strokeLinecap="round"
-                      stroke-linejoin="round"
+                      strokeLinejoin="round"
                     />
                     <path
                       d="M6.96457 8.3535C7.03457 8.34183 7.11624 8.34183 7.18624 8.3535C8.79624 8.29517 10.0796 6.97683 10.0796 5.3435C10.0796 3.67516 8.73791 2.3335 7.06957 2.3335C5.40124 2.3335 4.05957 3.68683 4.05957 5.3435C4.07124 6.97683 5.35457 8.29517 6.96457 8.3535Z"
                       stroke="#F7670E"
                       strokeWidth="1.5"
                       strokeLinecap="round"
-                      stroke-linejoin="round"
+                      strokeLinejoin="round"
                     />
                     <path
                       d="M8.16635 16.847C6.56802 17.1154 4.80635 16.8353 3.56969 16.007C1.92469 14.9103 1.92469 13.1137 3.56969 12.017C4.81802 11.1887 6.60302 10.9087 8.20135 11.1887"
                       stroke="#F7670E"
                       strokeWidth="1.5"
                       strokeLinecap="round"
-                      stroke-linejoin="round"
+                      strokeLinejoin="round"
                     />
                     <path
                       d="M13.9998 17.0683C13.9298 17.0567 13.8481 17.0567 13.7781 17.0683C12.1681 17.01 10.8848 15.6917 10.8848 14.0583C10.8848 12.39 12.2264 11.0483 13.8948 11.0483C15.5631 11.0483 16.9048 12.4017 16.9048 14.0583C16.8931 15.6917 15.6098 17.0217 13.9998 17.0683Z"
                       stroke="#F7670E"
                       strokeWidth="1.5"
                       strokeLinecap="round"
-                      stroke-linejoin="round"
+                      strokeLinejoin="round"
                     />
                     <path
                       d="M10.6048 20.7434C8.95984 21.8401 8.95984 23.6367 10.6048 24.7334C12.4715 25.9817 15.5282 25.9817 17.3948 24.7334C19.0398 23.6367 19.0398 21.8401 17.3948 20.7434C15.5398 19.5068 12.4715 19.5068 10.6048 20.7434Z"
                       stroke="#F7670E"
                       strokeWidth="1.5"
                       strokeLinecap="round"
-                      stroke-linejoin="round"
+                      strokeLinejoin="round"
                     />
                   </svg>
                 </div>
@@ -343,7 +343,7 @@ export default function CreateCommunityPage() {
                 <h1 className="text-[32px] font-bold text-icon-black">
                   Audience Size
                 </h1>
-                <p className="text-gray-primary text-sm">
+                <p className="text-grey-primary text-sm">
                   How many followers do you have on your main <br /> social
                   media profile?
                 </p>
@@ -372,7 +372,7 @@ export default function CreateCommunityPage() {
                     <span
                       className={`w-4 h-4 rounded-full flex items-center justify-center border-2 mr-2 ${isSelected
                         ? "border-icon-black"
-                        : "border-gray-400"
+                        : "border-grey-400"
                         }`}
                     >
                       {isSelected && <span className="w-2 h-2 rounded-full bg-icon-black"></span>}

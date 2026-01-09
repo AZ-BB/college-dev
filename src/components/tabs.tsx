@@ -46,14 +46,14 @@ export default function Tabs({ tabs }: { tabs: { label: string, value: string, h
         <div className="relative w-full lg:overflow-hidden">
             {/* Left overlay */}
             <div
-                className={`absolute -left-px top-0 bottom-0 w-8 bg-linear-to-r from-gray-100/70 to-transparent pointer-events-none transition-opacity duration-200 lg:hidden ${canScrollLeft ? 'opacity-100' : 'opacity-0'
+                className={`absolute -left-px top-0 bottom-0 w-8 bg-linear-to-r from-grey-100/70 to-transparent pointer-events-none transition-opacity duration-200 lg:hidden ${canScrollLeft ? 'opacity-100' : 'opacity-0'
                     }`}
                 aria-hidden="true"
             />
 
             {/* Right overlay */}
             <div
-                className={`absolute -right-px top-0 bottom-0 w-8 bg-linear-to-l from-gray-100/70 to-transparent pointer-events-none transition-opacity duration-200 lg:hidden ${canScrollRight ? 'opacity-100' : 'opacity-0'
+                className={`absolute -right-px top-0 bottom-0 w-8 bg-linear-to-l from-grey-100/70 to-transparent pointer-events-none transition-opacity duration-200 lg:hidden ${canScrollRight ? 'opacity-100' : 'opacity-0'
                     }`}
                 aria-hidden="true"
             />
@@ -69,11 +69,11 @@ export default function Tabs({ tabs }: { tabs: { label: string, value: string, h
                         return (
                             <TabsTrigger key={tab.value} value={tab.value}>
                                 <Link href={tab.href} className="flex gap-2 items-center">
-                                    {tab.icon && <tab.icon className={`w-5 h-5 ${isActive ? 'stroke-orange-500' : 'stroke-gray-700'}`} />}
+                                    {tab.icon && <tab.icon className={`w-5 h-5 ${isActive ? 'stroke-orange-500' : 'stroke-grey-700'}`} />}
                                     {tab.label}
                                 </Link>
                                 {tab.count !== undefined && (
-                                    <span className="ml-2 px-1.5 py-0.5 text-sm font-semibold bg-gray-200 text-gray-600 rounded-md">
+                                    <span className="ml-2 px-1.5 py-0.5 text-sm font-semibold bg-grey-200 text-grey-600 rounded-md">
                                         {tab.count}
                                     </span>
                                 )}

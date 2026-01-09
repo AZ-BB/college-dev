@@ -40,7 +40,7 @@ export default function UserProfileCard({ user, isUserProfile }: { user: UserPro
     <>
       {!isMobile ? (
         // DESKTOP
-        <div className="w-full sm:border sm:border-gray-200 sm:shadow-[0px_3px_6px_0px_#00000014] p-6 rounded-[20px] flex flex-col gap-5">
+        <div className="w-full sm:border sm:border-grey-200 sm:shadow-[0px_3px_6px_0px_#00000014] p-6 rounded-[20px] flex flex-col gap-5">
           <div>
             <Avatar className="w-40 h-40 rounded-2xl">
               <AvatarImage
@@ -112,7 +112,7 @@ export default function UserProfileCard({ user, isUserProfile }: { user: UserPro
                 <Link href={`/settings/details`}>
                   <Button
                     variant="default"
-                    className="w-full rounded-xl bg-gray-200 text-gray-900 py-6 font-semibold text-base"
+                    className="w-full rounded-xl bg-grey-200 text-grey-900 py-6 font-semibold text-base"
                   >
                     Edit Profile
                   </Button>
@@ -194,7 +194,7 @@ export default function UserProfileCard({ user, isUserProfile }: { user: UserPro
                 <Link href={`/settings/details`}>
                   <Button
                     variant="default"
-                    className="w-full rounded-xl bg-gray-200 text-gray-900 py-6 font-semibold text-base"
+                    className="w-full rounded-xl bg-grey-200 text-grey-900 py-6 font-semibold text-base"
                   >
                     Edit Profile
                   </Button>
@@ -216,7 +216,7 @@ export default function UserProfileCard({ user, isUserProfile }: { user: UserPro
                 className="object-cover"
                 src={user.avatar_url || ""}
               />
-              <AvatarFallback className="text-2xl font-bold rounded-2xl text-white bg-gray-400">
+              <AvatarFallback className="text-2xl font-bold rounded-2xl text-white bg-grey-400">
                 {user.first_name?.charAt(0).toUpperCase() || "U"}
               </AvatarFallback>
             </Avatar>

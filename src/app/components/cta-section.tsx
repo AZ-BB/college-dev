@@ -23,7 +23,7 @@ export default function CTASection() {
           </h2>
 
           {/* Subtext */}
-          <p className="mt-6 text-lg text-gray-600">
+          <p className="mt-6 text-lg text-grey-600">
             Join hundreds of creators making the switch to The College
           </p>
 
