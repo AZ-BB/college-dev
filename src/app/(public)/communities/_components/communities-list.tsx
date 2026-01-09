@@ -383,7 +383,6 @@ export default function CommunitiesList({
                 <PaginationItem>
                   <PaginationPrevious
                     aria-label="Go to previous page"
-                    href="#"
                     onClick={(e) => {
                       e.preventDefault()
                       if (currentPage > 1) {
@@ -404,7 +403,6 @@ export default function CommunitiesList({
                       <PaginationEllipsis />
                     ) : (
                       <PaginationLink
-                        href="#"
                         onClick={(e) => {
                           e.preventDefault()
                           handlePageChange(page as number)
@@ -420,7 +418,6 @@ export default function CommunitiesList({
 
                 <PaginationItem>
                   <PaginationNext
-                    href="#"
                     onClick={(e) => {
                       e.preventDefault()
                       if (currentPage < totalPages) {
