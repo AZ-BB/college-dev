@@ -1,8 +1,3 @@
-export enum SystemRoles {
-    USER = "USER",
-    ADMIN = "ADMIN"
-}
-
 export enum CommunityRole {
     OWNER = "OWNER",
     MEMBER = "MEMBER",
@@ -14,4 +9,12 @@ export enum AudienceSize {
     _10K_TO_100K = "10K_TO_100K",
     _100K_TO_1M = "100K_TO_1M",
     OVER_1M = "OVER_1M"
+}
+
+export enum CommunityMemberStatus {
+    PENDING = "PENDING",
+    BANNED = "BANNED",
+    ACTIVE = "ACTIVE",
+    LEAVING_SOON = "LEAVING_SOON",
+    CHURNED = "CHURNED"
 }

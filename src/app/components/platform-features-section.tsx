@@ -38,13 +38,13 @@ export default function PlatformFeaturesSection() {
   ];
 
   return (
-    <section className="py-16 md:py-24 lg:py-32 bg-gray-50">
+    <section className="py-16 md:py-24 lg:py-32 bg-grey-50">
       <div className="container mx-auto px-4">
         <div className="max-w-3xl mx-auto text-center mb-16">
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4">
             One platform. Zero chaos.
           </h2>
-          <p className="text-lg text-gray-600">
+          <p className="text-lg text-grey-600">
             Everything you need to run your creator programs
           </p>
         </div>
@@ -53,11 +53,11 @@ export default function PlatformFeaturesSection() {
           {features.map((feature, idx) => (
             <div
               key={idx}
-              className="p-8 bg-white rounded-lg border border-gray-200 hover:border-orange-300 transition-all hover:shadow-lg"
+              className="p-8 bg-white rounded-lg border border-grey-200 hover:border-orange-300 transition-all hover:shadow-lg"
             >
               <div className="text-4xl mb-4">{feature.icon}</div>
               <h3 className="text-xl font-bold mb-3">{feature.title}</h3>
-              <p className="text-gray-600">{feature.description}</p>
+              <p className="text-grey-600">{feature.description}</p>
             </div>
           ))}
         </div>

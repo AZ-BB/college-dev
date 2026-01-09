@@ -28,7 +28,7 @@ export default async function SettingsMembershipsPage() {
 
     return (
         <div className="w-full">
-            <h1 className="text-2xl font-semibold text-gray-900 font-generalSans mb-6">
+            <h1 className="text-2xl font-semibold text-grey-900 font-generalSans mb-6">
                 Memberships
             </h1>
             <div className="space-y-4">
@@ -36,14 +36,14 @@ export default async function SettingsMembershipsPage() {
                     memberships.map((membership: any) => (
                         <div
                             key={membership.id}
-                            className="p-4 border border-gray-200 rounded-lg"
+                            className="p-4 border border-grey-200 rounded-lg"
                         >
                             {membership.communities && (
                                 <>
                                     <h2 className="text-lg font-semibold">
                                         {membership.communities.name}
                                     </h2>
-                                    <p className="text-sm text-gray-600">
+                                    <p className="text-sm text-grey-600">
                                         {membership.communities.description}
                                     </p>
                                 </>
@@ -51,7 +51,7 @@ export default async function SettingsMembershipsPage() {
                         </div>
                     ))
                 ) : (
-                    <p className="text-gray-500">You're not a member of any communities yet.</p>
+                    <p className="text-grey-500">You're not a member of any communities yet.</p>
                 )}
             </div>
         </div>

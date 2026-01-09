@@ -95,7 +95,7 @@ const ContributionHeatmap = ({ username }: { username: string }) => {
                             isHiddenOnMobile ? "hidden sm:flex" : "flex",
                             isHiddenOnDesktop ? "lg:hidden" : ""
                         )}>
-                            <span className="text-base font-semibold text-gray-900">{month}</span>
+                            <span className="text-base font-semibold text-grey-900">{month}</span>
                             <div className="grid grid-cols-7 gap-1 w-fit">
                                 {/* Squares for each day of the month */}
                                 {Array.from({ length: daysInMonth }).map((_, i) => {
@@ -155,7 +155,7 @@ const ContributionHeatmap = ({ username }: { username: string }) => {
 
             <div className="hidden mt-4 sm:mb-0 space-y-2 sm:space-y-0 flex-col sm:flex sm:flex-row items-start justify-between text-sm text-[#94A3B8]">
                 <div className="font-medium text-[#64748B] flex items-center gap-2">
-                    <span className='w-[18px] h-[18px] bg-gray-200 rounded-[4px] flex items-center justify-center' /> - Comments and posts by {username}
+                    <span className='w-[18px] h-[18px] bg-grey-200 rounded-[4px] flex items-center justify-center' /> - Comments and posts by {username}
                 </div>
                 <div className="flex items-center gap-2">
                     <span className="text-[#64748B]">Less</span>

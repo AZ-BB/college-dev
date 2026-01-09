@@ -74,19 +74,21 @@
   --radius-xl: calc(var(--radius) + 4px);
   --color-icon-black: #0E1011;
   --color-orange-primary: #F7670E;
-  --color-gray-primary: #485057;
+  --color-grey-primary: #485057;
 
+  --color-orange-600: #E15E0D;
   --color-orange-500: #F7670E;
   --color-orange-400: #F9853E;
   --color-orange-200: #FBB990;
   --color-orange-100: #FDD0B4;
   --color-orange-50: #FEF0E7;
 
-  --color-gray-900: #0E1011;
-  --color-gray-700: #485057;
-  --color-gray-600: #65707A;
-  --color-gray-500: #858F9A;
-  --color-gray-200: #F4F4F6;
+  --color-grey-900: #0E1011;
+  --color-grey-700: #485057;
+  --color-grey-600: #65707A;
+  --color-grey-500: #858F9A;
+  --color-grey-400: #A8AFB7;
+  --color-grey-200: #F4F4F6;
 }
 
 :root {

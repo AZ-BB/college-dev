@@ -15,7 +15,7 @@ export default async function SavedPosts({ params }: { params: Promise<{ usernam
     return (
         <div className="pt-8">
             {isCurrentUser && (
-                <div className="text-center text-sm text-gray-600 font-medium w-full gap-8 flex flex-col items-center justify-center">
+                <div className="text-center text-sm text-grey-600 font-medium w-full gap-8 flex flex-col items-center justify-center">
                     <Image
                         src="/placeholders/saved-posts.png"
                         alt="Empty state"
@@ -24,7 +24,7 @@ export default async function SavedPosts({ params }: { params: Promise<{ usernam
                         className="w-[300px] h-[300px] object-cover"
                     />
                     <div className="flex flex-col items-center justify-center gap-4">
-                        <span className="text-xl font-medium text-gray-900">Join a community to save posts that matter.</span>
+                        <span className="text-xl font-medium text-grey-900">Join a community to save posts that matter.</span>
                         <Button variant="default" className=" bg-orange-500 hover:bg-orange-600 text-white text-base">
                             Discover Communities
                         </Button>

@@ -134,11 +134,11 @@ export function CoverImageUpload({ coverImage, commSlug }: CoverImageUploadProps
                 </div>
             ) : (
                 <div 
-                    className="h-56 bg-gray-200 rounded-t-[20px] flex items-center justify-center gap-2 cursor-pointer hover:bg-gray-300 transition-all duration-300"
+                    className="h-56 bg-grey-200 rounded-t-[20px] flex items-center justify-center gap-2 cursor-pointer hover:bg-grey-300 transition-all duration-300"
                     onClick={handleClick}
                 >
-                    <UploadIcon className="w-6 h-6 stroke-gray-700" />
-                    <span className="font-semibold text-gray-600">
+                    <UploadIcon className="w-6 h-6 stroke-grey-700" />
+                    <span className="font-semibold text-grey-600">
                         Upload Cover Photo
                     </span>
                 </div>

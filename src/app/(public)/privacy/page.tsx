@@ -13,7 +13,7 @@ export default function PrivacyPolicyPage() {
       <div className="container ml-0 px-4 py-12 max-w-5xl">
         <h1 className="text-4xl md:text-5xl font-bold mb-8">Privacy Policy</h1>
 
-        <div className="space-y-8 text-gray-700">
+        <div className="space-y-8 text-grey-700">
           {/* Introduction */}
           <section>
             <p className="mb-4">

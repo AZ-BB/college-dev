@@ -17,7 +17,7 @@ export function PasswordSection() {
 
         <button
           onClick={() => setIsModalOpen(true)}
-          className="p-1.5 hover:bg-gray-100 rounded-lg cursor-pointer transition-colors duration-200"
+          className="p-1.5 hover:bg-grey-100 rounded-lg cursor-pointer transition-colors duration-200"
           type="button"
         >
           <EditIcon />

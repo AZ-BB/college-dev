@@ -14,7 +14,7 @@ export default async function CommunityCard({ slug }: { slug: string }) {
     }
 
     return (
-        <div className="sticky top-20 w-full sm:border sm:border-gray-200 sm:shadow-[0px_3px_6px_0px_#00000014] rounded-[20px] flex flex-col gap-5">
+        <div className="sticky top-20 w-full sm:border sm:border-grey-200 sm:shadow-[0px_3px_6px_0px_#00000014] rounded-[20px] flex flex-col gap-5">
 
             <div>
                 <CoverImageUpload 
@@ -28,7 +28,7 @@ export default async function CommunityCard({ slug }: { slug: string }) {
                     <h1 className="font-semibold text-lg">
                         About
                     </h1>
-                    <span className="font-semibold text-gray-700 text-sm">
+                    <span className="font-semibold text-grey-700 text-sm">
                         thecollege.co.in/{slug}
                     </span>
                 </div>
@@ -36,15 +36,15 @@ export default async function CommunityCard({ slug }: { slug: string }) {
                 <div className="flex items-center justify-between px-4">
                     <div className="flex flex-col text-center">
                         <span className="text-lg font-bold">{community.member_count}</span>
-                        <span className="text-gray-600">members</span>
+                        <span className="text-grey-600">members</span>
                     </div>
                     <div className="flex flex-col text-center">
                         <span className="text-lg font-bold">10</span>
-                        <span className="text-gray-600">online</span>
+                        <span className="text-grey-600">online</span>
                     </div>
                     <div className="flex flex-col text-center">
                         <span className="text-lg font-bold">{community.posts_count[0].count}</span>
-                        <span className="text-gray-600">posts</span>
+                        <span className="text-grey-600">posts</span>
                     </div>
                 </div>
 
@@ -64,7 +64,7 @@ export default async function CommunityCard({ slug }: { slug: string }) {
                         community.is_public ? (
                             <>
                                 <div className="flex justify-center items-center">
-                                    <GlobeIcon className="w-6 h-6 text-gray-700" />
+                                    <GlobeIcon className="w-6 h-6 text-grey-700" />
                                 </div>
 
                                 <div className="flex flex-col gap-1">
@@ -75,7 +75,7 @@ export default async function CommunityCard({ slug }: { slug: string }) {
                         ) : (
                             <>
                                 <div className="flex justify-center items-center">
-                                    <LockIcon className="w-6 h-6 text-gray-700" />
+                                    <LockIcon className="w-6 h-6 text-grey-700" />
                                 </div>
 
                                 <div className="flex flex-col gap-1">

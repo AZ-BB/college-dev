@@ -98,7 +98,7 @@ export function LoginForm({
     >
       <FieldGroup className="gap-6">
         <div className="flex flex-col items-center gap-2 text-center">
-          <h1 className="text-[32px] font-semibold text-gray-900 font-generalSans">Log In</h1>
+          <h1 className="text-[32px] font-semibold text-grey-900 font-generalSans">Log In</h1>
         </div>
 
         {error && (
@@ -113,7 +113,7 @@ export function LoginForm({
         )}
 
         <Field>
-          <FieldLabel htmlFor="email" className="text-sm font-instrumentSans font-medium text-gray-800">
+          <FieldLabel htmlFor="email" className="text-sm font-instrumentSans font-medium text-grey-800">
             Email
           </FieldLabel>
           <Input
@@ -124,11 +124,11 @@ export function LoginForm({
             value={emailValue}
             onChange={(e) => setEmailValue(e.target.value)}
             required
-            className="h-12 rounded-[16px] text-black font-instrumentSans border border-[#F4F4F6] text-base placeholder:text-gray-400 focus-visible:border-[#f89b63] focus-visible:ring-2 focus-visible:ring-[#f89b63]/40"
+            className="h-12 rounded-[16px] text-black font-instrumentSans border border-[#F4F4F6] text-base placeholder:text-grey-400 focus-visible:border-[#f89b63] focus-visible:ring-2 focus-visible:ring-[#f89b63]/40"
           />
         </Field>
         <Field>
-          <FieldLabel htmlFor="password" className="text-sm font-instrumentSans font-medium text-gray-800">
+          <FieldLabel htmlFor="password" className="text-sm font-instrumentSans font-medium text-grey-800">
             Password
           </FieldLabel>
           <Input
@@ -139,7 +139,7 @@ export function LoginForm({
             value={passwordValue}
             onChange={(e) => setPasswordValue(e.target.value)}
             required
-            className="h-12 rounded-[16px] text-black font-instrumentSans border border-[#F4F4F6] bg-[#F4F4F6] text-base placeholder:text-gray-400 focus-visible:border-[#f89b63] focus-visible:ring-2 focus-visible:ring-[#f89b63]/40"
+            className="h-12 rounded-[16px] text-black font-instrumentSans border border-[#F4F4F6] bg-[#F4F4F6] text-base placeholder:text-grey-400 focus-visible:border-[#f89b63] focus-visible:ring-2 focus-visible:ring-[#f89b63]/40"
           />
         </Field>
         <Field>
@@ -169,7 +169,7 @@ export function LoginForm({
           </>
         )}
         <Field>
-          <FieldDescription className="text-center text-sm text-gray-700">
+          <FieldDescription className="text-center text-sm text-grey-700">
             Don&apos;t have an account?{" "}
             <a href="/signup" className="font-semibold text-[#f89b63]">
               {" "}Sign Up

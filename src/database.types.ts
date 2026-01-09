@@ -17,12 +17,19 @@ export type Database = {
       communities: {
         Row: {
           about: string | null
+          amount_one_time: number | null
+          amount_per_month: number | null
+          amount_per_year: number | null
           audience_size: Database["public"]["Enums"]["audience_size_enum"]
           avatar: string | null
+          billing_cycle:
+            | Database["public"]["Enums"]["community_billing_cycle_enum"]
+            | null
           cover_image: string | null
           created_at: string
           created_by: string
           description: string
+          free_trial: boolean
           id: number
           is_active: boolean
           is_deleted: boolean
@@ -31,18 +38,26 @@ export type Database = {
           member_count: number
           name: string
           price: number
+          pricing: Database["public"]["Enums"]["community_pricing_enum"]
           slug: string
           support_email: string | null
           updated_at: string
         }
         Insert: {
           about?: string | null
+          amount_one_time?: number | null
+          amount_per_month?: number | null
+          amount_per_year?: number | null
           audience_size?: Database["public"]["Enums"]["audience_size_enum"]
           avatar?: string | null
+          billing_cycle?:
+            | Database["public"]["Enums"]["community_billing_cycle_enum"]
+            | null
           cover_image?: string | null
           created_at?: string
           created_by: string
           description: string
+          free_trial?: boolean
           id?: number
           is_active?: boolean
           is_deleted?: boolean
@@ -51,18 +66,26 @@ export type Database = {
           member_count?: number
           name: string
           price?: number
+          pricing?: Database["public"]["Enums"]["community_pricing_enum"]
           slug: string
           support_email?: string | null
           updated_at?: string
         }
         Update: {
           about?: string | null
+          amount_one_time?: number | null
+          amount_per_month?: number | null
+          amount_per_year?: number | null
           audience_size?: Database["public"]["Enums"]["audience_size_enum"]
           avatar?: string | null
+          billing_cycle?:
+            | Database["public"]["Enums"]["community_billing_cycle_enum"]
+            | null
           cover_image?: string | null
           created_at?: string
           created_by?: string
           description?: string
+          free_trial?: boolean
           id?: number
           is_active?: boolean
           is_deleted?: boolean
@@ -71,6 +94,7 @@ export type Database = {
           member_count?: number
           name?: string
           price?: number
+          pricing?: Database["public"]["Enums"]["community_pricing_enum"]
           slug?: string
           support_email?: string | null
           updated_at?: string
@@ -159,7 +183,10 @@ export type Database = {
         Row: {
           community_id: number
           id: number
-          joined_at: string
+          invited_at: string | null
+          invited_by: string | null
+          joined_at: string | null
+          member_status: Database["public"]["Enums"]["community_member_status_enum"]
           role: Database["public"]["Enums"]["community_role_enum"]
           updated_at: string
           user_id: string
@@ -167,7 +194,10 @@ export type Database = {
         Insert: {
           community_id: number
           id?: number
-          joined_at?: string
+          invited_at?: string | null
+          invited_by?: string | null
+          joined_at?: string | null
+          member_status?: Database["public"]["Enums"]["community_member_status_enum"]
           role?: Database["public"]["Enums"]["community_role_enum"]
           updated_at?: string
           user_id: string
@@ -175,7 +205,10 @@ export type Database = {
         Update: {
           community_id?: number
           id?: number
-          joined_at?: string
+          invited_at?: string | null
+          invited_by?: string | null
+          joined_at?: string | null
+          member_status?: Database["public"]["Enums"]["community_member_status_enum"]
           role?: Database["public"]["Enums"]["community_role_enum"]
           updated_at?: string
           user_id?: string
@@ -186,6 +219,13 @@ export type Database = {
             columns: ["community_id"]
             isOneToOne: false
             referencedRelation: "communities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "community_members_invited_by_fkey"
+            columns: ["invited_by"]
+            isOneToOne: false
+            referencedRelation: "users"
             referencedColumns: ["id"]
           },
           {
@@ -426,10 +466,43 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_community_id_from_storage_path: {
+        Args: { storage_path: string }
+        Returns: number
+      }
+      get_community_members: {
+        Args: {
+          p_community_id: number
+          p_limit?: number
+          p_page?: number
+          p_role?: Database["public"]["Enums"]["community_role_enum"]
+          p_search?: string
+          p_sort_by?: string
+          p_sort_order?: string
+          p_status?: Database["public"]["Enums"]["community_member_status_enum"]
+        }
+        Returns: Json
+      }
+      is_community_active_member: {
+        Args: { comm_id: number }
+        Returns: boolean
+      }
+      is_community_admin_or_owner: {
+        Args: { comm_id: number }
+        Returns: boolean
+      }
+      is_community_owner: { Args: { comm_id: number }; Returns: boolean }
     }
     Enums: {
       audience_size_enum: "UNDER_10K" | "10K_TO_100K" | "100K_TO_1M" | "OVER_1M"
+      community_billing_cycle_enum: "MONTHLY" | "YEARLY" | "MONTHLY_YEARLY"
+      community_member_status_enum:
+        | "PENDING"
+        | "BANNED"
+        | "ACTIVE"
+        | "CHURNED"
+        | "LEAVING_SOON"
+      community_pricing_enum: "FREE" | "SUB" | "ONE_TIME"
       community_role_enum: "OWNER" | "MEMBER" | "ADMIN"
     }
     CompositeTypes: {
@@ -559,6 +632,15 @@ export const Constants = {
   public: {
     Enums: {
       audience_size_enum: ["UNDER_10K", "10K_TO_100K", "100K_TO_1M", "OVER_1M"],
+      community_billing_cycle_enum: ["MONTHLY", "YEARLY", "MONTHLY_YEARLY"],
+      community_member_status_enum: [
+        "PENDING",
+        "BANNED",
+        "ACTIVE",
+        "CHURNED",
+        "LEAVING_SOON",
+      ],
+      community_pricing_enum: ["FREE", "SUB", "ONE_TIME"],
       community_role_enum: ["OWNER", "MEMBER", "ADMIN"],
     },
   },

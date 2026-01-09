@@ -78,7 +78,7 @@ export function SignupForm({
     >
       <FieldGroup className="gap-6">
         <div className="flex flex-col items-center gap-2 text-center">
-          <h1 className="text-[32px] font-semibold text-gray-900 font-generalSans">
+          <h1 className="text-[32px] font-semibold text-grey-900 font-generalSans">
             Let&apos;s Get You Started
           </h1>
           <p className="text-sm font-instrumentSans text-[#7c7c7c]">
@@ -105,7 +105,7 @@ export function SignupForm({
           </Alert>
         )}
         <Field>
-          <FieldLabel htmlFor="email" className="text-sm font-instrumentSans font-medium text-gray-800">
+          <FieldLabel htmlFor="email" className="text-sm font-instrumentSans font-medium text-grey-800">
             Email
           </FieldLabel>
           <Input
@@ -117,11 +117,11 @@ export function SignupForm({
             onChange={(e) => setEmailValue(e.target.value)}
             required
             style={{ background: "#F4F4F6" }}
-            className="h-12 rounded-[16px] text-black font-instrumentSans border border-[#F4F4F6] bg-[#F4F4F6] text-base placeholder:text-gray-400 focus-visible:border-[#f89b63] focus-visible:ring-2 focus-visible:ring-[#f89b63]/40"
+            className="h-12 rounded-[16px] text-black font-instrumentSans border border-[#F4F4F6] bg-[#F4F4F6] text-base placeholder:text-grey-400 focus-visible:border-[#f89b63] focus-visible:ring-2 focus-visible:ring-[#f89b63]/40"
           />
         </Field>
         <Field>
-          <FieldLabel htmlFor="password" className="text-sm font-instrumentSans font-medium text-gray-800">
+          <FieldLabel htmlFor="password" className="text-sm font-instrumentSans font-medium text-grey-800">
             Password
           </FieldLabel>
           <Input
@@ -133,7 +133,7 @@ export function SignupForm({
             onChange={(e) => setPasswordValue(e.target.value)}
             required
             style={{ background: "#F4F4F6" }}
-            className="h-12 rounded-[16px] text-black font-instrumentSans border border-[#F4F4F6] bg-[#F4F4F6] text-base placeholder:text-gray-400 focus-visible:border-[#f89b63] focus-visible:ring-2 focus-visible:ring-[#f89b63]/40"
+            className="h-12 rounded-[16px] text-black font-instrumentSans border border-[#F4F4F6] bg-[#F4F4F6] text-base placeholder:text-grey-400 focus-visible:border-[#f89b63] focus-visible:ring-2 focus-visible:ring-[#f89b63]/40"
           />
         </Field>
         <Field>

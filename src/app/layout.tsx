@@ -2,10 +2,8 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono, Instrument_Sans, } from "next/font/google";
 import "@/app/globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
-import { RoleProvider } from "@/contexts/role-context";
 import { getUserData } from "@/utils/get-user-data";
 import Layout from "@/components/layout/layout";
-import { SystemRoles } from "@/enums/enums";
 
 
 const instrumentSans = Instrument_Sans({
@@ -54,7 +52,7 @@ export default async function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${instrumentSans.variable} antialiased font-instrumentSans text-gray-900`}
+        className={`${instrumentSans.variable} antialiased font-instrumentSans text-grey-900`}
       >
         <ThemeProvider
           attribute="class"
@@ -62,11 +60,9 @@ export default async function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <RoleProvider initialRole={SystemRoles.USER}>
-            <Layout userData={userData}>
-              {children}
-            </Layout>
-          </RoleProvider>
+          <Layout userData={userData}>
+            {children}
+          </Layout>
         </ThemeProvider>
       </body>
     </html>

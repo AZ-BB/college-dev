@@ -15,6 +15,7 @@ const tabsListVariants = cva(
       variant: {
         default: "bg-muted p-1 rounded-lg h-9 w-fit",
         underline: "bg-transparent p-0 rounded-none border-b  border-[#F4F4F6] w-full justify-start gap-4 h-[48px]",
+        pill: "bg-transparent p-0 justify-start gap-4 h-[48px]", 
       },
     },
     defaultVariants: {
@@ -23,7 +24,7 @@ const tabsListVariants = cva(
   }
 )
 
-const TabsListContext = React.createContext<{ variant?: "default" | "underline" | null | undefined }>({
+const TabsListContext = React.createContext<{ variant?: "default" | "underline" | "pill" | null | undefined }>({
   variant: "default",
 })
 
@@ -50,6 +51,7 @@ const tabsTriggerVariants = cva(
       variant: {
         default: "rounded-md px-3 py-1 text-sm font-medium data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm h-[calc(100%-2px)]",
         underline: "rounded-none border-b-3 border-transparent px-3 py-3 text-sm font-medium data-[state=active]:border-[#FF6B00] data-[state=active]:text-[#FF6B00] data-[state=active]:bg-transparent data-[state=active]:font-semibold data-[state=active]:shadow-none gap-1",
+        pill: "rounded-[12px] group p-3 text-base font-semibold data-[state=active]:bg-orange-50 data-[state=active]:text-orange-600 cursor-pointer hover:bg-orange-50 hover:text-orange-600",
       },
     },
     defaultVariants: {

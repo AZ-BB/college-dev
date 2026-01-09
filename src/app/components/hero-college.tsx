@@ -160,7 +160,7 @@ export function HeroCollage() {
           >
             The Better Place To Run Creator Programs
           </h1>
-          <p className="text-lg text-gray-600 mb-8 max-w-3xl mx-auto">
+          <p className="text-lg text-grey-600 mb-8 max-w-3xl mx-auto">
             Host your free or paid communities, courses, conversations and payments all in one place.<br /> <span>No ads, no algorithms, no monthly fees. You fully own and control everything.</span>
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -175,7 +175,7 @@ export function HeroCollage() {
             </Button>
             <Button
               size="lg"
-              className="px-8 text-gray-900 bg-gray-200 hover:bg-gray-100 hover:text-gray-900"
+              className="px-8 text-grey-900 bg-grey-200 hover:bg-grey-100 hover:text-grey-900"
               asChild
             >
               <Link href="#explore">
@@ -307,7 +307,7 @@ export function HeroCollage() {
           >
             The Better Place To Run <br /> Creator Programs
           </h1>
-          <p className="text-lg text-gray-700 mb-8 max-w-3xl mx-auto"
+          <p className="text-lg text-grey-700 mb-8 max-w-3xl mx-auto"
             style={{
               lineHeight: "27px",
             }}

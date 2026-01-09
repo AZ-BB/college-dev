@@ -97,12 +97,12 @@ export default function AllInOneSection() {
               />
 
               {/* Title */}
-              <h3 className="mb-3 text-lg font-semibold text-gray-900">
+              <h3 className="mb-3 text-lg font-semibold text-grey-900">
                 {feature.title}
               </h3>
 
               {/* Description */}
-              <p className="text-sm leading-relaxed text-gray-600">
+              <p className="text-sm leading-relaxed text-grey-600">
                 {feature.description}
               </p>
             </div>

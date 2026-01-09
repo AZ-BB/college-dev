@@ -28,7 +28,7 @@ export default async function Memberships({ params }: { params: Promise<{ userna
                 memberships?.length > 0 && (
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-10">
                         {memberships?.map((membership) => (
-                            <Link href={`/communities/${membership.community_id}`} className="flex gap-4 hover:bg-gray-200 rounded-xl p-2.5 transition-colors duration-200" key={membership.community_id}>
+                            <Link href={`/communities/${membership.community_id}`} className="flex gap-4 hover:bg-grey-200 rounded-xl p-2.5 transition-colors duration-200" key={membership.community_id}>
                                 <Avatar>
                                     <AvatarImage className="w-[52px] h-[52px] rounded-lg" src={membership.community.avatar || ""} />
                                     <AvatarFallback>
@@ -40,7 +40,7 @@ export default async function Memberships({ params }: { params: Promise<{ userna
 
                                 <div className="space-y-2">
                                     <h2 className="text-sm font-bold">{membership.community.name}</h2>
-                                    <p className="text-sm text-gray-primaryfont-medium flex items-center">
+                                    <p className="text-sm text-grey-primaryfont-medium flex items-center">
                                         <span>
                                             {membership.community.member_count} members
                                         </span>
@@ -60,10 +60,10 @@ export default async function Memberships({ params }: { params: Promise<{ userna
                 isCurrentUser && (
                     <div>
                         <div className="text-xl font-bold">Pending Memberships Requests
-                            <span className="ml-2 px-2 py-1 bg-gray-200 rounded-md text-sm text-gray-600 font-semibold">0</span>
+                            <span className="ml-2 px-2 py-1 bg-grey-200 rounded-md text-sm text-grey-600 font-semibold">0</span>
                         </div>
 
-                        <div className="text-sm text-gray-600 font-medium py-4">
+                        <div className="text-sm text-grey-600 font-medium py-4">
                             No Pending Memberships Requests
                         </div>
                     </div>
@@ -71,7 +71,7 @@ export default async function Memberships({ params }: { params: Promise<{ userna
             }
 
             {(memberships?.length === 0 && membershipsRequest.length === 0 && isCurrentUser) && (
-                <div className="text-center text-sm text-gray-600 font-medium w-full gap-8 flex flex-col items-center justify-center">
+                <div className="text-center text-sm text-grey-600 font-medium w-full gap-8 flex flex-col items-center justify-center">
                     <Image
                         src="/placeholders/memberships.png"
                         alt="Empty state"
@@ -80,7 +80,7 @@ export default async function Memberships({ params }: { params: Promise<{ userna
                         className="w-[300px] h-[300px] object-cover"
                     />
                     <div className="flex flex-col items-center justify-center gap-4">
-                        <span className="text-xl font-medium text-gray-900">Real progress doesn't happen alone.</span>
+                        <span className="text-xl font-medium text-grey-900">Real progress doesn't happen alone.</span>
                         <Button variant="default" className=" bg-orange-500 hover:bg-orange-600 text-white text-base">
                             Join a community
                         </Button>
@@ -90,7 +90,7 @@ export default async function Memberships({ params }: { params: Promise<{ userna
 
             {(memberships?.length === 0 && membershipsRequest.length === 0 && !isCurrentUser) && (
                 <div className="text-center w-full gap-8 flex flex-col items-center justify-center pt-4">
-                    <span className="text-base font-medium text-gray-600">No Memberships Found</span>
+                    <span className="text-base font-medium text-grey-600">No Memberships Found</span>
                 </div>
             )}
         </div>

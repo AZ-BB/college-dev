@@ -110,7 +110,6 @@ export async function getCommunities({
       statusCode: 200
     }
   }
-
   catch (error) {
     console.error("Error fetching communities:", error)
     return {
@@ -135,7 +134,6 @@ export async function getCommunityBySlug(slug: string): Promise<GeneralResponse<
     .eq("slug", slug).single();
 
   if (communityError) {
-    console.error("Error fetching community by slug:", communityError)
     return {
       error: "Error fetching community by slug",
       message: "Error fetching community by slug",

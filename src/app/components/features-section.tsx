@@ -13,7 +13,7 @@ export default function FeaturesSection() {
           <h2 className="text-6xl font-generalSans font-bold mb-4">
             This is where it all <br /> comes together.
           </h2>
-          <p className="text-lg text-gray-700">
+          <p className="text-lg text-grey-700">
             Your community, finally organized.
           </p>
           <Button

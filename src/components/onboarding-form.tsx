@@ -124,7 +124,7 @@ export function OnboardingForm({
     >
       <FieldGroup className="gap-6">
         <div className="flex flex-col items-center gap-2 text-center">
-          <h1 className="text-[32px] font-semibold text-gray-900 font-generalSans">
+          <h1 className="text-[32px] font-semibold text-grey-900 font-generalSans">
             Tell Us About You
           </h1>
           <p className="text-sm font-instrumentSans text-[#7c7c7c]">
@@ -185,7 +185,7 @@ export function OnboardingForm({
 
         {/* First Name */}
         <Field>
-          <FieldLabel htmlFor="firstName" className="text-sm font-instrumentSans font-medium text-gray-800">
+          <FieldLabel htmlFor="firstName" className="text-sm font-instrumentSans font-medium text-grey-800">
             First Name
           </FieldLabel>
           <Input
@@ -197,13 +197,13 @@ export function OnboardingForm({
             onChange={(e) => setFirstName(e.target.value)}
             required
             style={{ background: "#F4F4F6" }}
-            className="h-12 rounded-[16px] text-black font-instrumentSans border border-[#F4F4F6] bg-[#F4F4F6] text-base placeholder:text-gray-400 focus-visible:border-[#f89b63] focus-visible:ring-2 focus-visible:ring-[#f89b63]/40"
+            className="h-12 rounded-[16px] text-black font-instrumentSans border border-[#F4F4F6] bg-[#F4F4F6] text-base placeholder:text-grey-400 focus-visible:border-[#f89b63] focus-visible:ring-2 focus-visible:ring-[#f89b63]/40"
           />
         </Field>
 
         {/* Last Name */}
         <Field>
-          <FieldLabel htmlFor="lastName" className="text-sm font-instrumentSans font-medium text-gray-800">
+          <FieldLabel htmlFor="lastName" className="text-sm font-instrumentSans font-medium text-grey-800">
             Last Name
           </FieldLabel>
           <Input
@@ -215,13 +215,13 @@ export function OnboardingForm({
             onChange={(e) => setLastName(e.target.value)}
             required
             style={{ background: "#F4F4F6" }}
-            className="h-12 rounded-[16px] text-black font-instrumentSans border border-[#F4F4F6] bg-[#F4F4F6] text-base placeholder:text-gray-400 focus-visible:border-[#f89b63] focus-visible:ring-2 focus-visible:ring-[#f89b63]/40"
+            className="h-12 rounded-[16px] text-black font-instrumentSans border border-[#F4F4F6] bg-[#F4F4F6] text-base placeholder:text-grey-400 focus-visible:border-[#f89b63] focus-visible:ring-2 focus-visible:ring-[#f89b63]/40"
           />
         </Field>
 
         {/* Bio */}
         <Field>
-          <FieldLabel htmlFor="bio" className="text-sm font-instrumentSans font-medium text-gray-800">
+          <FieldLabel htmlFor="bio" className="text-sm font-instrumentSans font-medium text-grey-800">
             Bio
           </FieldLabel>
           <div className="relative">
@@ -233,7 +233,7 @@ export function OnboardingForm({
               onChange={(e) => setBio(e.target.value)}
               maxLength={150}
               style={{ background: "#F4F4F6" }}
-              className="h-24 w-full rounded-[16px] text-black font-instrumentSans border border-[#F4F4F6] bg-[#F4F4F6] px-3 py-2 text-base placeholder:text-gray-400 focus-visible:border-[#f89b63] focus-visible:ring-2 focus-visible:ring-[#f89b63]/40 resize-none"
+              className="h-24 w-full rounded-[16px] text-black font-instrumentSans border border-[#F4F4F6] bg-[#F4F4F6] px-3 py-2 text-base placeholder:text-grey-400 focus-visible:border-[#f89b63] focus-visible:ring-2 focus-visible:ring-[#f89b63]/40 resize-none"
             />
             <div className="absolute bottom-2 right-3 text-xs font-instrumentSans text-[#9ca3af]">
               {bio.length}/150
