@@ -38,7 +38,6 @@ export async function getCommunityMembers(id: number, {
     totalCount: number
 }>> {
     try {
-        console.log("filter", filter);
         const supabase = await createSupabaseServerClient();
 
         const { data, error } = await (supabase.rpc as any)('get_community_members', {

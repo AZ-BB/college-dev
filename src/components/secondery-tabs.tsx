@@ -16,7 +16,7 @@ export default function SecondaryTabs({
                     <TabsTrigger className="flex gap-2 items-center" key={tab.value} value={tab.value}>{tab.label}
                         {
                             tab.count !== undefined &&
-                            < span className="group-hover:bg-orange-500 group-hover:text-white transition-all duration-100 group-data-[state=active]:bg-orange-500 group-data-[state=active]:text-white px-1.5 py-0.5 rounded-[10px] font-semibold bg-grey-200 text-grey-600">{tab.count}</span>
+                            < span className="group-hover:bg-orange-500 group-hover:text-white transition-all duration-100 group-data-[state=active]:bg-orange-500 group-data-[state=active]:text-white px-2 py-0.5 rounded-[8px] font-semibold bg-grey-200 text-grey-600">{tab.count}</span>
                         }
                     </TabsTrigger>
                 ))}

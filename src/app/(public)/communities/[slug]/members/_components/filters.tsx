@@ -2,7 +2,7 @@
 import SecondaryTabs from "@/components/secondery-tabs";
 import { CommunityMemberStatus } from "@/enums/enums";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, startTransition } from "react";
 
 export default function Filters({
     counts
@@ -22,7 +22,8 @@ export default function Filters({
         if (tab) {
             const params = new URLSearchParams(searchParams.toString());
             params.set("tab", tab);
-            router.push(`?${params.toString()}`);
+            // Use replace instead of push to avoid adding to history and make it faster
+            router.replace(`?${params.toString()}`);
         }
     }, []);
 
@@ -31,15 +32,19 @@ export default function Filters({
             <SecondaryTabs
                 defaultValue={searchParams.get("tab") || "all"}
                 onTabChange={(value: string) => {
-                    if (value === "all") {
+                    // Use startTransition to make navigation non-blocking
+                    // React will show Suspense fallback immediately while navigation happens
+                    startTransition(() => {
+                        if (value === "all") {
+                            const params = new URLSearchParams(searchParams.toString());
+                            params.delete("tab");
+                            router.push(`?${params.toString()}`);
+                            return;
+                        }
                         const params = new URLSearchParams(searchParams.toString());
-                        params.delete("tab");
+                        params.set("tab", value);
                         router.push(`?${params.toString()}`);
-                        return;
-                    }
-                    const params = new URLSearchParams(searchParams.toString());
-                    params.set("tab", value);
-                    router.push(`?${params.toString()}`);
+                    });
                 }}
                 tabs={[
                     { label: "All", value: "all", count: counts.all },

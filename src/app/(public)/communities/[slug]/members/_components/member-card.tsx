@@ -106,9 +106,9 @@ export default function MemberCard({ member, community, invitedByUser }: MemberC
       {/* Header Section */}
       <div className="flex items-start justify-between gap-4">
         <div className="flex items-start gap-3 flex-1">
-          <Avatar className="w-12 h-12 rounded-full shrink-0">
+          <Avatar className="w-12 h-12 rounded-[12px] shrink-0">
             <AvatarImage src={user.avatar_url || ""} />
-            <AvatarFallback className="bg-grey-200 text-grey-900 text-sm font-semibold">
+            <AvatarFallback className="bg-grey-200 text-grey-900 text-sm font-semibold rounded-[12px]">
               {user.first_name?.charAt(0).toUpperCase() || "U"}
             </AvatarFallback>
           </Avatar>
