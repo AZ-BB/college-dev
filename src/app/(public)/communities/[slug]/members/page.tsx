@@ -1,9 +1,11 @@
 import { getCommunityBySlug } from "@/action/communities";
 import Filters from "./_components/filters";
-import { getCommunityMembers, getCommunityMembersCounts, getInvitedByUser } from "@/action/members";
+import { getCommunityMembersCounts } from "@/action/members";
 import PaginationControl from "@/components/pagination-control";
 import { CommunityMemberStatus } from "@/enums/enums";
-import MemberCard from "./_components/member-card";
+import { Suspense } from "react";
+import MembersList from "./_components/members-list";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default async function MembersPage({
     params,
@@ -23,31 +25,18 @@ export default async function MembersPage({
 
     if (communityError || !community) return null;
 
-
-    const { data: members, error: membersError } = await getCommunityMembers(community.id, {
-        page: page ? parseInt(page) : 1,
-        limit: 10,
-        filter: {
-            status: (tab && ['LEAVING_SOON', 'CHURNED', 'BANNED'].includes(tab)) ? tab as CommunityMemberStatus : undefined
-        }
-    });
-
-    if (membersError || !members) return null;
-
+    // Only fetch counts here - members will be fetched in MembersList component
     const { data: counts, error: countsError } = await getCommunityMembersCounts(community.id);
 
-    // Fetch invited_by user info for members that have it
-    const invitedByUserPromises = members.members
-        .filter(member => member.invited_by)
-        .map(async (member) => {
-            const { data } = await getInvitedByUser(member.invited_by!);
-            return { memberId: member.id, user: data };
-        });
+    const currentPage = page ? parseInt(page) : 1;
+    const currentTab = (tab && ['LEAVING_SOON', 'CHURNED', 'BANNED'].includes(tab)) ? tab : CommunityMemberStatus.ACTIVE;
 
-    const invitedByUsers = await Promise.all(invitedByUserPromises);
-    const invitedByMap = new Map(
-        invitedByUsers.map(item => [item.memberId, item.user])
-    );
+    // Calculate total count based on current tab for pagination
+    const totalCount = currentTab === CommunityMemberStatus.ACTIVE ? (counts?.all || 0)
+        : currentTab === CommunityMemberStatus.LEAVING_SOON ? (counts?.leavingSoon || 0)
+            : currentTab === CommunityMemberStatus.CHURNED ? (counts?.churned || 0)
+                : currentTab === CommunityMemberStatus.BANNED ? (counts?.banned || 0)
+                    : (counts?.all || 0);
 
     return (
         <div className="space-y-6">
@@ -58,26 +47,38 @@ export default async function MembersPage({
                 banned: counts?.banned || 0,
             }} />
 
-            <div className="space-y-4">
-                {members.members.map((member) => (
-                    <MemberCard
-                        key={member.id}
-                        member={member}
-                        community={{
-                            pricing: community.pricing,
-                            billing_cycle: community.billing_cycle,
-                            amount_per_month: community.amount_per_month,
-                            amount_per_year: community.amount_per_year,
-                            amount_one_time: community.amount_one_time,
-                        }}
-                        invitedByUser={invitedByMap.get(member.id) || undefined}
-                    />
-                ))}
-            </div>
+            <Suspense
+                key={`${community.id}-${currentPage}-${currentTab}`}
+                fallback={
+                    <div className="space-y-6">
+                        <div className="animate-pulse space-y-8">
+                            {[...Array(2)].map((_, i) => (
+                                <div key={i} className="space-y-2">
+                                    <Skeleton className="h-8 rounded-[10px] w-1/2" />
+                                    <Skeleton className="h-32 rounded-[10px] w-full" />
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                }
+            >
+                <MembersList
+                    communityId={community.id}
+                    page={currentPage}
+                    tab={currentTab}
+                    community={{
+                        pricing: community.pricing,
+                        billing_cycle: community.billing_cycle,
+                        amount_per_month: community.amount_per_month,
+                        amount_per_year: community.amount_per_year,
+                        amount_one_time: community.amount_one_time,
+                    }}
+                />
+            </Suspense>
 
             {
-                members.totalCount > 10 && (
-                    <PaginationControl currentPage={page ? parseInt(page) : 1} maxPages={Math.ceil(members.totalCount / 10)} />
+                totalCount > 10 && (
+                    <PaginationControl currentPage={currentPage} maxPages={Math.ceil(totalCount / 10)} />
                 )
             }
         </div>
