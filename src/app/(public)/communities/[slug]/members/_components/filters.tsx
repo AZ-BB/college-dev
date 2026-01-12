@@ -1,6 +1,11 @@
 'use client';
+import AddUserIcon from "@/components/icons/add-user";
+import ExportIcon from "@/components/icons/export";
 import SecondaryTabs from "@/components/secondery-tabs";
+import { Button } from "@/components/ui/button";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuLabel, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { CommunityMemberStatus } from "@/enums/enums";
+import { ChevronDownIcon } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, startTransition } from "react";
 
@@ -28,7 +33,7 @@ export default function Filters({
     }, []);
 
     return (
-        <div className="flex gap-4 items-center">
+        <div className="flex gap-4 items-center justify-between">
             <SecondaryTabs
                 defaultValue={searchParams.get("tab") || "all"}
                 onTabChange={(value: string) => {
@@ -53,6 +58,28 @@ export default function Filters({
                     { label: "Banned", value: CommunityMemberStatus.BANNED, count: counts.banned },
                 ]}
             />
+
+            <div className="flex gap-1">
+                <Button variant={'ghost'} className="text-sm font-semibold text-orange-500 px-1.5 hover:bg-orange-50">
+                    <AddUserIcon className="size-5 stroke-orange-500" />
+                    Invite
+                </Button>
+                <Button variant={'ghost'} className="text-sm font-semibold text-grey-600 px-1.5">
+                    <ExportIcon className="size-5 stroke-grey-600" />
+                    Export
+                </Button>
+                <DropdownMenu>
+                    <DropdownMenuTrigger>
+                        <Button variant="outline" className="text-sm font-semibold px-1.5">
+                            Filter
+                            <ChevronDownIcon className="size-4" />
+                        </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent>
+                        <DropdownMenuLabel>Filter</DropdownMenuLabel>
+                    </DropdownMenuContent>
+                </DropdownMenu>
+            </div>
         </div>
     )
 }

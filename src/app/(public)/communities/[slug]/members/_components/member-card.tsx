@@ -1,13 +1,13 @@
 "use client"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { formatFullName } from "@/lib/utils"
 import { format } from "date-fns"
 import CalendarIcon from "@/components/icons/calendar"
 import ClockIcon from "@/components/icons/clock"
-import { Tag, Timer } from "lucide-react"
+import { Timer, WatchIcon } from "lucide-react"
+import TagIcon from "@/components/icons/tag"
 import { Tables } from "@/database.types"
 import { CommunityRole } from "@/enums/enums"
 
@@ -42,6 +42,7 @@ interface MemberCardProps {
   member: MemberWithUser
   community: CommunityPricing
   invitedByUser?: InvitedByUser
+  isCurrentUser?: boolean
 }
 
 function calculateDaysAgo(dateString: string | null): string {
@@ -88,12 +89,12 @@ function getAccessType(community: CommunityPricing): string {
 }
 
 function getRoleDisplayName(role: string): string {
-  if (role === CommunityRole.OWNER) return "Owner"
+  if (role === CommunityRole.OWNER) return "OWNER"
   if (role === CommunityRole.ADMIN) return "Admin"
-  return "Member"
+  return ""
 }
 
-export default function MemberCard({ member, community, invitedByUser }: MemberCardProps) {
+export default function MemberCard({ member, community, invitedByUser, isCurrentUser = false }: MemberCardProps) {
   const user = member.users
   const roleDisplayName = getRoleDisplayName(member.role)
   const isAdminOrOwner = member.role === CommunityRole.ADMIN || member.role === CommunityRole.OWNER
@@ -112,19 +113,16 @@ export default function MemberCard({ member, community, invitedByUser }: MemberC
               {user.first_name?.charAt(0).toUpperCase() || "U"}
             </AvatarFallback>
           </Avatar>
-          
+
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
               <h3 className="text-lg font-bold text-grey-900">
                 {formatFullName(user.first_name, user.last_name)}
               </h3>
               {isAdminOrOwner && (
-                <Badge 
-                  variant="outline" 
-                  className="text-xs px-2 py-0.5 border-orange-500 text-orange-500 bg-transparent"
-                >
+                <span className="text-sm font-semibold text-orange-500">
                   {roleDisplayName}
-                </Badge>
+                </span>
               )}
             </div>
             <p className="text-sm text-grey-600 mt-0.5">
@@ -133,13 +131,17 @@ export default function MemberCard({ member, community, invitedByUser }: MemberC
           </div>
         </div>
 
-        <Button 
-          variant="secondary" 
-          size="sm"
-          className="shrink-0"
-        >
-          Member Settings
-        </Button>
+        {
+          !isCurrentUser && (
+            <Button
+              variant="secondary"
+              size="sm"
+              className="shrink-0"
+            >
+              Member Settings
+            </Button>
+          )
+        }
       </div>
 
       {/* Bio Section */}
@@ -157,19 +159,19 @@ export default function MemberCard({ member, community, invitedByUser }: MemberC
             <span className="font-medium">Joined {format(new Date(member.joined_at), "MMM d, yyyy")}</span>
           </div>
         )}
-        
+
         <div className="flex items-center gap-1.5">
           <ClockIcon />
           <span className="font-medium">Active {daysAgo} ago</span>
         </div>
 
         <div className="flex items-center gap-1.5">
-          <Tag className="w-4 h-4" />
+          <TagIcon className="size-5 stroke-grey-600" />
           <span className="font-medium">{membershipType}</span>
         </div>
 
         <div className="flex items-center gap-1.5">
-          <Timer className="w-4 h-4" />
+          <WatchIcon className="size-5 stroke-grey-600" />
           <span className="font-medium">{accessType}</span>
         </div>
       </div>

@@ -2,6 +2,7 @@ import { getCommunityMembers, getInvitedByUser } from "@/action/members";
 import { CommunityMemberStatus } from "@/enums/enums";
 import MemberCard from "./member-card";
 import { unstable_noStore as noStore } from "next/cache";
+import { getUserData } from "@/utils/get-user-data";
 
 type MembersListProps = {
     communityId: number;
@@ -37,18 +38,7 @@ export default async function MembersList({
         return <div>Error loading members</div>;
     }
 
-    // Fetch invited_by user info for members that have it
-    const invitedByUserPromises = members.members
-        .filter(member => member.invited_by)
-        .map(async (member) => {
-            const { data } = await getInvitedByUser(member.invited_by!);
-            return { memberId: member.id, user: data };
-        });
-
-    const invitedByUsers = await Promise.all(invitedByUserPromises);
-    const invitedByMap = new Map(
-        invitedByUsers.map(item => [item.memberId, item.user])
-    );
+    const currentUser = await getUserData();
 
     return (
         <div className="space-y-4">
@@ -57,7 +47,8 @@ export default async function MembersList({
                     key={member.id}
                     member={member}
                     community={community}
-                    invitedByUser={invitedByMap.get(member.id) || undefined}
+                    invitedByUser={undefined}
+                    isCurrentUser={currentUser?.id === member.user_id}
                 />
             ))}
         </div>
