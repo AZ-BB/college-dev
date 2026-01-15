@@ -1,4 +1,4 @@
-import { getCommunityMembers, getInvitedByUser } from "@/action/members";
+import { getCommunityMembers } from "@/action/members";
 import { CommunityMemberStatus } from "@/enums/enums";
 import MemberCard from "./member-card";
 import { unstable_noStore as noStore } from "next/cache";
@@ -25,7 +25,7 @@ export default async function MembersList({
 }: MembersListProps) {
     // Prevent caching to ensure Suspense works properly
     noStore();
-    
+
     const { data: members, error: membersError } = await getCommunityMembers(communityId, {
         page,
         limit: 10,

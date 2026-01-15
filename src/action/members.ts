@@ -3,6 +3,7 @@ import { Tables } from "@/database.types";
 import { CommunityMemberStatus, CommunityRole } from "@/enums/enums";
 import { GeneralResponse } from "@/utils/general-response";
 import { createSupabaseServerClient } from "@/utils/supabase-server";
+import { revalidatePath } from "next/cache";
 
 export type MemberWithUser = Tables<"community_members"> & {
     users: {
@@ -90,46 +91,6 @@ export async function getCommunityMembers(id: number, {
     }
 }
 
-export async function getInvitedByUser(id: string): Promise<GeneralResponse<{
-    id: string
-    first_name: string
-    last_name: string
-    avatar_url: string | null
-} | null>> {
-    try {
-        const supabase = await createSupabaseServerClient();
-        const { data, error } = await supabase
-            .from("users")
-            .select("id, first_name, last_name, avatar_url")
-            .eq("id", id)
-            .single();
-
-        if (error || !data) {
-            return {
-                data: null,
-                error: undefined,
-                message: "User not found",
-                statusCode: 200
-            }
-        }
-
-        return {
-            data,
-            error: undefined,
-            message: "User fetched successfully",
-            statusCode: 200
-        }
-    } catch (error) {
-        console.error("Error fetching invited by user:", error)
-        return {
-            data: null,
-            error: "Error fetching user",
-            message: "Error fetching user",
-            statusCode: 500
-        }
-    }
-}
-
 export async function getCommunityMembersCounts(id: number): Promise<GeneralResponse<{
     all: number,
     leavingSoon: number,
@@ -184,6 +145,109 @@ export async function getCommunityMembersCounts(id: number): Promise<GeneralResp
         return {
             error: "Error fetching members counts",
             message: "Error fetching members counts",
+            statusCode: 500
+        }
+    }
+}
+
+export async function acceptMember(memberShipId: number): Promise<GeneralResponse<{
+    message: string
+}>> {
+    try {
+        const supabase = await createSupabaseServerClient();
+
+        const { data: existingMembership, error: e1 } = await supabase.from("community_members").select("*, communities(slug)").eq("id", memberShipId).single();
+        if (e1 || !existingMembership) {
+            console.error("Membership not found:", e1)
+            return {
+                error: "Membership not found",
+                message: "Membership not found",
+                statusCode: 404
+            }
+        }
+
+        const { data: updatedMembership, error: e2 } = await supabase.from("community_members")
+            .update({
+                member_status: CommunityMemberStatus.ACTIVE,
+                joined_at: new Date().toISOString(),
+            })
+            .eq("id", memberShipId)
+            .select()
+            .single();
+
+        if (e2 || !updatedMembership) {
+            console.error("Error accepting member:", e2)
+            return {
+                error: "Error accepting member",
+                message: "Error accepting member",
+                statusCode: 500
+            }
+        }
+
+        revalidatePath(`/communities/${existingMembership.communities.slug}/members/pending`)
+        return {
+            data: {
+                message: "Member accepted successfully",
+            },
+            error: undefined,
+            message: "Member accepted successfully",
+            statusCode: 200
+        }
+    }
+    catch (error) {
+        console.error("Error accepting member:", error)
+        return {
+            error: "Error accepting member",
+            message: "Error accepting member",
+            statusCode: 500
+        }
+    }
+}
+
+export async function rejectMember(memberShipId: number): Promise<GeneralResponse<{
+    message: string
+}>> {
+    try {
+        const supabase = await createSupabaseServerClient();
+
+        const { data: existingMembership, error: e1 } = await supabase.from("community_members").select("*, communities(slug)").eq("id", memberShipId).single();
+        if (e1 || !existingMembership) {
+            console.error("Membership not found:", e1)
+            return {
+                error: "Membership not found",
+                message: "Membership not found",
+                statusCode: 404
+            }
+        }
+
+        const { error: e2 } = await supabase.from("community_members")
+            .delete()
+            .eq("id", memberShipId)
+
+        if (e2) {
+            console.error("Error rejecting member:", e2)
+            return {
+                error: "Error rejecting member",
+                message: "Error rejecting member",
+                statusCode: 500
+            }
+        }
+        revalidatePath(`/communities/${existingMembership.communities.slug}/members/pending`)
+        
+        return {
+            data: {
+                message: "Member rejected successfully",
+            },
+            error: undefined,
+            message: "Member rejected successfully",
+            statusCode: 200
+        }
+    }
+    catch (error) {
+        console.error("Error rejecting member:", error)
+        return {
+            error: "Error rejecting member",
+            message: "Error rejecting member",
             statusCode: 500
         }
     }
