@@ -182,6 +182,7 @@ export type Database = {
       community_members: {
         Row: {
           community_id: number
+          created_at: string
           id: number
           invited_at: string | null
           invited_by: string | null
@@ -193,6 +194,7 @@ export type Database = {
         }
         Insert: {
           community_id: number
+          created_at?: string
           id?: number
           invited_at?: string | null
           invited_by?: string | null
@@ -204,6 +206,7 @@ export type Database = {
         }
         Update: {
           community_id?: number
+          created_at?: string
           id?: number
           invited_at?: string | null
           invited_by?: string | null
