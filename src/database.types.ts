@@ -14,6 +14,59 @@ export type Database = {
   }
   public: {
     Tables: {
+      classrooms: {
+        Row: {
+          amount_one_time: number | null
+          community_id: number
+          cover_url: string | null
+          created_at: string
+          description: string
+          id: number
+          is_draft: boolean
+          name: string
+          slug: string
+          time_unlock_in_days: number | null
+          type: Database["public"]["Enums"]["classroom_type_enum"]
+          updated_at: string
+        }
+        Insert: {
+          amount_one_time?: number | null
+          community_id: number
+          cover_url?: string | null
+          created_at?: string
+          description: string
+          id?: number
+          is_draft: boolean
+          name: string
+          slug: string
+          time_unlock_in_days?: number | null
+          type: Database["public"]["Enums"]["classroom_type_enum"]
+          updated_at?: string
+        }
+        Update: {
+          amount_one_time?: number | null
+          community_id?: number
+          cover_url?: string | null
+          created_at?: string
+          description?: string
+          id?: number
+          is_draft?: boolean
+          name?: string
+          slug?: string
+          time_unlock_in_days?: number | null
+          type?: Database["public"]["Enums"]["classroom_type_enum"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "classrooms_community_id_fkey"
+            columns: ["community_id"]
+            isOneToOne: false
+            referencedRelation: "communities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       communities: {
         Row: {
           about: string | null
@@ -316,6 +369,135 @@ export type Database = {
           },
         ]
       }
+      lesson_resources: {
+        Row: {
+          created_at: string
+          file_name: string | null
+          file_size: number | null
+          file_type: string | null
+          id: number
+          lesson_id: number
+          link_name: string | null
+          type: Database["public"]["Enums"]["lesson_resource_type_enum"]
+          updated_at: string
+          url: string
+        }
+        Insert: {
+          created_at?: string
+          file_name?: string | null
+          file_size?: number | null
+          file_type?: string | null
+          id?: number
+          lesson_id: number
+          link_name?: string | null
+          type: Database["public"]["Enums"]["lesson_resource_type_enum"]
+          updated_at?: string
+          url: string
+        }
+        Update: {
+          created_at?: string
+          file_name?: string | null
+          file_size?: number | null
+          file_type?: string | null
+          id?: number
+          lesson_id?: number
+          link_name?: string | null
+          type?: Database["public"]["Enums"]["lesson_resource_type_enum"]
+          updated_at?: string
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lesson_resources_lesson_id_fkey"
+            columns: ["lesson_id"]
+            isOneToOne: false
+            referencedRelation: "lessons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lessons: {
+        Row: {
+          created_at: string
+          id: number
+          index: number
+          module_id: number
+          name: string
+          text_content: string | null
+          updated_at: string
+          video_type: Database["public"]["Enums"]["video_type_enum"] | null
+          video_url: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          index: number
+          module_id: number
+          name: string
+          text_content?: string | null
+          updated_at?: string
+          video_type?: Database["public"]["Enums"]["video_type_enum"] | null
+          video_url?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          index?: number
+          module_id?: number
+          name?: string
+          text_content?: string | null
+          updated_at?: string
+          video_type?: Database["public"]["Enums"]["video_type_enum"] | null
+          video_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lessons_module_id_fkey"
+            columns: ["module_id"]
+            isOneToOne: false
+            referencedRelation: "modules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      modules: {
+        Row: {
+          classroom_id: number
+          created_at: string
+          description: string
+          id: number
+          index: number
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          classroom_id: number
+          created_at?: string
+          description: string
+          id?: number
+          index: number
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          classroom_id?: number
+          created_at?: string
+          description?: string
+          id?: number
+          index?: number
+          name?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "modules_classroom_id_fkey"
+            columns: ["classroom_id"]
+            isOneToOne: false
+            referencedRelation: "classrooms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       posts: {
         Row: {
           author_id: string
@@ -469,6 +651,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      can_access_classroom_content: {
+        Args: { comm_id: number }
+        Returns: boolean
+      }
+      get_classroom_community_id: {
+        Args: { classroom_id_param: number }
+        Returns: number
+      }
       get_community_id_from_storage_path: {
         Args: { storage_path: string }
         Returns: number
@@ -486,6 +676,14 @@ export type Database = {
         }
         Returns: Json
       }
+      get_lesson_community_id: {
+        Args: { lesson_id_param: number }
+        Returns: number
+      }
+      get_module_community_id: {
+        Args: { module_id_param: number }
+        Returns: number
+      }
       is_community_active_member: {
         Args: { comm_id: number }
         Returns: boolean
@@ -498,6 +696,11 @@ export type Database = {
     }
     Enums: {
       audience_size_enum: "UNDER_10K" | "10K_TO_100K" | "100K_TO_1M" | "OVER_1M"
+      classroom_type_enum:
+        | "PRIVATE"
+        | "PUBLIC"
+        | "ONE_TIME_PAYMENT"
+        | "TIME_UNLOCK"
       community_billing_cycle_enum: "MONTHLY" | "YEARLY" | "MONTHLY_YEARLY"
       community_member_status_enum:
         | "PENDING"
@@ -507,6 +710,8 @@ export type Database = {
         | "LEAVING_SOON"
       community_pricing_enum: "FREE" | "SUB" | "ONE_TIME"
       community_role_enum: "OWNER" | "MEMBER" | "ADMIN"
+      lesson_resource_type_enum: "FILE" | "LINK"
+      video_type_enum: "YOUTUBE" | "LOOM" | "VIMEO"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -635,6 +840,12 @@ export const Constants = {
   public: {
     Enums: {
       audience_size_enum: ["UNDER_10K", "10K_TO_100K", "100K_TO_1M", "OVER_1M"],
+      classroom_type_enum: [
+        "PRIVATE",
+        "PUBLIC",
+        "ONE_TIME_PAYMENT",
+        "TIME_UNLOCK",
+      ],
       community_billing_cycle_enum: ["MONTHLY", "YEARLY", "MONTHLY_YEARLY"],
       community_member_status_enum: [
         "PENDING",
@@ -645,6 +856,8 @@ export const Constants = {
       ],
       community_pricing_enum: ["FREE", "SUB", "ONE_TIME"],
       community_role_enum: ["OWNER", "MEMBER", "ADMIN"],
+      lesson_resource_type_enum: ["FILE", "LINK"],
+      video_type_enum: ["YOUTUBE", "LOOM", "VIMEO"],
     },
   },
 } as const

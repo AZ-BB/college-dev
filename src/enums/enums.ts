@@ -18,3 +18,27 @@ export enum CommunityMemberStatus {
     LEAVING_SOON = "LEAVING_SOON",
     CHURNED = "CHURNED"
 }
+
+export enum VideoType {
+    YOUTUBE = "YOUTUBE",
+    LOOM = "LOOM",
+    VIMEO = "VIMEO"
+}
+
+export enum LessonResourceType {
+    FILE = "FILE",
+    LINK = "LINK"
+}
+
+export enum ClassroomType {
+    PRIVATE = "PRIVATE",
+    PUBLIC = "PUBLIC",
+    ONE_TIME_PAYMENT = "ONE_TIME_PAYMENT",
+    TIME_UNLOCK = "TIME_UNLOCK"
+}
+
+export enum CommunityPricingType {
+    FREE = "FREE",
+    SUB = "SUB",
+    ONE_TIME = "ONE_TIME"
+}
