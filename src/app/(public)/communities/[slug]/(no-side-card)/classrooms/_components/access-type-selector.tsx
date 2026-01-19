@@ -3,7 +3,7 @@ import { Input } from "@/components/ui/input";
 import { ClassroomType } from "@/enums/enums";
 import { useClassroomContext } from "./classroom-context";
 
-export function AccessTypeSelector() {
+export function AccessTypeSelector({ readOnly = false }: { readOnly?: boolean }) {
     const { classroomData, updateClassroomData } = useClassroomContext();
 
     const accessOptions = [
@@ -37,8 +37,9 @@ export function AccessTypeSelector() {
                         <div key={option.value} className="w-1/3">
                             <button
                                 type="button"
-                                onClick={() => updateClassroomData({ type: option.value })}
-                                className={`w-full text-left bg-gray-200 cursor-pointer rounded-lg px-4 py-2.5 hover:bg-gray-300 transition-all`}
+                                onClick={() => !readOnly && updateClassroomData({ type: option.value })}
+                                disabled={readOnly}
+                                className={`w-full text-left bg-gray-200 rounded-lg px-4 py-2.5 transition-all ${readOnly ? 'cursor-default' : 'cursor-pointer hover:bg-gray-300'}`}
                             >
                                 <div className="flex items-center gap-3">
                                     <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
@@ -85,7 +86,9 @@ export function AccessTypeSelector() {
                                     placeholder=""
                                     min={0}
                                     value={classroomData.oneTimePayment || ""}
-                                    onChange={(e) => updateClassroomData({ oneTimePayment: e.target.value ? Number(e.target.value) : undefined })}
+                                    onChange={(e) => !readOnly && updateClassroomData({ oneTimePayment: e.target.value ? Number(e.target.value) : undefined })}
+                                    readOnly={readOnly}
+                                    disabled={readOnly}
                                 />
 
                                 <div className="absolute left-3 top-1/2 -translate-y-1/2">
@@ -115,7 +118,9 @@ export function AccessTypeSelector() {
                                     placeholder=""
                                     min={0}
                                     value={classroomData.timeUnlockInDays || ""}
-                                    onChange={(e) => updateClassroomData({ timeUnlockInDays: e.target.value ? Number(e.target.value) : undefined })}
+                                    onChange={(e) => !readOnly && updateClassroomData({ timeUnlockInDays: e.target.value ? Number(e.target.value) : undefined })}
+                                    readOnly={readOnly}
+                                    disabled={readOnly}
                                 />
                             </div>
                         </div>

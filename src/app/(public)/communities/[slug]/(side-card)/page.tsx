@@ -1,10 +1,10 @@
 import { getCommunityBySlug } from "@/action/communities"
 import { notFound } from "next/navigation"
-import CommunityMedia from "./_components/community-media"
+import CommunityMedia from "../_components/community-media"
 import { createSupabaseAdminServerClient, createSupabaseServerClient } from "@/utils/supabase-server"
 import { revalidatePath } from "next/cache"
-import TextEditor from "./_components/text-editor"
-import CommunityDetails from "./_components/community-details"
+import TextEditor from "../_components/text-editor"
+import CommunityDetails from "../_components/community-details"
 
 export default async function CommunityPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;

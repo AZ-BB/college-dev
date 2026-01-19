@@ -63,12 +63,12 @@ export async function POST(request: NextRequest) {
         }
 
         // Upload cover: classrooms/{classroom_id}/cover.{extension}
+        // Always use "cover" as the filename to ensure it overwrites the old one
         const fileExt = file.name.split('.').pop()?.toLowerCase() || 'jpg';
         const filePath = `${classroomId}/cover.${fileExt}`;
         const bucketName = 'classrooms';
 
-        // Check if old cover exists
-        let useUpsert = false;
+        // Check if old cover exists and delete it if format differs
         const { data: existingClassroom } = await supabase
             .from('classrooms')
             .select('cover_url')
@@ -81,25 +81,30 @@ export async function POST(request: NextRequest) {
                 if (urlParts.length > 1) {
                     const oldFilePath = urlParts[1];
                     const oldFileExt = oldFilePath.split('.').pop()?.toLowerCase();
-                    if (oldFileExt === fileExt) {
-                        useUpsert = true;
-                    } else {
-                        // Delete old file if extension differs
-                        await supabase.storage
+                    
+                    // If extension differs, delete the old file
+                    if (oldFileExt !== fileExt) {
+                        const { error: deleteError } = await supabase.storage
                             .from(bucketName)
                             .remove([oldFilePath]);
+                        
+                        if (deleteError) {
+                            console.error('Error deleting old cover file:', deleteError);
+                            // Continue with upload even if deletion fails
+                        }
                     }
                 }
             } catch (error) {
                 console.error('Error checking/deleting old cover:', error);
+                // Continue with upload even if check fails
             }
         }
 
-        // Upload to Supabase Storage
+        // Upload to Supabase Storage (always use upsert to overwrite)
         const { error: uploadError } = await supabase.storage
             .from(bucketName)
             .upload(filePath, file, {
-                upsert: useUpsert,
+                upsert: true, // Always overwrite existing file
                 contentType: file.type,
             });
 
@@ -116,6 +121,18 @@ export async function POST(request: NextRequest) {
         const { data: { publicUrl } } = supabase.storage
             .from(bucketName)
             .getPublicUrl(filePath);
+
+        // Update the cover_url in the classrooms table
+        const { error: updateError } = await supabase
+            .from('classrooms')
+            .update({ cover_url: publicUrl })
+            .eq('id', parseInt(classroomId));
+
+        if (updateError) {
+            console.error('Error updating classroom cover_url:', updateError);
+            // Still return success since file was uploaded, but log the error
+            // The frontend can handle updating the URL if needed
+        }
 
         return NextResponse.json({
             url: publicUrl,
