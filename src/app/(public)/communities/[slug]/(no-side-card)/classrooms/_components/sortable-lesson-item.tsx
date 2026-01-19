@@ -2,6 +2,7 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { cn } from "@/lib/utils";
 import { Lesson } from "./types";
+import { LessonContentBadge } from "./lesson-content-badge";
 
 interface SortableLessonItemProps {
     lesson: Lesson;
@@ -23,7 +24,7 @@ export function SortableLessonItem({
         transform,
         transition,
         isDragging,
-    } = useSortable({ id: lesson.index });
+    } = useSortable({ id: String(lesson.index) });
 
     const style = {
         transform: CSS.Transform.toString(transform),
@@ -56,9 +57,7 @@ export function SortableLessonItem({
                     <div className="font-medium text-base">
                         {lesson.name || "Lesson Name"}
                     </div>
-                    <div className="text-sm text-grey-500">
-                        Video
-                    </div>
+                    <LessonContentBadge lesson={lesson} />
                 </div>
 
                 {

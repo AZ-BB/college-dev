@@ -3,9 +3,11 @@ import { CoverUpload } from "./cover-upload";
 import { AccessTypeSelector } from "./access-type-selector";
 
 export function ClassroomDetailsStep() {
-    const { classroomData, updateClassroomData, handleCoverChange } = useClassroomContext();
+    const { classroomData, updateClassroomData, handleCoverChange, mode } = useClassroomContext();
+    const isReadOnly = mode === 'view';
 
     const handleFileChange = (file: File) => {
+        if (isReadOnly) return;
         const reader = new FileReader();
         reader.onloadend = () => {
             const dataUrl = reader.result as string;
@@ -21,6 +23,7 @@ export function ClassroomDetailsStep() {
                 <CoverUpload
                     coverUrl={classroomData.coverUrl}
                     onFileChange={handleFileChange}
+                    readOnly={isReadOnly}
                 />
 
                 {/* Course Name */}
@@ -31,7 +34,9 @@ export function ClassroomDetailsStep() {
                         type="text"
                         placeholder="Name Your Course"
                         value={classroomData.name}
-                        onChange={(e) => updateClassroomData({ name: e.target.value })}
+                        onChange={(e) => !isReadOnly && updateClassroomData({ name: e.target.value })}
+                        readOnly={isReadOnly}
+                        disabled={isReadOnly}
                     />
                 </div>
 
@@ -42,13 +47,15 @@ export function ClassroomDetailsStep() {
                         className="w-full text-base font-medium border-none outline-none ring-0 placeholder:text-grey-400"
                         placeholder="Write Course Description"
                         value={classroomData.description}
-                        onChange={(e) => updateClassroomData({ description: e.target.value })}
+                        onChange={(e) => !isReadOnly && updateClassroomData({ description: e.target.value })}
                         rows={3}
+                        readOnly={isReadOnly}
+                        disabled={isReadOnly}
                     />
                 </div>
 
                 {/* Course Access */}
-                <AccessTypeSelector />
+                <AccessTypeSelector readOnly={isReadOnly} />
             </div>
         </div>
     );
