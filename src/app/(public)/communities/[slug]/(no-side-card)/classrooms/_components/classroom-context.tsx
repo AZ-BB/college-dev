@@ -5,7 +5,7 @@ import { arrayMove } from "@dnd-kit/sortable";
 import { ClassroomType, VideoType, LessonResourceType } from "@/enums/enums";
 import { CreateClassroom, Step, Lesson, Resource, ModalMode } from "./types";
 import { v4 as uuidv4 } from 'uuid';
-import { createClassroom, updateClassroomCover, createLessonResource, getClassroomById, updateClassroom } from "@/action/classroom";
+import { updateClassroomCover, createLessonResource, getClassroomById, updateClassroom } from "@/action/classroom";
 import { toast } from "sonner";
 import { useRouter, useParams } from "next/navigation";
 
@@ -303,7 +303,19 @@ export function ClassroomProvider({ children, communityId, mode = 'create', clas
 
         try {
             // Step 1: Create classroom (without base64 files)
-            const result = await createClassroom(communityId, classroomData, true);
+            const response = await fetch('/api/classroom/create', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    communityId,
+                    classroomData,
+                    isDraft: true,
+                }),
+            });
+
+            const result = await response.json();
             
             if (result.error || !result.data) {
                 toast.error(result.error || "Failed to save classroom", { id: loadingToast });
@@ -400,7 +412,19 @@ export function ClassroomProvider({ children, communityId, mode = 'create', clas
                 lessons = result.data.lessons;
             } else {
                 // Create new classroom in create mode
-                result = await createClassroom(communityId, classroomData, false);
+                const response = await fetch('/api/classroom/create', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        communityId,
+                        classroomData,
+                        isDraft: false,
+                    }),
+                });
+
+                result = await response.json();
                 if (result.error || !result.data) {
                     toast.error(result.error || "Failed to publish classroom", { id: loadingToast });
                     return;

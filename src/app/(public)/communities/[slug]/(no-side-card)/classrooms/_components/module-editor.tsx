@@ -169,9 +169,10 @@ export function ModuleEditor() {
 
                                             <div className="flex gap-6 ">
                                                 {
-                                                    lesson.resources?.map((resource) => (
+                                                    lesson.resources?.map((resource, index) => (
                                                         resource.type === LessonResourceType.LINK ? (
                                                             <a
+                                                                key={index}
                                                                 href={resource.url}
                                                                 target="_blank"
                                                                 rel="noopener noreferrer"
@@ -181,20 +182,21 @@ export function ModuleEditor() {
                                                                 </span>
 
                                                                 <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                                    <path d="M9.75 8.25156L15.9 2.10156" stroke="#F7670E" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-                                                                    <path d="M16.5004 5.1V1.5H12.9004" stroke="#F7670E" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-                                                                    <path d="M8.25 1.5H6.75C3 1.5 1.5 3 1.5 6.75V11.25C1.5 15 3 16.5 6.75 16.5H11.25C15 16.5 16.5 15 16.5 11.25V9.75" stroke="#F7670E" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                                                                    <path d="M9.75 8.25156L15.9 2.10156" stroke="#F7670E" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                                                                    <path d="M16.5004 5.1V1.5H12.9004" stroke="#F7670E" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                                                                    <path d="M8.25 1.5H6.75C3 1.5 1.5 3 1.5 6.75V11.25C1.5 15 3 16.5 6.75 16.5H11.25C15 16.5 16.5 15 16.5 11.25V9.75" stroke="#F7670E" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                                                                 </svg>
                                                             </a>
                                                         ) : (
                                                             <a
+                                                                key={index}
                                                                 href={resource.url}
                                                                 target="_blank"
                                                                 rel="noopener noreferrer"
                                                                 className="flex items-center gap-1 text-sm text-orange-500">
                                                                 <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                                    <path d="M9.15016 8.84968L8.09263 9.90718C7.50763 10.4922 7.50763 11.4447 8.09263 12.0297C8.67763 12.6147 9.63015 12.6147 10.2151 12.0297L11.8802 10.3647C13.0502 9.19469 13.0502 7.29719 11.8802 6.11969C10.7102 4.94969 8.81264 4.94969 7.63514 6.11969L5.82016 7.93467C4.81516 8.93967 4.81516 10.5672 5.82016 11.5722" stroke="#F7670E" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-                                                                    <path d="M6.75 16.5H11.25C15 16.5 16.5 15 16.5 11.25V6.75C16.5 3 15 1.5 11.25 1.5H6.75C3 1.5 1.5 3 1.5 6.75V11.25C1.5 15 3 16.5 6.75 16.5Z" stroke="#F7670E" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                                                                    <path d="M9.15016 8.84968L8.09263 9.90718C7.50763 10.4922 7.50763 11.4447 8.09263 12.0297C8.67763 12.6147 9.63015 12.6147 10.2151 12.0297L11.8802 10.3647C13.0502 9.19469 13.0502 7.29719 11.8802 6.11969C10.7102 4.94969 8.81264 4.94969 7.63514 6.11969L5.82016 7.93467C4.81516 8.93967 4.81516 10.5672 5.82016 11.5722" stroke="#F7670E" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                                                                    <path d="M6.75 16.5H11.25C15 16.5 16.5 15 16.5 11.25V6.75C16.5 3 15 1.5 11.25 1.5H6.75C3 1.5 1.5 3 1.5 6.75V11.25C1.5 15 3 16.5 6.75 16.5Z" stroke="#F7670E" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                                                                 </svg>
 
                                                                 <span className="truncate max-w-[200px]">
