@@ -1,7 +1,6 @@
 "use client"
 
 import { useState } from "react"
-import { useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import {
@@ -20,7 +19,6 @@ export function OnboardingForm({
   className,
   ...props
 }: React.ComponentProps<"form">) {
-  const router = useRouter()
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [firstName, setFirstName] = useState("")
@@ -106,9 +104,9 @@ export function OnboardingForm({
         return
       }
 
-      // Profile updated successfully, redirect to home
-      router.push("/")
-      router.refresh()
+      // Profile updated successfully, redirect to home using hard redirect
+      // This ensures the page actually navigates and component unmounts
+      window.location.href = "/"
     } catch (err) {
       console.error(err)
       setError("An unexpected error occurred. Please try again.")
