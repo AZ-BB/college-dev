@@ -91,13 +91,19 @@ export default function ClassroomCard({ classroom, communitySlug }: ClassroomCar
                     )}
 
                     {/* Dropdown Menu */}
-                    <div className={`absolute top-3 right-3 transition-opacity duration-300 ${isDropdownOpen ? "opacity-100" : "opacity-0 group-hover:opacity-100"}`}>
+                    <div 
+                        className={`absolute top-3 right-3 transition-opacity duration-300 ${isDropdownOpen ? "opacity-100" : "opacity-0 group-hover:opacity-100"}`}
+                        onClick={(e) => e.stopPropagation()}
+                        onPointerDown={(e) => e.stopPropagation()}
+                    >
                         <DropdownMenu open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
                             <DropdownMenuTrigger asChild>
                                 <Button
                                     variant="ghost"
                                     size="icon-sm"
                                     className="h-11 w-11 rounded-lg bg-white p-0"
+                                    onClick={(e) => e.stopPropagation()}
+                                    onPointerDown={(e) => e.stopPropagation()}
                                 >
                                     <svg className="size-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                         <path d="M5 10C3.9 10 3 10.9 3 12C3 13.1 3.9 14 5 14C6.1 14 7 13.1 7 12C7 10.9 6.1 10 5 10Z" stroke="#0E1011" strokeWidth="1.5" />
@@ -108,8 +114,17 @@ export default function ClassroomCard({ classroom, communitySlug }: ClassroomCar
                                 </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
-                                <DropdownMenuItem>Edit</DropdownMenuItem>
-                                <DropdownMenuItem variant="destructive" onClick={handleDelete}>Delete</DropdownMenuItem>
+                                <DropdownMenuItem disabled>Edit</DropdownMenuItem>
+                                <DropdownMenuItem 
+                                    className="cursor-pointer" 
+                                    variant="destructive" 
+                                    onClick={(e) => {
+                                        e.stopPropagation()
+                                        handleDelete()
+                                    }}
+                                >
+                                    Delete
+                                </DropdownMenuItem>
                             </DropdownMenuContent>
                         </DropdownMenu>
                     </div>

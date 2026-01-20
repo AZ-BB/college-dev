@@ -396,13 +396,13 @@ export function LessonEditor() {
                                         {
                                             resource.type === LessonResourceType.LINK ? (
                                                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                    <path d="M13.0598 10.9375C15.3098 13.1875 15.3098 16.8275 13.0598 19.0675C10.8098 21.3075 7.16985 21.3175 4.92985 19.0675C2.68985 16.8175 2.67985 13.1775 4.92985 10.9375" stroke="#292D32" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-                                                    <path d="M10.5909 13.4128C8.25094 11.0728 8.25094 7.27281 10.5909 4.92281C12.9309 2.57281 16.7309 2.58281 19.0809 4.92281C21.4309 7.26281 21.4209 11.0628 19.0809 13.4128" stroke="#292D32" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                                                    <path d="M13.0598 10.9375C15.3098 13.1875 15.3098 16.8275 13.0598 19.0675C10.8098 21.3075 7.16985 21.3175 4.92985 19.0675C2.68985 16.8175 2.67985 13.1775 4.92985 10.9375" stroke="#292D32" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                                                    <path d="M10.5909 13.4128C8.25094 11.0728 8.25094 7.27281 10.5909 4.92281C12.9309 2.57281 16.7309 2.58281 19.0809 4.92281C21.4309 7.26281 21.4209 11.0628 19.0809 13.4128" stroke="#292D32" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                                                 </svg>
                                             ) : (
                                                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                    <path d="M12.2009 11.8022L10.7908 13.2122C10.0108 13.9922 10.0108 15.2622 10.7908 16.0422C11.5708 16.8222 12.8408 16.8222 13.6208 16.0422L15.8409 13.8222C17.4009 12.2622 17.4009 9.73219 15.8409 8.16219C14.2809 6.60219 11.7508 6.60219 10.1808 8.16219L7.76086 10.5822C6.42086 11.9222 6.42086 14.0922 7.76086 15.4322" stroke="#292D32" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-                                                    <path d="M9 22H15C20 22 22 20 22 15V9C22 4 20 2 15 2H9C4 2 2 4 2 9V15C2 20 4 22 9 22Z" stroke="#292D32" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                                                    <path d="M12.2009 11.8022L10.7908 13.2122C10.0108 13.9922 10.0108 15.2622 10.7908 16.0422C11.5708 16.8222 12.8408 16.8222 13.6208 16.0422L15.8409 13.8222C17.4009 12.2622 17.4009 9.73219 15.8409 8.16219C14.2809 6.60219 11.7508 6.60219 10.1808 8.16219L7.76086 10.5822C6.42086 11.9222 6.42086 14.0922 7.76086 15.4322" stroke="#292D32" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                                                    <path d="M9 22H15C20 22 22 20 22 15V9C22 4 20 2 15 2H9C4 2 2 4 2 9V15C2 20 4 22 9 22Z" stroke="#292D32" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                                                 </svg>
                                             )
                                         }
@@ -796,8 +796,8 @@ export function LessonEditor() {
                                                 </svg>
                                             ) : (
                                                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                    <path d="M12.2009 11.8022L10.7908 13.2122C10.0108 13.9922 10.0108 15.2622 10.7908 16.0422C11.5708 16.8222 12.8408 16.8222 13.6208 16.0422L15.8409 13.8222C17.4009 12.2622 17.4009 9.73219 15.8409 8.16219C14.2809 6.60219 11.7508 6.60219 10.1808 8.16219L7.76086 10.5822C6.42086 11.9222 6.42086 14.0922 7.76086 15.4322" stroke="#292D32" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-                                                    <path d="M9 22H15C20 22 22 20 22 15V9C22 4 20 2 15 2H9C4 2 2 4 2 9V15C2 20 4 22 9 22Z" stroke="#292D32" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                                                    <path d="M12.2009 11.8022L10.7908 13.2122C10.0108 13.9922 10.0108 15.2622 10.7908 16.0422C11.5708 16.8222 12.8408 16.8222 13.6208 16.0422L15.8409 13.8222C17.4009 12.2622 17.4009 9.73219 15.8409 8.16219C14.2809 6.60219 11.7508 6.60219 10.1808 8.16219L7.76086 10.5822C6.42086 11.9222 6.42086 14.0922 7.76086 15.4322" stroke="#292D32" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                                                    <path d="M9 22H15C20 22 22 20 22 15V9C22 4 20 2 15 2H9C4 2 2 4 2 9V15C2 20 4 22 9 22Z" stroke="#292D32" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                                                 </svg>
                                             )
                                         }
