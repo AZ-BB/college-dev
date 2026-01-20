@@ -297,7 +297,7 @@ export function ClassroomProvider({ children, communityId, mode = 'create', clas
 
     const handleSaveDraft = useCallback(async () => {
         if (isSavingDraft || isPublishing) return;
-        
+
         setIsSavingDraft(true);
         const loadingToast = toast.loading("Saving classroom as draft...");
 
@@ -316,7 +316,7 @@ export function ClassroomProvider({ children, communityId, mode = 'create', clas
             });
 
             const result = await response.json();
-            
+
             if (result.error || !result.data) {
                 toast.error(result.error || "Failed to save classroom", { id: loadingToast });
                 return;
@@ -335,7 +335,7 @@ export function ClassroomProvider({ children, communityId, mode = 'create', clas
 
             // Step 3: Upload resource files and create lesson resources
             const fileResources: Array<{ lessonId: number; resource: Resource; moduleIndex: number; lessonIndex: number }> = [];
-            
+
             // Collect all base64 file resources
             classroomData.modules.forEach((module, moduleIndex) => {
                 module.lessons.forEach((lesson, lessonIndex) => {
@@ -343,7 +343,7 @@ export function ClassroomProvider({ children, communityId, mode = 'create', clas
                         lesson.resources.forEach((resource) => {
                             if (resource.type === "FILE" && resource.url.startsWith('data:')) {
                                 const lessonData = lessons.find(
-                                    l => l.moduleIndex === moduleIndex && l.lessonIndex === lessonIndex
+                                    (l: any) => l.moduleIndex === moduleIndex && l.lessonIndex === lessonIndex
                                 );
                                 if (lessonData) {
                                     fileResources.push({
@@ -362,7 +362,7 @@ export function ClassroomProvider({ children, communityId, mode = 'create', clas
             // Upload files and create resources
             if (fileResources.length > 0) {
                 toast.loading(`Uploading ${fileResources.length} resource file(s)...`, { id: loadingToast });
-                
+
                 for (const { lessonId, resource } of fileResources) {
                     const uploadResult = await uploadResourceFile(classroomId, resource.url, resource.name);
                     if (uploadResult) {
@@ -392,7 +392,7 @@ export function ClassroomProvider({ children, communityId, mode = 'create', clas
 
     const handlePublish = useCallback(async () => {
         if (isPublishing || isSavingDraft) return;
-        
+
         setIsPublishing(true);
         const loadingToast = toast.loading("Publishing classroom...");
 
@@ -444,7 +444,7 @@ export function ClassroomProvider({ children, communityId, mode = 'create', clas
 
             // Step 3: Upload resource files and create lesson resources
             const fileResources: Array<{ lessonId: number; resource: Resource; moduleIndex: number; lessonIndex: number }> = [];
-            
+
             // Collect all base64 file resources
             classroomData.modules.forEach((module, moduleIndex) => {
                 module.lessons.forEach((lesson, lessonIndex) => {
@@ -452,7 +452,7 @@ export function ClassroomProvider({ children, communityId, mode = 'create', clas
                         lesson.resources.forEach((resource) => {
                             if (resource.type === "FILE" && resource.url.startsWith('data:')) {
                                 const lessonData = lessons.find(
-                                    l => l.moduleIndex === moduleIndex && l.lessonIndex === lessonIndex
+                                    (l: any) => l.moduleIndex === moduleIndex && l.lessonIndex === lessonIndex
                                 );
                                 if (lessonData) {
                                     fileResources.push({
@@ -471,7 +471,7 @@ export function ClassroomProvider({ children, communityId, mode = 'create', clas
             // Upload files and create resources
             if (fileResources.length > 0) {
                 toast.loading(`Uploading ${fileResources.length} resource file(s)...`, { id: loadingToast });
-                
+
                 for (const { lessonId, resource } of fileResources) {
                     const uploadResult = await uploadResourceFile(publishedClassroomId, resource.url, resource.name);
                     if (uploadResult) {
@@ -505,14 +505,14 @@ export function ClassroomProvider({ children, communityId, mode = 'create', clas
 
     const handleSave = useCallback(async () => {
         if (isLoading || isPublishing || !classroomId || mode !== 'edit') return;
-        
+
         setIsLoading(true);
         const loadingToast = toast.loading("Saving classroom...");
 
         try {
             // Step 1: Update classroom (without base64 files)
             const result = await updateClassroom(classroomId, classroomData, isDraft);
-            
+
             if (result.error || !result.data) {
                 toast.error(result.error || "Failed to save classroom", { id: loadingToast });
                 return;
@@ -531,7 +531,7 @@ export function ClassroomProvider({ children, communityId, mode = 'create', clas
 
             // Step 3: Upload resource files and create lesson resources
             const fileResources: Array<{ lessonId: number; resource: Resource; moduleIndex: number; lessonIndex: number }> = [];
-            
+
             // Collect all base64 file resources
             classroomData.modules.forEach((module, moduleIndex) => {
                 module.lessons.forEach((lesson, lessonIndex) => {
@@ -558,7 +558,7 @@ export function ClassroomProvider({ children, communityId, mode = 'create', clas
             // Upload files and create resources
             if (fileResources.length > 0) {
                 toast.loading(`Uploading ${fileResources.length} resource file(s)...`, { id: loadingToast });
-                
+
                 for (const { lessonId, resource } of fileResources) {
                     const uploadResult = await uploadResourceFile(classroomId, resource.url, resource.name);
                     if (uploadResult) {
@@ -612,11 +612,11 @@ export function ClassroomProvider({ children, communityId, mode = 'create', clas
 
     const handleAddLesson = useCallback((moduleIndex: number) => {
         setSelectedModuleIndex(moduleIndex);
-        
+
         // Calculate the new lesson index before updating state
         const currentModule = classroomData.modules[moduleIndex];
         const newLessonIndex = currentModule.lessons.length;
-        
+
         setClassroomData(prev => ({
             ...prev,
             modules: prev.modules.map((m, index) =>
@@ -641,7 +641,7 @@ export function ClassroomProvider({ children, communityId, mode = 'create', clas
                     : m
             )
         }));
-        
+
         // Select the newly added lesson and set editing state
         setSelectedLessonIndex(newLessonIndex);
         setIsEditingLesson(true);
@@ -708,19 +708,19 @@ export function ClassroomProvider({ children, communityId, mode = 'create', clas
             // Convert string IDs back to numbers for comparison
             const activeId = Number(active.id);
             const overId = Number(over.id);
-            
+
             // Ensure lessons are sorted by index to match the display order
             const sortedLessons = [...module.lessons].sort((a, b) => a.index - b.index);
-            
+
             // Find the array positions of lessons with matching index values
             const oldIndex = sortedLessons.findIndex(lesson => lesson.index === activeId);
             const newIndex = sortedLessons.findIndex(lesson => lesson.index === overId);
 
             if (oldIndex === -1 || newIndex === -1) {
-                console.warn('Could not find lesson indices:', { 
-                    activeId, 
-                    overId, 
-                    oldIndex, 
+                console.warn('Could not find lesson indices:', {
+                    activeId,
+                    overId,
+                    oldIndex,
                     newIndex,
                     lessonIndices: sortedLessons.map(l => l.index)
                 });
@@ -729,7 +729,7 @@ export function ClassroomProvider({ children, communityId, mode = 'create', clas
 
             // Use arrayMove to reorder the lessons array
             const reorderedLessons = arrayMove(sortedLessons, oldIndex, newIndex);
-            
+
             // Update all lesson indices to match their new positions
             const updatedLessons = reorderedLessons.map((lesson, index) => ({
                 ...lesson,
@@ -837,7 +837,7 @@ export function ClassroomProvider({ children, communityId, mode = 'create', clas
         setClassroomData(prev => {
             const module = prev.modules[moduleIndex];
             const lessonToDuplicate = module.lessons[lessonIndex];
-            
+
             // Deep copy the lesson with all its content
             // Assign new UUID since this is a new item (not existing from DB)
             const { id: _lessonId, ...lessonWithoutId } = lessonToDuplicate;
@@ -884,7 +884,7 @@ export function ClassroomProvider({ children, communityId, mode = 'create', clas
         console.log("lessonId", lessonId);
         setClassroomData(prev => {
             const module = prev.modules[moduleIndex];
-            
+
             // Don't allow deleting if there's only one lesson (or none)
             if (module.lessons.length <= 1) {
                 return prev;
@@ -939,7 +939,7 @@ export function ClassroomProvider({ children, communityId, mode = 'create', clas
         setClassroomData(prev => {
             const sourceModule = prev.modules[sourceModuleIndex];
             const targetModule = prev.modules[targetModuleIndex];
-            
+
             // Don't allow transferring if it's the same module
             if (sourceModuleIndex === targetModuleIndex) {
                 return prev;
@@ -954,7 +954,7 @@ export function ClassroomProvider({ children, communityId, mode = 'create', clas
 
             // Remove lesson from source module by ID
             const newSourceLessons = sourceModule.lessons.filter(lesson => lesson.id !== lessonId);
-            
+
             // Reindex source module lessons
             const reindexedSourceLessons = newSourceLessons.map((lesson, idx) => ({
                 ...lesson,
