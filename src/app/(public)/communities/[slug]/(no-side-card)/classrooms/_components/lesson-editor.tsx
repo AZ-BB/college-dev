@@ -17,6 +17,7 @@ import TrashIcon from "@/components/icons/trash";
 import { Lesson, Resource } from "./types";
 import { VideoType, LessonResourceType } from "@/enums/enums";
 import { ChevronLeftIcon, X } from "lucide-react";
+import { MarkdownEditor } from "@/components/markdown-editor/markdown-editor";
 
 export function LessonEditor() {
     const {
@@ -373,13 +374,12 @@ export function LessonEditor() {
 
                 {/* Text content */}
                 {lesson.hasText && (
-                    <textarea
+                    <MarkdownEditor
                         className="w-full min-h-[100px] p-3 border border-grey-300 rounded-lg resize-y focus:outline-none focus:ring-2 focus:ring-grey-400"
                         placeholder="Enter your text content here..."
                         value={lesson.textContent || ""}
-                        onChange={(e) => !isReadOnly && handleTextContentChange(e.target.value)}
-                        readOnly={isReadOnly}
-                        disabled={isReadOnly}
+                        onChange={(value) => !isReadOnly && handleTextContentChange(value)}
+                        readonly={isReadOnly}
                     />
                 )}
 
@@ -769,9 +769,13 @@ export function LessonEditor() {
 
                 {/* Text content */}
                 {lesson.hasText && lesson.textContent && (
-                    <div className="whitespace-pre-wrap text-sm text-grey-900">
-                        {lesson.textContent}
-                    </div>
+                    <MarkdownEditor
+                        className="whitespace-pre-wrap text-sm text-grey-900 border-none outline-none ring-0"
+                        placeholder="Enter your text content here..."
+                        value={lesson.textContent || ""}
+                        onChange={(value) => !isReadOnly && handleTextContentChange(value)}
+                        readonly={true}
+                    />
                 )}
 
                 {/* Resources list */}
