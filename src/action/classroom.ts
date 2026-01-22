@@ -6,7 +6,7 @@ import { GeneralResponse } from "@/utils/general-response";
 import { getUserData } from "@/utils/get-user-data";
 import { revalidatePath } from "next/cache";
 import { Tables } from "@/database.types";
-import { redirect } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 
 interface CreatedLesson {
     id: number;
@@ -265,6 +265,32 @@ export async function createLessonResource(
 
 
 // READ
+export async function getClassroom(classroomId: number) {
+    const supabase = await createSupabaseServerClient();
+    const { data: classroom, error: classroomError } = await supabase
+        .from("classrooms")
+        .select(`
+            *,
+            modules(*,lessons(*, lesson_resources(*)))
+        `)
+        .eq("id", classroomId)
+        .single();
+
+    if (classroomError || !classroom) {
+        return {
+            error: "Classroom not found",
+            message: "Classroom not found",
+            statusCode: 404,
+        };
+    }
+
+    return {
+        data: classroom,
+        message: "Classroom fetched successfully",
+        statusCode: 200,
+    };
+}
+
 export async function getClassrooms() {
     const supabase = await createSupabaseServerClient();
 

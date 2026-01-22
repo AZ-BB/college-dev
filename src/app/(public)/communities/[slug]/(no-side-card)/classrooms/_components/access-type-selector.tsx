@@ -3,8 +3,7 @@ import { Input } from "@/components/ui/input";
 import { ClassroomType } from "@/enums/enums";
 import { useClassroomContext } from "./classroom-context";
 
-export function AccessTypeSelector({ readOnly = false }: { readOnly?: boolean }) {
-    const { classroomData, updateClassroomData } = useClassroomContext();
+export function AccessTypeSelector({ readOnly = false, updateClassroomData, classroomData }: { readOnly?: boolean, updateClassroomData: (data: any) => void, classroomData: any }) {
 
     const accessOptions = [
         {
@@ -42,11 +41,10 @@ export function AccessTypeSelector({ readOnly = false }: { readOnly?: boolean })
                                 className={`w-full text-left bg-gray-200 rounded-lg px-4 py-2.5 transition-all ${readOnly ? 'cursor-default' : 'cursor-pointer hover:bg-gray-300'}`}
                             >
                                 <div className="flex items-center gap-3">
-                                    <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
-                                        isSelected
+                                    <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${isSelected
                                             ? "border-[#F7670E]"
                                             : "border-grey-400"
-                                    }`}>
+                                        }`}>
                                         {isSelected && (
                                             <div className="w-2 h-2 rounded-full bg-[#F7670E]"></div>
                                         )}

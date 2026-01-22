@@ -24,10 +24,12 @@ import {
 } from "@lexical/rich-text"
 import {
   $createParagraphNode,
+  $createTextNode,
   $getRoot,
   EditorState,
   $isElementNode,
 } from "lexical"
+import { $generateHtmlFromNodes, $generateNodesFromDOM } from "@lexical/html"
 import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
@@ -324,6 +326,99 @@ function ReadOnlyPlugin({ readonly }: { readonly: boolean }) {
   return null
 }
 
+function ValuePlugin({ value, onChange }: { value?: string; onChange?: (value: string) => void }) {
+  const [editor] = useLexicalComposerContext()
+  const [isInitialized, setIsInitialized] = useState(false)
+  const [lastValue, setLastValue] = useState(value)
+
+  // Initialize editor with value on first load
+  useEffect(() => {
+    if (!isInitialized && value !== undefined) {
+      editor.update(() => {
+        const root = $getRoot()
+        root.clear()
+        
+        if (value && value.trim()) {
+          // Check if value is HTML (contains HTML tags)
+          const isHTML = /<[a-z][\s\S]*>/i.test(value)
+          
+          if (isHTML) {
+            // Parse HTML and generate nodes
+            const parser = new DOMParser()
+            const dom = parser.parseFromString(value, "text/html")
+            const nodes = $generateNodesFromDOM(editor, dom)
+            nodes.forEach(node => root.append(node))
+          } else {
+            // Plain text - create paragraph with text node
+            const paragraph = $createParagraphNode()
+            const textNode = $createTextNode(value)
+            paragraph.append(textNode)
+            root.append(paragraph)
+          }
+        } else {
+          // Empty value - create empty paragraph
+          const paragraph = $createParagraphNode()
+          root.append(paragraph)
+        }
+      })
+      setLastValue(value)
+      setIsInitialized(true)
+    }
+  }, [value, editor, isInitialized])
+
+  // Update editor when value prop changes (from outside)
+  useEffect(() => {
+    if (value !== lastValue && isInitialized) {
+      editor.update(() => {
+        const root = $getRoot()
+        root.clear()
+        
+        if (value && value.trim()) {
+          // Check if value is HTML (contains HTML tags)
+          const isHTML = /<[a-z][\s\S]*>/i.test(value)
+          
+          if (isHTML) {
+            // Parse HTML and generate nodes
+            const parser = new DOMParser()
+            const dom = parser.parseFromString(value, "text/html")
+            const nodes = $generateNodesFromDOM(editor, dom)
+            nodes.forEach(node => root.append(node))
+          } else {
+            // Plain text - create paragraph with text node
+            const paragraph = $createParagraphNode()
+            const textNode = $createTextNode(value)
+            paragraph.append(textNode)
+            root.append(paragraph)
+          }
+        } else {
+          // Empty value - create empty paragraph
+          const paragraph = $createParagraphNode()
+          root.append(paragraph)
+        }
+      })
+      setLastValue(value)
+    }
+  }, [value, editor, lastValue, isInitialized])
+
+  // Handle editor changes and serialize to HTML
+  useEffect(() => {
+    if (!onChange || !isInitialized) return
+
+    return editor.registerUpdateListener(({ editorState }) => {
+      editorState.read(() => {
+        const htmlString = $generateHtmlFromNodes(editor, null)
+        // Only update if it's different to avoid infinite loops
+        if (htmlString !== lastValue) {
+          setLastValue(htmlString)
+          onChange(htmlString)
+        }
+      })
+    })
+  }, [editor, onChange, isInitialized, lastValue])
+
+  return null
+}
+
 export function MarkdownEditor({
   value,
   onChange,
@@ -336,25 +431,13 @@ export function MarkdownEditor({
     theme,
     onError,
     nodes: [HeadingNode, QuoteNode],
-    editorState: value
-      ? undefined
-      : () => {
-          const root = $getRoot()
-          if (root.getFirstChild() === null) {
-            const paragraph = $createParagraphNode()
-            root.append(paragraph)
-          }
-        },
-  }
-
-  const handleChange = (editorState: EditorState) => {
-    if (onChange) {
-      editorState.read(() => {
-        const root = $getRoot()
-        const text = root.getTextContent()
-        onChange(text)
-      })
-    }
+    editorState: () => {
+      const root = $getRoot()
+      if (root.getFirstChild() === null) {
+        const paragraph = $createParagraphNode()
+        root.append(paragraph)
+      }
+    },
   }
 
   return (
@@ -367,6 +450,7 @@ export function MarkdownEditor({
       <LexicalComposer initialConfig={initialConfig}>
         {!readonly && <ToolbarPlugin />}
         <ReadOnlyPlugin readonly={readonly} />
+        <ValuePlugin value={value} onChange={onChange} />
         <div className="relative">
           <RichTextPlugin
             contentEditable={
@@ -388,7 +472,6 @@ export function MarkdownEditor({
             ErrorBoundary={LexicalErrorBoundary}
           />
           {!readonly && <HistoryPlugin />}
-          {!readonly && <OnChangePlugin onChange={handleChange} />}
         </div>
       </LexicalComposer>
     </div>

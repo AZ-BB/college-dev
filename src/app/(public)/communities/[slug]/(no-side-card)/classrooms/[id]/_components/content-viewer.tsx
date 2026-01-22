@@ -4,8 +4,9 @@ import { LessonResourceType, VideoType } from "@/enums/enums";
 import { cn } from "@/lib/utils";
 import { ChevronDown, ChevronLeftIcon } from "lucide-react";
 import { useState } from "react";
-import { LessonContentBadge } from "./lesson-content-badge";
-import { Classroom } from "../page";
+import { LessonContentBadge } from "@/components/lesson-content-badge";
+import { getClassroom } from "@/action/classroom";
+import { MarkdownEditor } from "@/components/markdown-editor";
 
 export function ContentViewer({
     selectedModuleIndex,
@@ -18,7 +19,7 @@ export function ContentViewer({
     setSelectedModuleIndex: (index: number | null) => void;
     selectedLessonIndex: number | null;
     setSelectedLessonIndex: (index: number | null) => void;
-    classroom: Classroom
+    classroom: Awaited<ReturnType<typeof getClassroom>>["data"]
 }) {
     const [showResources, setShowResources] = useState(false);
 
@@ -26,8 +27,8 @@ export function ContentViewer({
         return (
             <>
                 <div className="space-y-6">
-                    {classroom.modules.map((module: any) => (
-                        <div key={`module-${module.index}`} className="space-y-6">
+                    {classroom?.modules?.map((module: any, moduleArrayIndex: number) => (
+                        <div key={`module-${moduleArrayIndex}`} className="space-y-6">
                             <input
                                 className="w-full text-xl font-medium border-none outline-none ring-0 placeholder:text-gray-400"
                                 type="text"
@@ -48,7 +49,7 @@ export function ContentViewer({
                 <div className="space-y-6">
                     <div className="font-semibold text-xl px-4">
                         <p>
-                            {classroom.modules[selectedModuleIndex].name || "Module Name"}
+                            {classroom?.modules?.[selectedModuleIndex]?.name || "Module Name"}
                         </p>
 
                         <p className="flex text-sm items-center gap-1 cursor-pointer"
@@ -61,13 +62,13 @@ export function ContentViewer({
                             showResources && (
                                 <div className="w-full space-y-4 py-4 transition-all duration-300">
                                     {
-                                        classroom.modules[selectedModuleIndex].lessons.flatMap((lesson: any) => lesson.lesson_resources).length > 0 &&
-                                        classroom.modules[selectedModuleIndex].lessons.map((lesson: any) => {
+                                        (classroom?.modules?.[selectedModuleIndex]?.lessons?.flatMap((lesson: any) => lesson?.lesson_resources)?.length ?? 0) > 0 &&
+                                        classroom?.modules?.[selectedModuleIndex]?.lessons?.map((lesson: any, lessonArrayIndex: number) => {
                                             if (lesson.lesson_resources?.length === 0) {
                                                 return null;
                                             }
                                             return (
-                                                <div key={lesson.index} className="flex flex-col justify-start items-start gap-3 pb-3 border-b border-grey-200">
+                                                <div key={lessonArrayIndex} className="flex flex-col justify-start items-start gap-3 pb-3 border-b border-grey-200">
                                                     <p className="text-sm font-medium">{lesson.name || "Lesson Name"}</p>
 
                                                     <div className="flex gap-6 ">
@@ -116,7 +117,7 @@ export function ContentViewer({
                                     }
 
                                     {
-                                        classroom.modules[selectedModuleIndex].lessons.flatMap((lesson: any) => lesson.lesson_resources).length === 0 && (
+                                        classroom?.modules[selectedModuleIndex]?.lessons.flatMap((lesson: any) => lesson.lesson_resources).length === 0 && (
                                             <div className="flex flex-col justify-start items-start gap-3 pb-3 border-b border-grey-200">
                                                 <p className="text-sm font-medium">No resources for this module</p>
                                             </div>
@@ -130,23 +131,23 @@ export function ContentViewer({
 
                     <div className="space-y-2 pt-3">
                         {
-                            classroom.modules[selectedModuleIndex].lessons.map((lesson: any, arrayIndex: number) => {
+                            classroom?.modules[selectedModuleIndex]?.lessons.map((lesson: any, arrayIndex: number) => {
                                 const handleLessonClick = () => {
                                     // If the lesson is already selected, deselect it (go back to module view)
-                                    if (selectedLessonIndex === lesson.index) {
+                                    if (selectedLessonIndex === arrayIndex) {
                                         setSelectedLessonIndex(null);
                                     } else {
                                         // Otherwise, select this lesson
-                                        setSelectedLessonIndex(lesson.index);
+                                        setSelectedLessonIndex(arrayIndex);
                                     }
                                 };
 
                                 return (
-                                    <div key={`lesson-${lesson.index}`}
+                                    <div key={`lesson-${arrayIndex}`}
                                         onClick={handleLessonClick}
                                         className={cn(
                                             "cursor-pointer group hover:translate-x-2 transition-all duration-300 px-4 bg-transparent py-2 group rounded-lg flex items-center justify-between hover:bg-grey-200",
-                                            selectedLessonIndex === lesson.index ? "bg-grey-200" : ""
+                                            selectedLessonIndex === arrayIndex ? "bg-grey-200" : ""
                                         )}
                                     >
                                         <div className="font-medium">
@@ -203,15 +204,15 @@ export function ContentViewer({
                     onClick={() => setSelectedLessonIndex(null)}
                 >
                     <ChevronLeftIcon className="w-4 h-4" />
-                    {classroom.modules[selectedModuleIndex].name || "Module Name"}
+                    {classroom?.modules[selectedModuleIndex]?.name || "Module Name"}
                 </div>
 
                 <div className="text-xl font-semibold py-3">
-                    {classroom.modules[selectedModuleIndex].lessons[selectedLessonIndex]?.name || "Lesson Name"}
+                    {classroom?.modules[selectedModuleIndex]?.lessons[selectedLessonIndex]?.name || "Lesson Name"}
                 </div>
 
                 {/* Video content */}
-                {classroom.modules[selectedModuleIndex].lessons[selectedLessonIndex].video_url && classroom.modules[selectedModuleIndex].lessons[selectedLessonIndex].video_type && (
+                {classroom?.modules[selectedModuleIndex]?.lessons[selectedLessonIndex]?.video_url && classroom?.modules[selectedModuleIndex]?.lessons[selectedLessonIndex]?.video_type && (
                     <div className="aspect-video w-full rounded-lg overflow-hidden">
                         <iframe
                             src={getEmbedUrl(classroom.modules[selectedModuleIndex].lessons[selectedLessonIndex].video_url || "", classroom.modules[selectedModuleIndex].lessons[selectedLessonIndex].video_type as VideoType)}
@@ -223,14 +224,18 @@ export function ContentViewer({
                 )}
 
                 {/* Text content */}
-                {classroom.modules[selectedModuleIndex].lessons[selectedLessonIndex].text_content && (
-                    <div className="whitespace-pre-wrap text-sm text-grey-900">
-                        {classroom.modules[selectedModuleIndex].lessons[selectedLessonIndex].text_content || ""}
-                    </div>
+                {classroom?.modules[selectedModuleIndex]?.lessons[selectedLessonIndex]?.text_content && (
+                    <MarkdownEditor
+                        className="whitespace-pre-wrap text-sm text-grey-900 border-none outline-none ring-0"
+                        placeholder="Enter your text content here..."
+                        value={classroom.modules[selectedModuleIndex].lessons[selectedLessonIndex].text_content || ""}
+                        onChange={(value) => { }}
+                        readonly={true}
+                    />
                 )}
 
                 {/* Resources list */}
-                {classroom.modules[selectedModuleIndex].lessons[selectedLessonIndex].lesson_resources && classroom.modules[selectedModuleIndex].lessons[selectedLessonIndex].lesson_resources.length > 0 && (
+                {classroom?.modules[selectedModuleIndex]?.lessons[selectedLessonIndex]?.lesson_resources && classroom?.modules[selectedModuleIndex]?.lessons[selectedLessonIndex]?.lesson_resources.length > 0 && (
                     <div className="space-y-2">
                         <h3 className="font-semibold text-base text-grey-900">Resources</h3>
                         <div className="space-y-2">

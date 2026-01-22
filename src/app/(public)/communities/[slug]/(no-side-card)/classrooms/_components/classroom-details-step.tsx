@@ -55,7 +55,7 @@ export function ClassroomDetailsStep() {
                 </div>
 
                 {/* Course Access */}
-                <AccessTypeSelector readOnly={isReadOnly} />
+                <AccessTypeSelector readOnly={isReadOnly} updateClassroomData={updateClassroomData} classroomData={classroomData} />
             </div>
         </div>
     );
