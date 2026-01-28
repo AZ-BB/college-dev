@@ -1,0 +1,11 @@
+CREATE TABLE poll_votes
+(
+    id SERIAL PRIMARY KEY,
+    poll_option_id INTEGER NOT NULL REFERENCES poll_options(id) ON DELETE CASCADE,
+    poll_id INTEGER NOT NULL REFERENCES poll(id) ON DELETE CASCADE,
+    post_id INTEGER NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TRIGGER update_poll_votes_updated_at BEFORE UPDATE ON poll_votes FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();

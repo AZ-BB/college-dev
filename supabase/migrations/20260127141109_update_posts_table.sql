@@ -1,0 +1,27 @@
+CREATE TYPE posts_attachment_type_enum AS ENUM
+('IMAGE', 'LINK');
+CREATE TABLE posts_attachments
+(
+    id SERIAL PRIMARY KEY,
+    post_id INTEGER NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
+    url TEXT NOT NULL,
+    name TEXT NOT NULL,
+    type posts_attachment_type_enum NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+
+ALTER TABLE posts ADD COLUMN video_url TEXT DEFAULT NULL;
+
+CREATE TABLE poll (
+    id SERIAL PRIMARY KEY,
+    post_id INTEGER NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE poll_options (
+    id SERIAL PRIMARY KEY,
+    poll_id INTEGER NOT NULL REFERENCES poll(id) ON DELETE CASCADE,
+    text TEXT NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);

@@ -57,12 +57,12 @@ export default function UserProfileCard({ user, isUserProfile }: { user: UserPro
             <h1 className="text-2xl font-bold">
               {formatFullName(user.first_name || "", user.last_name || "")}
             </h1>
-            <p className="text-base text-[#65707A] font-semibold tracking-wide">
+            <p className="text-base text-grey-600 font-semibold tracking-wide">
               @{user.username}
             </p>
             {/* Max ~50 words */}
             <div className="w-full">
-              <p className="text-base text-[#65707A] font-medium w-full line-clamp-2">
+              <p className="text-base text-grey-600 font-medium w-full line-clamp-2">
                 {user.bio || "No bio"}
               </p>
               {user.bio && user.bio.length > 50 && (
@@ -82,7 +82,7 @@ export default function UserProfileCard({ user, isUserProfile }: { user: UserPro
             <div className="flex items-center gap-2">
               <LikeDislikeIcon />
 
-              <p className="text-sm text-[#65707A] font-medium">
+              <p className="text-sm text-grey-600 font-medium">
                 {user.contributions_count || 0} Contributions
               </p>
             </div>
@@ -90,7 +90,7 @@ export default function UserProfileCard({ user, isUserProfile }: { user: UserPro
             <div className="flex items-center gap-2">
               <CalendarIcon />
 
-              <p className="text-sm text-[#65707A] font-medium">
+              <p className="text-sm text-grey-600 font-medium">
                 joined {format(new Date(user.created_at || ""), "MMM d, yyyy")}
               </p>
             </div>
@@ -98,7 +98,7 @@ export default function UserProfileCard({ user, isUserProfile }: { user: UserPro
             <div className="flex items-center gap-2">
               <ClockIcon />
 
-              <p className="text-sm text-[#65707A] font-medium">
+              <p className="text-sm text-grey-600 font-medium">
                 Active {10}d ago
               </p>
             </div>
@@ -171,11 +171,11 @@ export default function UserProfileCard({ user, isUserProfile }: { user: UserPro
                   {formatFullName(user.first_name || "", user.last_name || "")}
                 </h1>
               </div>
-              <p className="text-sm text-[#65707A] font-medium">
+              <p className="text-sm text-grey-600 font-medium">
                 @{user.username}
               </p>
               <div className="mt-1 w-full">
-                <p className="text-sm text-[#65707A] leading-relaxed line-clamp-1">
+                <p className="text-sm text-grey-600 leading-relaxed line-clamp-1">
                   {user.bio || "No bio"}
                 </p>
                 <button
@@ -224,7 +224,7 @@ export default function UserProfileCard({ user, isUserProfile }: { user: UserPro
               <DialogTitle className="text-2xl font-bold">
                 {formatFullName(user.first_name || "", user.last_name || "")}
               </DialogTitle>
-              <DialogDescription className="text-base text-[#65707A] font-medium">
+              <DialogDescription className="text-base text-grey-600 font-medium">
                 {user.email || "No email"}
               </DialogDescription>
             </div>
@@ -235,7 +235,7 @@ export default function UserProfileCard({ user, isUserProfile }: { user: UserPro
               {user.bio || "No bio"}
             </p>
 
-            <div className="flex items-center gap-2 text-[#65707A]">
+            <div className="flex items-center gap-2 text-grey-600">
               <Calendar className="w-5 h-5" />
               <span className="text-base font-medium">
                 Joined {format(new Date(user.created_at || ""), "MMM d, yyyy")}

@@ -1,4 +1,5 @@
 import { createSupabaseServerClient } from "@/utils/supabase-server"
+import { redirect } from "next/navigation"
 
 export interface UserData {
   id: string
@@ -9,12 +10,12 @@ export interface UserData {
   username?: string
 }
 
-export async function getUserData(): Promise<UserData | null> {
+export async function getUserData(): Promise<UserData> {
   try {
     const supabase = await createSupabaseServerClient()
     const { data: { user } } = await supabase.auth.getUser()
 
-    if (!user) return null
+    if (!user) return redirect("/login");
 
     const { data: dbUser, error } = await supabase
       .from("users")
@@ -24,12 +25,12 @@ export async function getUserData(): Promise<UserData | null> {
 
     if (error) {
       console.error("Error fetching user data:", error)
-      return null
+      return redirect("/login");
     }
 
     return dbUser as UserData
   } catch (error) {
     console.error("Error fetching user data:", error)
-    return null
+    return redirect("/login");
   }
 }
