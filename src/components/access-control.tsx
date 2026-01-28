@@ -1,22 +1,27 @@
-// "use client"
+"use client";
+import { UserAccess } from "@/enums/enums";
+import { useUserAccess } from "./access-context";
 
-// import { SystemRoles } from "@/enums/enums"
-// import { useUserRole } from "@/contexts/role-context"
+export default function AccessControl({
+    children,
+    allowedAccess = [],
+    allowedUserId = undefined
+}: {
+    children: React.ReactNode,
+    allowedAccess: UserAccess[],
+    allowedUserId?: string
+}) {
+    const { userAccess, userId } = useUserAccess();
 
-// interface AccessControlProps {
-//     children: React.ReactNode
-//     allowedRoles: SystemRoles[]
-// }
+    const isAllowedByUserId = allowedUserId !== undefined && userId === allowedUserId;
+    const isAllowedByAccess = allowedAccess.includes(userAccess);
+    const isAllowed = isAllowedByUserId || isAllowedByAccess;
 
-// export default function AccessControl({
-//     children,
-//     allowedRoles
-// }: AccessControlProps) {
-//     const { role } = useUserRole()
+    if (!isAllowed) return null;
 
-//     if (!role || !allowedRoles.includes(role)) {
-//         return null
-//     }
-    
-//     return <>{children}</>
-// }
+    return (
+        <div>
+            {children}
+        </div>
+    )
+}

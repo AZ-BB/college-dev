@@ -9,6 +9,8 @@ import SecondaryTabs from "@/components/secondery-tabs";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { buildPostsQueryString, formatSortByLabel } from "./posts-filters.utils";
 import AddTopicButton from "./add-topic-button";
+import { UserAccess } from "@/enums/enums";
+import AccessControl from "../../../../../../../components/access-control";
 
 export default function PostsFilters({
     topics,
@@ -61,7 +63,9 @@ export default function PostsFilters({
                     />
 
                 </div>
-                <AddTopicButton communityId={communityId} />
+                <AccessControl allowedAccess={[UserAccess.OWNER, UserAccess.ADMIN, UserAccess.MEMBER]}>
+                    <AddTopicButton communityId={communityId} />
+                </AccessControl>
             </div>
 
             <DropdownMenu>
