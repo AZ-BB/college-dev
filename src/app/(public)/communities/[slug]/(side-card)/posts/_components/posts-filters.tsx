@@ -63,7 +63,7 @@ export default function PostsFilters({
                     />
 
                 </div>
-                <AccessControl allowedAccess={[UserAccess.OWNER, UserAccess.ADMIN, UserAccess.MEMBER]}>
+                <AccessControl allowedAccess={[UserAccess.OWNER, UserAccess.ADMIN]}>
                     <AddTopicButton communityId={communityId} />
                 </AccessControl>
             </div>
