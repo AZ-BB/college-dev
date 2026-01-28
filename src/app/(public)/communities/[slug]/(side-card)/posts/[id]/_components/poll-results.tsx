@@ -45,7 +45,7 @@ export default function PollResults({ pollResults }: { pollResults: PollResultsD
                         >
                             {/* Percentage bar */}
                             <div
-                                className="absolute inset-0 bg-orange-50 rounded-lg transition-all duration-300"
+                                className="absolute inset-0 bg-orange-50 rounded-lg rounded-r-none transition-all duration-300"
                                 style={{ width: `${percentage}%` }}
                             />
 

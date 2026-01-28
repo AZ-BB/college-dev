@@ -1,0 +1,2 @@
+ALTER TABLE comments DROP CONSTRAINT comments_reply_to_comment_id_fkey;
+ALTER TABLE comments ADD CONSTRAINT comments_reply_to_comment_id_fkey FOREIGN KEY (reply_to_comment_id) REFERENCES comments(id) ON DELETE CASCADE;
