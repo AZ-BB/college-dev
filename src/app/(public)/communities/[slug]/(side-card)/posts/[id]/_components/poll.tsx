@@ -6,6 +6,8 @@ import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { voteOnPoll } from "@/action/posts";
 import { toast } from "sonner";
+import { UserAccess } from "@/enums/enums";
+import AccessControl from "../../../../../../../../components/access-control";
 
 export default function Poll({ poll }: { poll: Tables<'poll'> & { poll_options: Tables<'poll_options'>[] } }) {
 
@@ -43,11 +45,13 @@ export default function Poll({ poll }: { poll: Tables<'poll'> & { poll_options: 
                 ))}
             </div>
 
-            <div className="flex items-center justify-end">
-                <Button onClick={handleVote} disabled={!selectedOption} variant="default" className="rounded-[10px] py-5 text-sm font-semibold px-6">
-                    Vote
-                </Button>
-            </div>
+            <AccessControl allowedAccess={[UserAccess.OWNER, UserAccess.ADMIN, UserAccess.MEMBER]}>
+                <div className="flex items-center justify-end">
+                    <Button onClick={handleVote} disabled={!selectedOption} variant="default" className="rounded-[10px] py-5 text-sm font-semibold px-6">
+                        Vote
+                    </Button>
+                </div>
+            </AccessControl>
         </Card>
     )
 }

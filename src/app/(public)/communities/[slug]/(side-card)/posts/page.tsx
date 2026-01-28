@@ -15,6 +15,8 @@ import CreatePostModal from "./_components/create-post-modal";
 import { getUserData } from "@/utils/get-user-data";
 import PostCard from "./_components/post-card";
 import PostsList from "./_components/posts-list";
+import AccessControl from "../../../../../../components/access-control";
+import { UserAccess } from "@/enums/enums";
 
 function validateSearchParams(sp: { topic?: string; sortBy?: string }, topics: Tables<"topics">[], slug: string) {
     const validTopicIds = new Set(topics.map((t) => t.id.toString()));
@@ -72,14 +74,15 @@ export default async function PostsPage({
                 initialSortBy={initialSortBy}
             />
 
-            <CreatePostModal user={user} topics={topics.map((topic) => ({ id: topic.id, name: topic.name }))} />
+
+            <AccessControl allowedAccess={[UserAccess.OWNER, UserAccess.ADMIN, UserAccess.MEMBER]}>
+                <CreatePostModal user={user} topics={topics.map((topic) => ({ id: topic.id, name: topic.name }))} />
+            </AccessControl>
 
             <FirstSteps community={community} />
 
-
-
-            <PostsList 
-                initalPosts={posts || []} 
+            <PostsList
+                initalPosts={posts || []}
                 communityId={community.id}
                 topic={initialTopic}
                 sortBy={initialSortBy}

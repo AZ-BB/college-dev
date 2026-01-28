@@ -17,6 +17,9 @@ import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
 import { createComment } from "@/action/posts";
 import CommentsList, { type Comment } from "./_components/comments-list";
+import { getUserData } from "@/utils/get-user-data";
+import { UserAccess } from "@/enums/enums";
+import AccessControl from "../../../../../../../components/access-control";
 
 interface PollResultUser {
     first_name: string;
@@ -41,6 +44,8 @@ interface PollResultsData {
 export default async function PostPage({ params, searchParams }: { params: Promise<{ id: string }>, searchParams: Promise<{ expanded_comment_id?: string; highlighted_comment_id?: string }> }) {
     const { id } = await params;
     const { expanded_comment_id, highlighted_comment_id } = await searchParams;
+
+    const user = await getUserData();
 
     if (!id || isNaN(parseInt(id))) {
         return notFound();
@@ -191,22 +196,24 @@ export default async function PostPage({ params, searchParams }: { params: Promi
                 <Separator className="my-4" />
 
                 <div className="flex flex-col gap-6">
-                    <div className="flex w-full gap-2 items-center">
-                        <UserAvatar className="w-11 h-11 rounded-[14px]" user={post.users} />
+                    <AccessControl allowedAccess={[UserAccess.OWNER, UserAccess.ADMIN, UserAccess.MEMBER]}>
+                        <div className="flex w-full gap-2 items-center">
+                            <UserAvatar className="w-11 h-11 rounded-[14px]" user={user} />
 
-                        <form className="w-full"
-                            action={createComment}
-                        >
-                            <input type="hidden" name="post_id" value={post.id} />
-                            <Input
-                                type="text"
-                                name="comment_content"
-                                placeholder="Add a comment"
-                                className="h-11 md:text-base w-full"
-                                maxLength={500}
-                            />
-                        </form>
-                    </div>
+                            <form className="w-full"
+                                action={createComment}
+                            >
+                                <input type="hidden" name="post_id" value={post.id} />
+                                <Input
+                                    type="text"
+                                    name="comment_content"
+                                    placeholder="Add a comment"
+                                    className="h-11 md:text-base w-full"
+                                    maxLength={500}
+                                />
+                            </form>
+                        </div>
+                    </AccessControl>
 
                     <div>
                         <CommentsList

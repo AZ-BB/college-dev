@@ -5,6 +5,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { GlobeIcon, LockIcon } from "lucide-react";
 import { notFound } from "next/navigation";
 import { CoverImageUpload } from "./cover-image-upload";
+import AccessControl from "../../../../../components/access-control";
+import { UserAccess } from "@/enums/enums";
 
 export default async function CommunityCard({ slug }: { slug: string }) {
     const { data: community, error: communityError } = await getCommunityBySlug(slug);
@@ -17,10 +19,20 @@ export default async function CommunityCard({ slug }: { slug: string }) {
         <div className="sticky top-20 w-full sm:border sm:border-grey-200 sm:shadow-[0px_3px_6px_0px_#00000014] rounded-[20px] flex flex-col gap-5">
 
             <div>
-                <CoverImageUpload 
-                    coverImage={community.cover_image} 
-                    commSlug={slug}
-                />
+                <AccessControl allowedAccess={[UserAccess.OWNER, UserAccess.ADMIN]}>
+                    <CoverImageUpload
+                        coverImage={community.cover_image}
+                        commSlug={slug}
+                    />
+                </AccessControl>
+                <AccessControl allowedAccess={[UserAccess.NOT_MEMBER, UserAccess.ANONYMOUS, UserAccess.MEMBER]}>
+                    <img
+                        key={community.cover_image}
+                        src={community.cover_image ?? ""}
+                        alt="Community cover"
+                        className="h-56 w-full object-cover rounded-t-[20px]"
+                    />
+                </AccessControl>
             </div>
 
             <div className="p-6 flex flex-col gap-6">
@@ -49,12 +61,14 @@ export default async function CommunityCard({ slug }: { slug: string }) {
                 </div>
 
                 <div className="w-full">
-                    <Button
-                        variant="secondary"
-                        className="w-full py-7"
-                    >
-                        CONFIGURE
-                    </Button>
+                    <AccessControl allowedAccess={[UserAccess.OWNER, UserAccess.ADMIN]}>
+                        <Button
+                            variant="secondary"
+                            className="w-full py-7"
+                        >
+                            CONFIGURE
+                        </Button>
+                    </AccessControl>
                 </div>
 
                 <Separator />
