@@ -67,6 +67,58 @@ export type Database = {
           },
         ]
       }
+      comments: {
+        Row: {
+          author_id: string
+          content: string
+          created_at: string
+          id: number
+          post_id: number
+          reply_to_comment_id: number | null
+          updated_at: string
+        }
+        Insert: {
+          author_id: string
+          content: string
+          created_at?: string
+          id?: number
+          post_id: number
+          reply_to_comment_id?: number | null
+          updated_at?: string
+        }
+        Update: {
+          author_id?: string
+          content?: string
+          created_at?: string
+          id?: number
+          post_id?: number
+          reply_to_comment_id?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comments_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comments_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comments_reply_to_comment_id_fkey"
+            columns: ["reply_to_comment_id"]
+            isOneToOne: false
+            referencedRelation: "comments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       communities: {
         Row: {
           about: string | null
@@ -814,6 +866,14 @@ export type Database = {
       get_classroom_community_id: {
         Args: { classroom_id_param: number }
         Returns: number
+      }
+      get_comments: {
+        Args: {
+          p_comments_limit?: number
+          p_post_id: number
+          p_replies_limit?: number
+        }
+        Returns: Json
       }
       get_community_id_from_storage_path: {
         Args: { storage_path: string }

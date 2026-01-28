@@ -12,6 +12,11 @@ import ImageGallery from "./_components/image-gallery";
 import Poll from "./_components/poll";
 import PollResults from "./_components/poll-results";
 import { getIsUserVotedOnPoll } from "@/action/posts";
+import { ExternalLinkIcon } from "lucide-react";
+import { Separator } from "@/components/ui/separator";
+import { Input } from "@/components/ui/input";
+import { createComment } from "@/action/posts";
+import CommentsList, { type Comment } from "./_components/comments-list";
 
 interface PollResultUser {
     first_name: string;
@@ -33,8 +38,9 @@ interface PollResultsData {
     options: PollResultOption[];
 }
 
-export default async function PostPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function PostPage({ params, searchParams }: { params: Promise<{ id: string }>, searchParams: Promise<{ expanded_comment_id?: string; highlighted_comment_id?: string }> }) {
     const { id } = await params;
+    const { expanded_comment_id, highlighted_comment_id } = await searchParams;
 
     if (!id || isNaN(parseInt(id))) {
         return notFound();
@@ -49,6 +55,18 @@ export default async function PostPage({ params }: { params: Promise<{ id: strin
         attachments:posts_attachments!posts_attachments_post_id_fkey(*)
     `).eq("id", parseInt(id)).single();
 
+    // Get comment count (only top-level comments, not replies)
+    const { count: commentCount } = await supabase
+        .from("comments")
+        .select("*", { count: "estimated", head: true })
+        .eq("post_id", parseInt(id))
+
+    const { count: mainCommentsCount } = await supabase
+        .from("comments")
+        .select("*", { count: "estimated", head: true })
+        .eq("post_id", parseInt(id))
+        .is("reply_to_comment_id", null);
+
     const { data: isUserVotedOnPoll } = await getIsUserVotedOnPoll(parseInt(id));
 
     if (postError || !post) {
@@ -57,14 +75,30 @@ export default async function PostPage({ params }: { params: Promise<{ id: strin
 
     // Fetch poll results if user has voted
     let pollResults: PollResultsData | null = null;
-    if(post.poll && isUserVotedOnPoll) {
+    if (post.poll && isUserVotedOnPoll) {
         const { data: results } = await supabase.rpc("get_votes_result", { p_post_id: parseInt(id) });
         pollResults = results as PollResultsData | null;
     }
 
+    // Comments
+    const { data: commentsData, error: commentsError } = await supabase.rpc("get_comments", {
+        p_post_id: parseInt(id),
+        p_comments_limit: 20,
+        p_replies_limit: 2,
+        p_comments_offset: 0
+    });
+
+    // RPC returns JSON; keep a small runtime guard for safety
+    const comments: Comment[] = Array.isArray(commentsData)
+        ? (commentsData as Comment[])
+        : [];
+
+
+
+
     return (
         <div>
-            <Card key={post.id} className="shadow-none border-grey-200 px-6 cursor-pointer hover:shadow-sm transition-all duration-300"
+            <Card key={post.id} className="shadow-none border-grey-200 px-6 hover:shadow-sm transition-all duration-300"
             >
                 <div className="flex flex-col gap-4 justify-between">
                     <div className="flex flex-col gap-6">
@@ -86,23 +120,6 @@ export default async function PostPage({ params }: { params: Promise<{ id: strin
                             <h3 className="text-lg font-semibold">{post.title}</h3>
                             <p className="text-sm text-grey-600 font-medium">{post.content}</p>
                         </div>
-
-                        {post.poll && (
-                            <div className="w-fit text-sm font-medium text-orange-500 bg-orange-50 rounded-full px-2 py-1 flex items-center gap-1">
-                                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <g clip-path="url(#clip0_36878_5161)">
-                                        <path d="M1.3335 14.6693H14.6668M6.00016 5.73594C6.00016 5.45304 5.88778 5.18173 5.68774 4.98169C5.4877 4.78165 5.21639 4.66927 4.9335 4.66927H3.06683C2.78393 4.66927 2.51262 4.78165 2.31258 4.98169C2.11254 5.18173 2.00016 5.45304 2.00016 5.73594V14.6693M6.00016 14.6693V2.4026C6.00016 2.11971 6.11254 1.8484 6.31258 1.64836C6.51262 1.44832 6.78393 1.33594 7.06683 1.33594H8.9335C9.21639 1.33594 9.4877 1.44832 9.68774 1.64836C9.88778 1.8484 10.0002 2.11971 10.0002 2.4026V14.6693M14.0002 14.6693V9.06927C14.0002 8.78637 13.8878 8.51506 13.6877 8.31502C13.4877 8.11498 13.2164 8.0026 12.9335 8.0026H11.0668C10.7839 8.0026 10.5126 8.11498 10.3126 8.31502C10.1125 8.51506 10.0002 8.78637 10.0002 9.06927" stroke="#F7670E" stroke-width="1.25" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round" />
-                                    </g>
-                                    <defs>
-                                        <clipPath id="clip0_36878_5161">
-                                            <rect width="16" height="16" fill="white" />
-                                        </clipPath>
-                                    </defs>
-                                </svg>
-                                Poll
-                            </div>
-                        )}
-
                     </div>
                 </div>
 
@@ -126,6 +143,24 @@ export default async function PostPage({ params }: { params: Promise<{ id: strin
                     )
                 }
 
+                {
+                    post.attachments && post.attachments.length > 0 && (
+                        <div className="flex flex-col gap-2">
+                            {
+                                post.attachments.map((attachment) => {
+                                    if (attachment.type === "LINK") {
+                                        return (
+                                            <a key={attachment.id} href={attachment.url} target="_blank" className="text-sm text-orange-500 hover:underline flex gap-2">{attachment.name} <ExternalLinkIcon className="w-4 h-4" /></a>
+                                        )
+                                    }
+
+                                    return null
+                                })
+                            }
+                        </div>
+                    )
+                }
+
                 <div className="flex items-center gap-4">
 
                     <div className="flex items-center gap-1">
@@ -145,12 +180,42 @@ export default async function PostPage({ params }: { params: Promise<{ id: strin
                                 <path d="M13 15.2337C13 16.4237 12.56 17.5237 11.82 18.3937C10.83 19.5937 9.26 20.3637 7.5 20.3637L4.89 21.9137C4.45 22.1837 3.89 21.8137 3.95 21.3037L4.2 19.3337C2.86 18.4037 2 16.9137 2 15.2337C2 13.4737 2.94 11.9237 4.38 11.0037C5.27 10.4237 6.34 10.0938 7.5 10.0938C10.54 10.0938 13 12.3937 13 15.2337Z" stroke="#292D32" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
                             </svg>
                         </button>
-                        <span>0</span>
+                        <span>{commentCount}</span>
                     </div>
 
                     <button>
                         <SaveIcon className="size-6" />
                     </button>
+                </div>
+
+                <Separator className="my-4" />
+
+                <div className="flex flex-col gap-6">
+                    <div className="flex w-full gap-2 items-center">
+                        <UserAvatar className="w-11 h-11 rounded-[14px]" user={post.users} />
+
+                        <form className="w-full"
+                            action={createComment}
+                        >
+                            <input type="hidden" name="post_id" value={post.id} />
+                            <Input
+                                type="text"
+                                name="comment_content"
+                                placeholder="Add a comment"
+                                className="h-11 md:text-base w-full"
+                                maxLength={500}
+                            />
+                        </form>
+                    </div>
+
+                    <div>
+                        <CommentsList
+                            comments={comments}
+                            postId={post.id} commentCount={mainCommentsCount}
+                            extraExpandedCommentId={expanded_comment_id ? parseInt(expanded_comment_id) : undefined}
+                            highlightedCommentId={highlighted_comment_id ? parseInt(highlighted_comment_id) : undefined}
+                        />
+                    </div>
                 </div>
             </Card>
         </div>

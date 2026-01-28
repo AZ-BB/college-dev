@@ -1,3 +1,14 @@
+// APP ENUMS
+export enum UserAccess {
+    MEMBER = "MEMBER",
+    ADMIN = "ADMIN",
+    OWNER = "OWNER",
+    ANONYMOUS = "ANONYMOUS",
+    NOT_MEMBER = "NOT_MEMBER"
+}
+
+
+// DB ENUMS
 export enum CommunityRole {
     OWNER = "OWNER",
     MEMBER = "MEMBER",

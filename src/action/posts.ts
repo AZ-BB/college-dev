@@ -462,3 +462,311 @@ export async function getIsUserVotedOnPoll(postId: number): Promise<GeneralRespo
         statusCode: 200,
     };
 }
+
+export async function createComment(formData: FormData): Promise<void> {
+    const supabase = await createSupabaseServerClient();
+    const user = await getUserData();
+
+    await supabase.from("comments").insert({
+        author_id: user.id,
+        content: formData.get("comment_content") as string,
+        post_id: parseInt(formData.get("post_id") as string),
+    });
+
+    const { data: post, error: postError } = await supabase
+        .from("posts")
+        .select("id, community:communities!posts_community_id_fkey(id, slug)")
+        .eq("id", parseInt(formData.get("post_id") as string))
+        .single();
+
+
+    if (postError || !post || !post.community) {
+        console.error("Error fetching post:", postError);
+    }
+
+    revalidatePath(`/communities/${post?.community.slug}/posts/${post?.id}`);
+    return
+}
+
+export async function createReply(formData: FormData): Promise<void> {
+    const supabase = await createSupabaseServerClient();
+    const user = await getUserData();
+
+    const commentId = parseInt(formData.get("comment_id") as string);
+    const postId = parseInt(formData.get("post_id") as string);
+
+    await supabase.from("comments").insert({
+        author_id: user.id,
+        content: formData.get("reply_content") as string,
+        post_id: postId,
+        reply_to_comment_id: commentId,
+    });
+
+    const { data: post, error: postError } = await supabase
+        .from("posts")
+        .select("id, community:communities!posts_community_id_fkey(id, slug)")
+        .eq("id", postId)
+        .single();
+
+    if (postError || !post || !post.community) {
+        console.error("Error fetching post:", postError);
+    }
+
+    revalidatePath(`/communities/${post?.community.slug}/posts/${post?.id}`);
+    return
+}
+
+export interface CommentReply {
+    id: number;
+    post_id: number;
+    author_id: string;
+    content: string;
+    reply_to_comment_id: number | null;
+    created_at: string;
+    updated_at: string;
+    users: {
+        id: string;
+        username: string;
+        avatar_url: string | null;
+        first_name: string;
+        last_name: string;
+    };
+}
+
+export async function getCommentReplies(commentId: number): Promise<GeneralResponse<CommentReply[]>> {
+    const supabase = await createSupabaseServerClient();
+
+    try {
+        const { data: replies, error: repliesError } = await supabase
+            .from("comments")
+            .select(`
+                *,
+                users!comments_author_id_fkey(id, username, avatar_url, first_name, last_name)
+            `)
+            .eq("reply_to_comment_id", commentId)
+            .order("created_at", { ascending: true });
+
+        if (repliesError) {
+            console.error("Error fetching comment replies:", repliesError);
+            return {
+                error: "Error fetching comment replies",
+                message: "Error fetching comment replies",
+                statusCode: 500,
+            };
+        }
+
+        // Transform the data to match the CommentReply interface
+        const formattedReplies: CommentReply[] = (replies || []).map((reply) => ({
+            id: reply.id,
+            post_id: reply.post_id,
+            author_id: reply.author_id,
+            content: reply.content,
+            reply_to_comment_id: reply.reply_to_comment_id,
+            created_at: reply.created_at,
+            updated_at: reply.updated_at,
+            users: reply.users as CommentReply["users"],
+        }));
+
+        return {
+            data: formattedReplies,
+            message: "Comment replies fetched successfully",
+            statusCode: 200,
+        };
+    } catch (error) {
+        console.error("Error in getCommentReplies:", error);
+        return {
+            error: "Error fetching comment replies",
+            message: "Error fetching comment replies",
+            statusCode: 500,
+        };
+    }
+}
+
+export type CommentWithReplies = Tables<"comments"> & {
+    users: {
+        id: string;
+        username: string;
+        avatar_url: string | null;
+        first_name: string;
+        last_name: string;
+    };
+    replies_count: number;
+    replies?: Array<Tables<"comments"> & {
+        users: {
+            id: string;
+            username: string;
+            avatar_url: string | null;
+            first_name: string;
+            last_name: string;
+        };
+        replies_count: number;
+    }>;
+};
+
+export async function deleteComment(commentId: number): Promise<GeneralResponse<void>> {
+    const supabase = await createSupabaseServerClient();
+    const user = await getUserData();
+
+    if (!user) {
+        return {
+            error: "User not authenticated",
+            message: "User not authenticated",
+            statusCode: 401,
+        };
+    }
+
+    try {
+        // First, check if the comment exists and user is the author
+        const { data: comment, error: commentError } = await supabase
+            .from("comments")
+            .select("id, author_id, post_id")
+            .eq("id", commentId)
+            .single();
+
+        if (commentError || !comment) {
+            console.error("Error fetching comment:", commentError);
+            return {
+                error: "Comment not found",
+                message: "Comment not found",
+                statusCode: 404,
+            };
+        }
+
+        // Check if user is the author
+        if (comment.author_id !== user.id) {
+            return {
+                error: "Unauthorized",
+                message: "You can only delete your own comments",
+                statusCode: 403,
+            };
+        }
+
+        // Get post to find community slug for revalidation
+        const { data: post, error: postError } = await supabase
+            .from("posts")
+            .select("id, community:communities!posts_community_id_fkey(id, slug)")
+            .eq("id", comment.post_id)
+            .single();
+
+        // Delete the comment (cascade will handle replies)
+        const { error: deleteError } = await supabase
+            .from("comments")
+            .delete()
+            .eq("id", commentId);
+
+        if (deleteError) {
+            console.error("Error deleting comment:", deleteError);
+            return {
+                error: "Error deleting comment",
+                message: "Error deleting comment",
+                statusCode: 500,
+            };
+        }
+
+        // Revalidate the post page
+        if (post && !postError) {
+            const community = post.community as any;
+            if (community?.slug) {
+                revalidatePath(`/communities/${community.slug}/posts/${comment.post_id}`);
+            }
+        }
+
+        return {
+            data: undefined,
+            message: "Comment deleted successfully",
+            statusCode: 200,
+        };
+    } catch (error) {
+        console.error("Error in deleteComment:", error);
+        return {
+            error: "Error deleting comment",
+            message: "Error deleting comment",
+            statusCode: 500,
+        };
+    }
+}
+
+export async function getCommentWithReplies(commentId: number): Promise<GeneralResponse<CommentWithReplies>> {
+    const supabase = await createSupabaseServerClient();
+
+    try {
+        // Fetch the comment
+        const { data: comment, error: commentError } = await supabase
+            .from("comments")
+            .select(`
+                *,
+                users!comments_author_id_fkey(id, username, avatar_url, first_name, last_name)
+            `)
+            .eq("id", commentId)
+            .single();
+
+        if (commentError || !comment) {
+            console.error("Error fetching comment:", commentError);
+            return {
+                error: "Comment not found",
+                message: "Comment not found",
+                statusCode: 404,
+            };
+        }
+
+        // Fetch all replies for this comment
+        const { data: replies, error: repliesError } = await supabase
+            .from("comments")
+            .select(`
+                *,
+                users!comments_author_id_fkey(id, username, avatar_url, first_name, last_name)
+            `)
+            .eq("reply_to_comment_id", commentId)
+            .order("created_at", { ascending: true });
+
+        if (repliesError) {
+            console.error("Error fetching comment replies:", repliesError);
+            // Continue even if replies fail, just return empty array
+        }
+
+        // Get replies count
+        const { count: repliesCount } = await supabase
+            .from("comments")
+            .select("*", { count: "exact", head: true })
+            .eq("reply_to_comment_id", commentId);
+
+        // Transform the data - replies need to match Comment type structure
+        const formattedReplies = (replies || []).map((reply) => ({
+            id: reply.id,
+            post_id: reply.post_id,
+            author_id: reply.author_id,
+            content: reply.content,
+            reply_to_comment_id: reply.reply_to_comment_id,
+            created_at: reply.created_at,
+            updated_at: reply.updated_at,
+            users: reply.users as CommentWithReplies["users"],
+            replies_count: 0, // Replies don't have nested replies
+        }));
+
+        const result: CommentWithReplies = {
+            id: comment.id,
+            post_id: comment.post_id,
+            author_id: comment.author_id,
+            content: comment.content,
+            reply_to_comment_id: comment.reply_to_comment_id,
+            created_at: comment.created_at,
+            updated_at: comment.updated_at,
+            users: comment.users as CommentWithReplies["users"],
+            replies_count: repliesCount || 0,
+            replies: formattedReplies,
+        };
+
+        return {
+            data: result,
+            message: "Comment with replies fetched successfully",
+            statusCode: 200,
+        };
+    } catch (error) {
+        console.error("Error in getCommentWithReplies:", error);
+        return {
+            error: "Error fetching comment with replies",
+            message: "Error fetching comment with replies",
+            statusCode: 500,
+        };
+    }
+}
