@@ -28,9 +28,11 @@ function SelectTrigger({
   className,
   size = "default",
   children,
+  iconClassName,
   ...props
 }: React.ComponentProps<typeof SelectPrimitive.Trigger> & {
   size?: "sm" | "default"
+  iconClassName?: string
 }) {
   return (
     <SelectPrimitive.Trigger
@@ -44,7 +46,7 @@ function SelectTrigger({
     >
       {children}
       <SelectPrimitive.Icon asChild>
-        <svg className="size-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <svg className={cn("size-6", iconClassName)} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path d="M19.9201 8.95312L13.4001 15.4731C12.6301 16.2431 11.3701 16.2431 10.6001 15.4731L4.08008 8.95312" stroke="currentColor" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       </SelectPrimitive.Icon>

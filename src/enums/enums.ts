@@ -42,3 +42,8 @@ export enum CommunityPricingType {
     SUB = "SUB",
     ONE_TIME = "ONE_TIME"
 }
+
+export enum TopicWritePermissionType {
+    PUBLIC = "PUBLIC",
+    ADMINS = "ADMINS"
+}

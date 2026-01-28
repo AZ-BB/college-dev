@@ -4,6 +4,7 @@ import "@/app/globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { getUserData } from "@/utils/get-user-data";
 import Layout from "@/components/layout/layout";
+import { Toaster } from "sonner";
 
 
 const instrumentSans = Instrument_Sans({
@@ -60,6 +61,7 @@ export default async function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
+          <Toaster />
           <Layout userData={userData}>
             {children}
           </Layout>

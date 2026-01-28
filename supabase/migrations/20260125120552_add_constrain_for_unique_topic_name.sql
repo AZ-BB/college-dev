@@ -1,0 +1,1 @@
+ALTER TABLE topics ADD CONSTRAINT unique_topic_name_per_community UNIQUE (name, community_id);

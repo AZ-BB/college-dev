@@ -3,20 +3,26 @@ import { Tabs, TabsList, TabsTrigger } from "./ui/tabs";
 export default function SecondaryTabs({
     tabs,
     onTabChange,
+    value,
     defaultValue,
 }: {
-    tabs: { label: string, value: string, count?: number }[]
-    onTabChange?: (value: string) => void
-    defaultValue?: string
+    tabs: { label: string; value: string; count?: number }[];
+    onTabChange?: (value: string) => void;
+    value?: string;
+    defaultValue?: string;
 }) {
     return (
-        <Tabs defaultValue={defaultValue} onValueChange={onTabChange}>
+        <Tabs
+            value={value}
+            defaultValue={defaultValue}
+            onValueChange={onTabChange}
+        >
             <TabsList variant="pill">
                 {tabs.map((tab) => (
                     <TabsTrigger className="flex gap-2 items-center" key={tab.value} value={tab.value}>{tab.label}
                         {
                             tab.count !== undefined &&
-                            < span className="group-hover:bg-orange-500 group-hover:text-white transition-all duration-100 group-data-[state=active]:bg-orange-500 group-data-[state=active]:text-white px-2 py-0.5 rounded-[8px] font-semibold bg-grey-200 text-grey-600">{tab.count}</span>
+                            < span className="group-hover:bg-orange-500 group-hover:text-white transition-all duration-100 group-data-[state=active]:bg-orange-500 group-data-[state=active]:text-white px-2 rounded-[8px] font-semibold bg-grey-200 text-grey-600">{tab.count}</span>
                         }
                     </TabsTrigger>
                 ))}

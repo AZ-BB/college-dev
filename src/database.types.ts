@@ -293,44 +293,6 @@ export type Database = {
           },
         ]
       }
-      community_post_categories: {
-        Row: {
-          community_id: number
-          created_at: string
-          description: string | null
-          icon: string | null
-          id: number
-          name: string
-          updated_at: string
-        }
-        Insert: {
-          community_id: number
-          created_at?: string
-          description?: string | null
-          icon?: string | null
-          id?: number
-          name: string
-          updated_at?: string
-        }
-        Update: {
-          community_id?: number
-          created_at?: string
-          description?: string | null
-          icon?: string | null
-          id?: number
-          name?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "community_post_categories_community_id_fkey"
-            columns: ["community_id"]
-            isOneToOne: false
-            referencedRelation: "communities"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       community_text_blocks: {
         Row: {
           community_id: number
@@ -498,42 +460,159 @@ export type Database = {
           },
         ]
       }
+      poll: {
+        Row: {
+          created_at: string
+          id: number
+          post_id: number
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          post_id: number
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          post_id?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "poll_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      poll_options: {
+        Row: {
+          created_at: string
+          id: number
+          poll_id: number
+          text: string
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          poll_id: number
+          text: string
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          poll_id?: number
+          text?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "poll_options_poll_id_fkey"
+            columns: ["poll_id"]
+            isOneToOne: false
+            referencedRelation: "poll"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      poll_votes: {
+        Row: {
+          created_at: string
+          id: number
+          poll_id: number
+          poll_option_id: number
+          post_id: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          poll_id: number
+          poll_option_id: number
+          post_id: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          poll_id?: number
+          poll_option_id?: number
+          post_id?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "poll_votes_poll_id_fkey"
+            columns: ["poll_id"]
+            isOneToOne: false
+            referencedRelation: "poll"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "poll_votes_poll_option_id_fkey"
+            columns: ["poll_option_id"]
+            isOneToOne: false
+            referencedRelation: "poll_options"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "poll_votes_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "poll_votes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       posts: {
         Row: {
           author_id: string
-          category_id: number | null
           comments_count: number
           community_id: number
           content: string
           created_at: string
           id: number
           likes_count: number
+          poll_id: number | null
           title: string
+          topic_id: number | null
           updated_at: string
+          video_url: string | null
         }
         Insert: {
           author_id: string
-          category_id?: number | null
           comments_count?: number
           community_id: number
           content: string
           created_at?: string
           id?: number
           likes_count?: number
+          poll_id?: number | null
           title: string
+          topic_id?: number | null
           updated_at?: string
+          video_url?: string | null
         }
         Update: {
           author_id?: string
-          category_id?: number | null
           comments_count?: number
           community_id?: number
           content?: string
           created_at?: string
           id?: number
           likes_count?: number
+          poll_id?: number | null
           title?: string
+          topic_id?: number | null
           updated_at?: string
+          video_url?: string | null
         }
         Relationships: [
           {
@@ -544,14 +623,91 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "posts_category_id_fkey"
-            columns: ["category_id"]
+            foreignKeyName: "posts_community_id_fkey"
+            columns: ["community_id"]
             isOneToOne: false
-            referencedRelation: "community_post_categories"
+            referencedRelation: "communities"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "posts_community_id_fkey"
+            foreignKeyName: "posts_poll_id_fkey"
+            columns: ["poll_id"]
+            isOneToOne: false
+            referencedRelation: "poll"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "posts_topic_id_fkey"
+            columns: ["topic_id"]
+            isOneToOne: false
+            referencedRelation: "topics"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      posts_attachments: {
+        Row: {
+          created_at: string
+          id: number
+          name: string
+          post_id: number
+          type: Database["public"]["Enums"]["posts_attachment_type_enum"]
+          url: string
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          name: string
+          post_id: number
+          type: Database["public"]["Enums"]["posts_attachment_type_enum"]
+          url: string
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          name?: string
+          post_id?: number
+          type?: Database["public"]["Enums"]["posts_attachment_type_enum"]
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "posts_attachments_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      topics: {
+        Row: {
+          community_id: number
+          created_at: string
+          id: number
+          name: string
+          updated_at: string
+          write_permission_type: Database["public"]["Enums"]["topic_write_permission_type_enum"]
+        }
+        Insert: {
+          community_id: number
+          created_at?: string
+          id?: number
+          name: string
+          updated_at?: string
+          write_permission_type: Database["public"]["Enums"]["topic_write_permission_type_enum"]
+        }
+        Update: {
+          community_id?: number
+          created_at?: string
+          id?: number
+          name?: string
+          updated_at?: string
+          write_permission_type?: Database["public"]["Enums"]["topic_write_permission_type_enum"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "topics_community_id_fkey"
             columns: ["community_id"]
             isOneToOne: false
             referencedRelation: "communities"
@@ -684,6 +840,7 @@ export type Database = {
         Args: { module_id_param: number }
         Returns: number
       }
+      get_votes_result: { Args: { p_post_id: number }; Returns: Json }
       is_community_active_member: {
         Args: { comm_id: number }
         Returns: boolean
@@ -711,6 +868,8 @@ export type Database = {
       community_pricing_enum: "FREE" | "SUB" | "ONE_TIME"
       community_role_enum: "OWNER" | "MEMBER" | "ADMIN"
       lesson_resource_type_enum: "FILE" | "LINK"
+      posts_attachment_type_enum: "IMAGE" | "LINK"
+      topic_write_permission_type_enum: "PUBLIC" | "ADMINS"
       video_type_enum: "YOUTUBE" | "LOOM" | "VIMEO"
     }
     CompositeTypes: {
@@ -857,6 +1016,8 @@ export const Constants = {
       community_pricing_enum: ["FREE", "SUB", "ONE_TIME"],
       community_role_enum: ["OWNER", "MEMBER", "ADMIN"],
       lesson_resource_type_enum: ["FILE", "LINK"],
+      posts_attachment_type_enum: ["IMAGE", "LINK"],
+      topic_write_permission_type_enum: ["PUBLIC", "ADMINS"],
       video_type_enum: ["YOUTUBE", "LOOM", "VIMEO"],
     },
   },
