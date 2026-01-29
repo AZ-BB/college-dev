@@ -7,7 +7,7 @@ import { useState } from "react";
 import { updatePostTopic } from "@/action/posts";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import { useUserAccess } from "@/components/access-context";
+import { useUserAccess } from "@/contexts/access-context";
 import { UserAccess } from "@/enums/enums";
 import { TopicWritePermissionType } from "@/enums/enums";
 

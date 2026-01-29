@@ -15,7 +15,7 @@ import { isValidVideoUrl, isValidUrl } from "@/utils/validate-video-url";
 import VideoEmbed from "@/components/video-embed";
 import { createPost, createPostImageAttachments } from "@/action/posts";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useUserAccess } from "@/components/access-context";
+import { useUserAccess } from "@/contexts/access-context";
 import { UserAccess } from "@/enums/enums";
 import { TopicWritePermissionType } from "@/enums/enums";
 
