@@ -24,11 +24,12 @@ interface CommentsListProps {
     comments: Comment[] | null;
     postId: number;
     commentCount: number | null;
+    commentsDisabled?: boolean;
     extraExpandedCommentId?: number | undefined;
     highlightedCommentId?: number | undefined;
 }
 
-export default function CommentsList({ comments: initialComments, postId, commentCount, extraExpandedCommentId = undefined, highlightedCommentId = undefined }: CommentsListProps) {
+export default function CommentsList({ comments: initialComments, postId, commentCount, commentsDisabled = false, extraExpandedCommentId = undefined, highlightedCommentId = undefined }: CommentsListProps) {
     const [comments, setComments] = useState<Comment[] | null>(initialComments);
     const [loadedCount, setLoadedCount] = useState(initialComments?.length || 0);
     const [isLoadingMore, startTransition] = useTransition();
@@ -118,7 +119,7 @@ export default function CommentsList({ comments: initialComments, postId, commen
     return (
         <div className="flex flex-col gap-4">
             {comments.map((comment) => (
-                <CommentItem key={comment.id} comment={comment} postId={postId} highlightedCommentId={highlightedCommentId} />
+                <CommentItem key={comment.id} comment={comment} postId={postId} commentsDisabled={commentsDisabled} highlightedCommentId={highlightedCommentId} />
             ))}
 
             {hasMoreComments && (

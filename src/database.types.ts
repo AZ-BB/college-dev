@@ -626,12 +626,12 @@ export type Database = {
       posts: {
         Row: {
           author_id: string
-          comments_count: number
+          comments_disabled: boolean
           community_id: number
           content: string
           created_at: string
           id: number
-          likes_count: number
+          is_pinned: boolean
           poll_id: number | null
           title: string
           topic_id: number | null
@@ -640,12 +640,12 @@ export type Database = {
         }
         Insert: {
           author_id: string
-          comments_count?: number
+          comments_disabled?: boolean
           community_id: number
           content: string
           created_at?: string
           id?: number
-          likes_count?: number
+          is_pinned?: boolean
           poll_id?: number | null
           title: string
           topic_id?: number | null
@@ -654,12 +654,12 @@ export type Database = {
         }
         Update: {
           author_id?: string
-          comments_count?: number
+          comments_disabled?: boolean
           community_id?: number
           content?: string
           created_at?: string
           id?: number
-          likes_count?: number
+          is_pinned?: boolean
           poll_id?: number | null
           title?: string
           topic_id?: number | null
@@ -867,14 +867,24 @@ export type Database = {
         Args: { classroom_id_param: number }
         Returns: number
       }
-      get_comments: {
-        Args: {
-          p_comments_limit?: number
-          p_post_id: number
-          p_replies_limit?: number
-        }
-        Returns: Json
-      }
+      get_comments:
+        | {
+            Args: {
+              p_comments_limit?: number
+              p_post_id: number
+              p_replies_limit?: number
+            }
+            Returns: Json
+          }
+        | {
+            Args: {
+              p_comments_limit?: number
+              p_comments_offset?: number
+              p_post_id: number
+              p_replies_limit?: number
+            }
+            Returns: Json
+          }
       get_community_id_from_storage_path: {
         Args: { storage_path: string }
         Returns: number
@@ -899,6 +909,16 @@ export type Database = {
       get_module_community_id: {
         Args: { module_id_param: number }
         Returns: number
+      }
+      get_posts: {
+        Args: {
+          p_community_id: number
+          p_limit?: number
+          p_offset?: number
+          p_sort_by?: string
+          p_topic?: string
+        }
+        Returns: Json
       }
       get_votes_result: { Args: { p_post_id: number }; Returns: Json }
       is_community_active_member: {

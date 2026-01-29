@@ -35,6 +35,7 @@ import AccessControl from "../../../../../../../../components/access-control";
 interface CommentItemProps {
     comment: Comment;
     postId: number;
+    commentsDisabled?: boolean;
     highlightedCommentId?: number;
 }
 
@@ -68,7 +69,7 @@ function formatTimeAgo(dateString: string | null): string {
 
 type ReplyDisplay = Comment | CommentReply;
 
-export default function CommentItem({ comment, postId, highlightedCommentId }: CommentItemProps) {
+export default function CommentItem({ comment, postId, commentsDisabled = false, highlightedCommentId }: CommentItemProps) {
     const router = useRouter();
     const searchParams = useSearchParams();
     const pathname = usePathname();
@@ -191,6 +192,7 @@ export default function CommentItem({ comment, postId, highlightedCommentId }: C
     };
 
     const handleReplyIconClick = async () => {
+        if (commentsDisabled) return;
         // If replies are collapsed and there are more than 2, expand them first
         if (!showAllReplies && hasMoreReplies) {
             await handleShowMoreReplies();
@@ -368,18 +370,31 @@ export default function CommentItem({ comment, postId, highlightedCommentId }: C
                             <span>0</span>
                         </div>
 
-                        <button
-                            onClick={handleReplyIconClick}
-                            className="flex items-center gap-1 hover:opacity-70 transition-opacity"
-                        >
-                            <svg className="size-5" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M18.4698 16.83L18.8598 19.99C18.9598 20.82 18.0698 21.4 17.3598 20.97L13.1698 18.48C12.7098 18.48 12.2599 18.45 11.8199 18.39C12.5599 17.52 12.9998 16.42 12.9998 15.23C12.9998 12.39 10.5398 10.09 7.49985 10.09C6.33985 10.09 5.26985 10.42 4.37985 11C4.34985 10.75 4.33984 10.5 4.33984 10.24C4.33984 5.68999 8.28985 2 13.1698 2C18.0498 2 21.9998 5.68999 21.9998 10.24C21.9998 12.94 20.6098 15.33 18.4698 16.83Z" stroke="#485057" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                                <path d="M13 15.2337C13 16.4237 12.56 17.5237 11.82 18.3937C10.83 19.5937 9.26 20.3637 7.5 20.3637L4.89 21.9137C4.45 22.1837 3.89 21.8137 3.95 21.3037L4.2 19.3337C2.86 18.4037 2 16.9137 2 15.2337C2 13.4737 2.94 11.9237 4.38 11.0037C5.27 10.4237 6.34 10.0938 7.5 10.0938C10.54 10.0938 13 12.3937 13 15.2337Z" stroke="#485057" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                            </svg>
-                            <span>
-                                {comment.replies_count}
-                            </span>
-                        </button>
+                        {!commentsDisabled && (
+                            <button
+                                onClick={handleReplyIconClick}
+                                className="flex items-center gap-1 hover:opacity-70 transition-opacity"
+                            >
+                                <svg className="size-5" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M18.4698 16.83L18.8598 19.99C18.9598 20.82 18.0698 21.4 17.3598 20.97L13.1698 18.48C12.7098 18.48 12.2599 18.45 11.8199 18.39C12.5599 17.52 12.9998 16.42 12.9998 15.23C12.9998 12.39 10.5398 10.09 7.49985 10.09C6.33985 10.09 5.26985 10.42 4.37985 11C4.34985 10.75 4.33984 10.5 4.33984 10.24C4.33984 5.68999 8.28985 2 13.1698 2C18.0498 2 21.9998 5.68999 21.9998 10.24C21.9998 12.94 20.6098 15.33 18.4698 16.83Z" stroke="#485057" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                                    <path d="M13 15.2337C13 16.4237 12.56 17.5237 11.82 18.3937C10.83 19.5937 9.26 20.3637 7.5 20.3637L4.89 21.9137C4.45 22.1837 3.89 21.8137 3.95 21.3037L4.2 19.3337C2.86 18.4037 2 16.9137 2 15.2337C2 13.4737 2.94 11.9237 4.38 11.0037C5.27 10.4237 6.34 10.0938 7.5 10.0938C10.54 10.0938 13 12.3937 13 15.2337Z" stroke="#485057" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                                </svg>
+                                <span>
+                                    {comment.replies_count}
+                                </span>
+                            </button>
+                        )}
+                        {commentsDisabled && (
+                            <div className="flex items-center gap-1 opacity-50 cursor-not-allowed">
+                                <svg className="size-5" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M18.4698 16.83L18.8598 19.99C18.9598 20.82 18.0698 21.4 17.3598 20.97L13.1698 18.48C12.7098 18.48 12.2599 18.45 11.8199 18.39C12.5599 17.52 12.9998 16.42 12.9998 15.23C12.9998 12.39 10.5398 10.09 7.49985 10.09C6.33985 10.09 5.26985 10.42 4.37985 11C4.34985 10.75 4.33984 10.5 4.33984 10.24C4.33984 5.68999 8.28985 2 13.1698 2C18.0498 2 21.9998 5.68999 21.9998 10.24C21.9998 12.94 20.6098 15.33 18.4698 16.83Z" stroke="#485057" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                                    <path d="M13 15.2337C13 16.4237 12.56 17.5237 11.82 18.3937C10.83 19.5937 9.26 20.3637 7.5 20.3637L4.89 21.9137C4.45 22.1837 3.89 21.8137 3.95 21.3037L4.2 19.3337C2.86 18.4037 2 16.9137 2 15.2337C2 13.4737 2.94 11.9237 4.38 11.0037C5.27 10.4237 6.34 10.0938 7.5 10.0938C10.54 10.0938 13 12.3937 13 15.2337Z" stroke="#485057" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                                </svg>
+                                <span>
+                                    {comment.replies_count}
+                                </span>
+                            </div>
+                        )}
 
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
@@ -515,28 +530,30 @@ export default function CommentItem({ comment, postId, highlightedCommentId }: C
                             )}
 
 
-                            <AccessControl allowedAccess={[UserAccess.OWNER, UserAccess.ADMIN, UserAccess.MEMBER]}>
-                                {/* Reply input - visible when expanded or when showReplyInput is true */}
-                                {(showAllReplies || showReplyInput) && (
-                                    <form
-                                        onSubmit={handleReplySubmit}
-                                        className="flex items-start gap-2"
-                                    >
-                                        <div className="flex-1">
-                                            <Input
-                                                type="text"
-                                                value={replyContent}
-                                                onChange={(e) => setReplyContent(e.target.value)}
-                                                placeholder="Add a reply"
-                                                className="h-9 md:text-sm w-full text-xs"
-                                                maxLength={500}
-                                                autoFocus={showReplyInput}
-                                                disabled={isPending}
-                                            />
-                                        </div>
-                                    </form>
-                                )}
-                            </AccessControl>
+                            {!commentsDisabled && (
+                                <AccessControl allowedAccess={[UserAccess.OWNER, UserAccess.ADMIN, UserAccess.MEMBER]}>
+                                    {/* Reply input - visible when expanded or when showReplyInput is true */}
+                                    {(showAllReplies || showReplyInput) && (
+                                        <form
+                                            onSubmit={handleReplySubmit}
+                                            className="flex items-start gap-2"
+                                        >
+                                            <div className="flex-1">
+                                                <Input
+                                                    type="text"
+                                                    value={replyContent}
+                                                    onChange={(e) => setReplyContent(e.target.value)}
+                                                    placeholder="Add a reply"
+                                                    className="h-9 md:text-sm w-full text-xs"
+                                                    maxLength={500}
+                                                    autoFocus={showReplyInput}
+                                                    disabled={isPending}
+                                                />
+                                            </div>
+                                        </form>
+                                    )}
+                                </AccessControl>
+                            )}
                         </div>
                     )}
 

@@ -3,15 +3,17 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { PostList, getPosts } from "@/action/posts";
 import PostCard from "./post-card";
+import { Tables } from "@/database.types";
 
 interface PostsListProps {
     initalPosts: PostList[];
     communityId: number;
     topic: string;
     sortBy: string;
+    topics: Tables<"topics">[];
 }
 
-export default function PostsList({ initalPosts, communityId, topic, sortBy }: PostsListProps) {
+export default function PostsList({ initalPosts, communityId, topic, sortBy, topics }: PostsListProps) {
     const [posts, setPosts] = useState<PostList[]>(initalPosts);
     const [offset, setOffset] = useState(10);
     const [loading, setLoading] = useState(false);
@@ -81,7 +83,7 @@ export default function PostsList({ initalPosts, communityId, topic, sortBy }: P
     return (
         <div className="space-y-4 pt-4">
             {posts.map((post) => (
-                <PostCard key={post.id} post={post} />
+                <PostCard key={post.id} post={post} topics={topics} />
             ))}
             {hasMore && (
                 <div ref={observerTarget} className="h-10 flex items-center justify-center">

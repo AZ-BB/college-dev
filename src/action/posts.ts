@@ -274,11 +274,12 @@ export async function createPostImageAttachments(
 }
 
 export type PostList = Tables<"posts"> & {
-    users: Tables<"users">,
-    poll: Tables<"poll"> | null,
-    topic: Tables<"topics"> | null,
-    attachments: Tables<"posts_attachments">[],
-}
+    users: Pick<Tables<"users">, "id" | "username" | "first_name" | "last_name" | "avatar_url">;
+    attachments: Tables<"posts_attachments">[];
+    comment_count: number;
+    /** Optional; not returned by get_posts list RPC */
+    poll?: Tables<"poll"> | null;
+};
 
 export async function getPosts(
     communityId: number,
@@ -289,38 +290,24 @@ export async function getPosts(
     const supabase = await createSupabaseServerClient();
 
     try {
-        let query = supabase
-            .from("posts")
-            .select(`
-                *,
-                users!posts_author_id_fkey(*),
-                poll!posts_poll_id_fkey(*),
-                topic:topics!posts_topic_id_fkey(id, name),
-                attachments:posts_attachments!posts_attachments_post_id_fkey(*)
-            `)
-            .eq("community_id", communityId)
-            .range(pagination.offset, pagination.offset + pagination.limit - 1);
+        const topicId =
+            topic == null || topic === "" || topic.toLowerCase().trim() === "all"
+                ? null
+                : parseInt(topic, 10);
+        const validTopicId = Number.isNaN(topicId) ? null : topicId;
 
-        // Filter by topic if not "all"
-        if (topic !== "all") {
-            const topicId = parseInt(topic, 10);
-            if (!isNaN(topicId)) {
-                query = query.eq("topic_id", topicId);
-            }
-        }
+        const rpcParams = {
+            p_community_id: communityId,
+            p_topic_id: validTopicId,
+            p_sort_by: sortBy === "new" || sortBy === "top" ? sortBy : "default",
+            p_limit: pagination.limit,
+            p_offset: pagination.offset,
+        };
 
-        // Apply sorting
-        if (sortBy === "top") {
-            query = query.order("likes_count", { ascending: false });
-        } else {
-            // "default" or "new" both sort by created_at descending
-            query = query.order("created_at", { ascending: false });
-        }
+        const { data, error } = await (supabase.rpc as any)("get_posts", rpcParams);
 
-        const { data: posts, error: postsError } = await query;
-
-        if (postsError) {
-            console.error("Error fetching posts:", postsError);
+        if (error) {
+            console.error("Error fetching posts:", error);
             return {
                 error: "Error fetching posts",
                 message: "Error fetching posts",
@@ -328,8 +315,19 @@ export async function getPosts(
             };
         }
 
+        let posts: Array<PostList> = [];
+        if (typeof data === "string") {
+            try {
+                posts = JSON.parse(data) || [];
+            } catch {
+                posts = [];
+            }
+        } else {
+            posts = (data as Array<PostList>) || [];
+        }
+
         return {
-            data: posts as unknown as Array<PostList> || [],
+            data: posts,
             message: "Posts fetched successfully",
             statusCode: 200,
         };
@@ -467,24 +465,38 @@ export async function createComment(formData: FormData): Promise<void> {
     const supabase = await createSupabaseServerClient();
     const user = await getUserData();
 
+    const postId = parseInt(formData.get("post_id") as string);
+
+    // Check if comments are disabled for this post
+    const { data: post, error: postError } = await supabase
+        .from("posts")
+        .select("id, comments_disabled, community:communities!posts_community_id_fkey(id, slug)")
+        .eq("id", postId)
+        .single();
+
+    if (postError || !post) {
+        console.error("Error fetching post:", postError);
+        return;
+    }
+
+    // Prevent comment creation if comments are disabled
+    if (post.comments_disabled) {
+        console.error("Comments are disabled for this post");
+        return;
+    }
+
     await supabase.from("comments").insert({
         author_id: user.id,
         content: formData.get("comment_content") as string,
-        post_id: parseInt(formData.get("post_id") as string),
+        post_id: postId,
     });
 
-    const { data: post, error: postError } = await supabase
-        .from("posts")
-        .select("id, community:communities!posts_community_id_fkey(id, slug)")
-        .eq("id", parseInt(formData.get("post_id") as string))
-        .single();
-
-
-    if (postError || !post || !post.community) {
-        console.error("Error fetching post:", postError);
+    if (!post.community) {
+        console.error("Error fetching community");
+        return;
     }
 
-    revalidatePath(`/communities/${post?.community.slug}/posts/${post?.id}`);
+    revalidatePath(`/communities/${post.community.slug}/posts/${post.id}`);
     return
 }
 
@@ -495,6 +507,24 @@ export async function createReply(formData: FormData): Promise<void> {
     const commentId = parseInt(formData.get("comment_id") as string);
     const postId = parseInt(formData.get("post_id") as string);
 
+    // Check if comments are disabled for this post
+    const { data: post, error: postError } = await supabase
+        .from("posts")
+        .select("id, comments_disabled, community:communities!posts_community_id_fkey(id, slug)")
+        .eq("id", postId)
+        .single();
+
+    if (postError || !post) {
+        console.error("Error fetching post:", postError);
+        return;
+    }
+
+    // Prevent reply creation if comments are disabled
+    if (post.comments_disabled) {
+        console.error("Comments are disabled for this post");
+        return;
+    }
+
     await supabase.from("comments").insert({
         author_id: user.id,
         content: formData.get("reply_content") as string,
@@ -502,17 +532,12 @@ export async function createReply(formData: FormData): Promise<void> {
         reply_to_comment_id: commentId,
     });
 
-    const { data: post, error: postError } = await supabase
-        .from("posts")
-        .select("id, community:communities!posts_community_id_fkey(id, slug)")
-        .eq("id", postId)
-        .single();
-
-    if (postError || !post || !post.community) {
-        console.error("Error fetching post:", postError);
+    if (!post.community) {
+        console.error("Error fetching community");
+        return;
     }
 
-    revalidatePath(`/communities/${post?.community.slug}/posts/${post?.id}`);
+    revalidatePath(`/communities/${post.community.slug}/posts/${post.id}`);
     return
 }
 
@@ -766,6 +791,407 @@ export async function getCommentWithReplies(commentId: number): Promise<GeneralR
         return {
             error: "Error fetching comment with replies",
             message: "Error fetching comment with replies",
+            statusCode: 500,
+        };
+    }
+}
+
+export async function togglePinPost(postId: number): Promise<GeneralResponse<{ is_pinned: boolean }>> {
+    const supabase = await createSupabaseServerClient();
+    const user = await getUserData();
+
+    if (!user) {
+        return {
+            error: "User not authenticated",
+            message: "User not authenticated",
+            statusCode: 401,
+        };
+    }
+
+    try {
+        // Get post with community info for revalidation
+        const { data: post, error: postError } = await supabase
+            .from("posts")
+            .select(`
+                id,
+                is_pinned,
+                community:communities!posts_community_id_fkey(id, slug)
+            `)
+            .eq("id", postId)
+            .single();
+
+        if (postError || !post) {
+            console.error("Error fetching post:", postError);
+            return {
+                error: "Post not found",
+                message: "Post not found",
+                statusCode: 404,
+            };
+        }
+
+        // Toggle the is_pinned value
+        const newIsPinnedValue = !post.is_pinned;
+
+        const { error: updateError } = await supabase
+            .from("posts")
+            .update({ is_pinned: newIsPinnedValue })
+            .eq("id", postId);
+
+        if (updateError) {
+            console.error("Error toggling pin status:", updateError);
+            return {
+                error: "Error toggling pin status",
+                message: "Error toggling pin status",
+                statusCode: 500,
+            };
+        }
+
+        // Revalidate the posts page
+        const community = post.community as any;
+        if (community?.slug) {
+            revalidatePath(`/communities/${community.slug}/posts`);
+        }
+
+        return {
+            data: { is_pinned: newIsPinnedValue },
+            message: newIsPinnedValue ? "Post pinned successfully" : "Post unpinned successfully",
+            statusCode: 200,
+        };
+    } catch (error) {
+        console.error("Error in togglePinPost:", error);
+        return {
+            error: "Error toggling pin status",
+            message: "Error toggling pin status",
+            statusCode: 500,
+        };
+    }
+}
+
+export async function updatePostTopic(postId: number, newTopicId: number): Promise<GeneralResponse<{ topic_id: number }>> {
+    const supabase = await createSupabaseServerClient();
+    const user = await getUserData();
+
+    if (!user) {
+        return {
+            error: "User not authenticated",
+            message: "User not authenticated",
+            statusCode: 401,
+        };
+    }
+
+    try {
+        // Get post with community info
+        const { data: post, error: postError } = await supabase
+            .from("posts")
+            .select(`
+                id,
+                topic_id,
+                community_id,
+                community:communities!posts_community_id_fkey(id, slug)
+            `)
+            .eq("id", postId)
+            .single();
+
+        if (postError || !post) {
+            console.error("Error fetching post:", postError);
+            return {
+                error: "Post not found",
+                message: "Post not found",
+                statusCode: 404,
+            };
+        }
+
+        // Check if user is the author or admin/owner
+        const { data: postAuthor } = await supabase
+            .from("posts")
+            .select("author_id")
+            .eq("id", postId)
+            .single();
+
+        if (!postAuthor || postAuthor.author_id !== user.id) {
+            // Check if user is admin or owner
+            const { data: member } = await supabase
+                .from("community_members")
+                .select("role")
+                .eq("community_id", post.community_id)
+                .eq("user_id", user.id)
+                .eq("member_status", "ACTIVE")
+                .single();
+
+            if (!member || (member.role !== "ADMIN" && member.role !== "OWNER")) {
+                return {
+                    error: "Unauthorized",
+                    message: "You can only change the topic of your own posts or if you are an admin/owner",
+                    statusCode: 403,
+                };
+            }
+        }
+
+        // Get the new topic to check write permissions
+        const { data: newTopic, error: topicError } = await supabase
+            .from("topics")
+            .select("id, write_permission_type, community_id")
+            .eq("id", newTopicId)
+            .single();
+
+        if (topicError || !newTopic) {
+            console.error("Error fetching topic:", topicError);
+            return {
+                error: "Topic not found",
+                message: "Topic not found",
+                statusCode: 404,
+            };
+        }
+
+        // Verify topic belongs to the same community
+        if (newTopic.community_id !== post.community_id) {
+            return {
+                error: "Invalid topic",
+                message: "Topic does not belong to this community",
+                statusCode: 400,
+            };
+        }
+
+        // Check write permissions for the new topic
+        const { data: member } = await supabase
+            .from("community_members")
+            .select("role")
+            .eq("community_id", post.community_id)
+            .eq("user_id", user.id)
+            .eq("member_status", "ACTIVE")
+            .single();
+
+        if (!member) {
+            return {
+                error: "Unauthorized",
+                message: "You are not a member of this community",
+                statusCode: 403,
+            };
+        }
+
+        // If topic requires admin access and user is only a member, deny
+        if (newTopic.write_permission_type === "ADMINS" && member.role === "MEMBER") {
+            return {
+                error: "Unauthorized",
+                message: "You do not have write access to this topic",
+                statusCode: 403,
+            };
+        }
+
+        // Update the post topic
+        const { error: updateError } = await supabase
+            .from("posts")
+            .update({ topic_id: newTopicId })
+            .eq("id", postId);
+
+        if (updateError) {
+            console.error("Error updating post topic:", updateError);
+            return {
+                error: "Error updating post topic",
+                message: "Error updating post topic",
+                statusCode: 500,
+            };
+        }
+
+        // Revalidate the posts page
+        const community = post.community as any;
+        if (community?.slug) {
+            revalidatePath(`/communities/${community.slug}/posts`);
+            revalidatePath(`/communities/${community.slug}/posts/${postId}`);
+        }
+
+        return {
+            data: { topic_id: newTopicId },
+            message: "Post topic updated successfully",
+            statusCode: 200,
+        };
+    } catch (error) {
+        console.error("Error in updatePostTopic:", error);
+        return {
+            error: "Error updating post topic",
+            message: "Error updating post topic",
+            statusCode: 500,
+        };
+    }
+}
+
+export async function toggleCommentsDisabled(postId: number): Promise<GeneralResponse<{ comments_disabled: boolean }>> {
+    const supabase = await createSupabaseServerClient();
+    const user = await getUserData();
+
+    if (!user) {
+        return {
+            error: "User not authenticated",
+            message: "User not authenticated",
+            statusCode: 401,
+        };
+    }
+
+    try {
+        // Get post with community info
+        const { data: post, error: postError } = await supabase
+            .from("posts")
+            .select(`
+                id,
+                comments_disabled,
+                author_id,
+                community:communities!posts_community_id_fkey(id, slug)
+            `)
+            .eq("id", postId)
+            .single();
+
+        if (postError || !post) {
+            console.error("Error fetching post:", postError);
+            return {
+                error: "Post not found",
+                message: "Post not found",
+                statusCode: 404,
+            };
+        }
+
+        // Check if user is the author or admin/owner
+        if (post.author_id !== user.id) {
+            // Check if user is admin or owner
+            const { data: member } = await supabase
+                .from("community_members")
+                .select("role")
+                .eq("community_id", (post.community as any).id)
+                .eq("user_id", user.id)
+                .eq("member_status", "ACTIVE")
+                .single();
+
+            if (!member || (member.role !== "ADMIN" && member.role !== "OWNER")) {
+                return {
+                    error: "Unauthorized",
+                    message: "You can only toggle comments on your own posts or if you are an admin/owner",
+                    statusCode: 403,
+                };
+            }
+        }
+
+        // Toggle the comments_disabled value
+        const newCommentsDisabledValue = !post.comments_disabled;
+
+        const { error: updateError } = await supabase
+            .from("posts")
+            .update({ comments_disabled: newCommentsDisabledValue })
+            .eq("id", postId);
+
+        if (updateError) {
+            console.error("Error toggling comments disabled status:", updateError);
+            return {
+                error: "Error toggling comments disabled status",
+                message: "Error toggling comments disabled status",
+                statusCode: 500,
+            };
+        }
+
+        // Revalidate the posts page
+        const community = post.community as any;
+        if (community?.slug) {
+            revalidatePath(`/communities/${community.slug}/posts`);
+            revalidatePath(`/communities/${community.slug}/posts/${postId}`);
+        }
+
+        return {
+            data: { comments_disabled: newCommentsDisabledValue },
+            message: newCommentsDisabledValue ? "Comments disabled successfully" : "Comments enabled successfully",
+            statusCode: 200,
+        };
+    } catch (error) {
+        console.error("Error in toggleCommentsDisabled:", error);
+        return {
+            error: "Error toggling comments disabled status",
+            message: "Error toggling comments disabled status",
+            statusCode: 500,
+        };
+    }
+}
+
+export async function deletePost(postId: number): Promise<GeneralResponse<void>> {
+    const supabase = await createSupabaseServerClient();
+    const user = await getUserData();
+
+    if (!user) {
+        return {
+            error: "User not authenticated",
+            message: "User not authenticated",
+            statusCode: 401,
+        };
+    }
+
+    try {
+        // Get post with community info
+        const { data: post, error: postError } = await supabase
+            .from("posts")
+            .select(`
+                id,
+                author_id,
+                community:communities!posts_community_id_fkey(id, slug)
+            `)
+            .eq("id", postId)
+            .single();
+
+        if (postError || !post) {
+            console.error("Error fetching post:", postError);
+            return {
+                error: "Post not found",
+                message: "Post not found",
+                statusCode: 404,
+            };
+        }
+
+        // Check if user is the author or admin/owner
+        if (post.author_id !== user.id) {
+            // Check if user is admin or owner
+            const { data: member } = await supabase
+                .from("community_members")
+                .select("role")
+                .eq("community_id", (post.community as any).id)
+                .eq("user_id", user.id)
+                .eq("member_status", "ACTIVE")
+                .single();
+
+            if (!member || (member.role !== "ADMIN" && member.role !== "OWNER")) {
+                return {
+                    error: "Unauthorized",
+                    message: "You can only delete your own posts or if you are an admin/owner",
+                    statusCode: 403,
+                };
+            }
+        }
+
+        // Delete the post (cascade will handle related data like comments, attachments, etc.)
+        const { error: deleteError } = await supabase
+            .from("posts")
+            .delete()
+            .eq("id", postId);
+
+        if (deleteError) {
+            console.error("Error deleting post:", deleteError);
+            return {
+                error: "Error deleting post",
+                message: "Error deleting post",
+                statusCode: 500,
+            };
+        }
+
+        // Revalidate the posts page
+        const community = post.community as any;
+        if (community?.slug) {
+            revalidatePath(`/communities/${community.slug}/posts`);
+        }
+
+        return {
+            data: undefined,
+            message: "Post deleted successfully",
+            statusCode: 200,
+        };
+    } catch (error) {
+        console.error("Error in deletePost:", error);
+        return {
+            error: "Error deleting post",
+            message: "Error deleting post",
             statusCode: 500,
         };
     }

@@ -1,5 +1,5 @@
 "use client";
-import { PostList } from "@/action/posts";
+import { PostList, togglePinPost } from "@/action/posts";
 import CommentIcon from "@/components/icons/comment";
 import LikeIcon from "@/components/icons/like";
 import SaveIcon from "@/components/icons/save";
@@ -12,14 +12,111 @@ import { format } from "date-fns";
 import Link from "next/link";
 import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
-export default function PostCard({ post }: { post: PostList }) {
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
+import AccessControl from "@/components/access-control";
+import { UserAccess } from "@/enums/enums";
+import { toast } from "sonner";
+import { Pin } from "lucide-react";
+import { useState } from "react";
+import { Tables } from "@/database.types";
+import ChangeTopicModal from "./change-topic-modal";
+import ToggleCommentsModal from "./toggle-comments-modal";
+import DeletePostModal from "./delete-post-modal";
+import { toggleCommentsDisabled, deletePost } from "@/action/posts";
+
+export default function PostCard({ post, topics }: { post: PostList; topics: Tables<"topics">[] }) {
     const params = useParams();
     const slug = params.slug as string;
     const router = useRouter();
+    const [changeTopicModalOpen, setChangeTopicModalOpen] = useState(false);
+    const [toggleCommentsModalOpen, setToggleCommentsModalOpen] = useState(false);
+    const [isTogglingComments, setIsTogglingComments] = useState(false);
+    const [deletePostModalOpen, setDeletePostModalOpen] = useState(false);
+    const [isDeletingPost, setIsDeletingPost] = useState(false);
+
+    const handleCopyLink = async (e: React.MouseEvent) => {
+        e.stopPropagation();
+        const postUrl = `${window.location.origin}/communities/${slug}/posts/${post.id}`;
+        try {
+            await navigator.clipboard.writeText(postUrl);
+            toast.success("Link copied to clipboard");
+        } catch (err) {
+            toast.error("Failed to copy link");
+        }
+    };
+
+    const handleTogglePin = async (e: React.MouseEvent) => {
+        e.stopPropagation();
+        const result = await togglePinPost(post.id);
+        if (result.error) {
+            toast.error(result.message || "Failed to toggle pin status");
+        } else {
+            toast.success(result.message || (result.data?.is_pinned ? "Post pinned" : "Post unpinned"));
+            router.refresh();
+        }
+    };
+
+    const handleChangeTopic = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        setChangeTopicModalOpen(true);
+    };
+
+    const handleToggleCommentsClick = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        setToggleCommentsModalOpen(true);
+    };
+
+    const handleConfirmToggleComments = async () => {
+        setIsTogglingComments(true);
+        const result = await toggleCommentsDisabled(post.id);
+        setIsTogglingComments(false);
+        
+        if (result.error) {
+            toast.error(result.message || "Failed to toggle comments");
+        } else {
+            toast.success(result.message || ((post as any).comments_disabled ? "Comments enabled" : "Comments disabled"));
+            router.refresh();
+        }
+        setToggleCommentsModalOpen(false);
+    };
+
+    const handleDeletePostClick = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        setDeletePostModalOpen(true);
+    };
+
+    const handleConfirmDeletePost = async () => {
+        setIsDeletingPost(true);
+        const result = await deletePost(post.id);
+        setIsDeletingPost(false);
+        
+        if (result.error) {
+            toast.error(result.message || "Failed to delete post");
+            setDeletePostModalOpen(false);
+        } else {
+            toast.success(result.message || "Post deleted successfully");
+            router.push(`/communities/${slug}/posts`);
+        }
+    };
+
+    const handleCardClick = () => {
+        // Don't navigate if any modal is open
+        if (changeTopicModalOpen || toggleCommentsModalOpen || deletePostModalOpen) {
+            return;
+        }
+        router.push(`/communities/${slug}/posts/${post.id}`);
+    };
 
     return (
-        <Card key={post.id} className="shadow-none border-grey-200 px-6 flex flex-row gap-4 justify-between cursor-pointer hover:shadow-sm transition-all duration-300"
-            onClick={() => router.push(`/communities/${slug}/posts/${post.id}`)}
+        <Card key={post.id} className="shadow-none border-grey-200 px-6 flex flex-row gap-4 justify-between cursor-pointer hover:shadow-sm transition-all duration-300 relative"
+            onClick={handleCardClick}
         >
             <div className="flex flex-col gap-4 justify-between">
                 <div className="flex flex-col gap-4">
@@ -32,7 +129,7 @@ export default function PostCard({ post }: { post: PostList }) {
                                 {formatFullName(post.users.first_name, post.users.last_name)}
                             </Link>
                             <span className="text-grey-700 text-sm font-medium">
-                                {format(new Date(post.created_at), "MMM d, yyyy")} | {post.topic?.name}
+                                {format(new Date(post.created_at), "MMM d, yyyy")} | {topics.find((t) => t.id === post.topic_id)?.name ?? ""}
                             </span>
                         </div>
                     </div>
@@ -79,7 +176,7 @@ export default function PostCard({ post }: { post: PostList }) {
                                 <path d="M13 15.2337C13 16.4237 12.56 17.5237 11.82 18.3937C10.83 19.5937 9.26 20.3637 7.5 20.3637L4.89 21.9137C4.45 22.1837 3.89 21.8137 3.95 21.3037L4.2 19.3337C2.86 18.4037 2 16.9137 2 15.2337C2 13.4737 2.94 11.9237 4.38 11.0037C5.27 10.4237 6.34 10.0938 7.5 10.0938C10.54 10.0938 13 12.3937 13 15.2337Z" stroke="#292D32" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
                             </svg>
                         </button>
-                        <span>0</span>
+                        <span>{post.comment_count ?? 0}</span>
                     </div>
 
                     <button>
@@ -91,20 +188,101 @@ export default function PostCard({ post }: { post: PostList }) {
             <div className="flex items-center">
                 {
                     post.video_url && (
-                        <div>
-                            <VideoThumbnail url={post.video_url} className="w-48 h-32" />
+                        <div className="py-4">
+                            <VideoThumbnail url={post.video_url} className="w-48 h-32 mt-5" />
                         </div>
                     )
                 }
 
                 {
                     post.video_url === null && post.attachments.length > 0 && (
-                        <div key={post.attachments[0].id}>
-                            <Image src={post.attachments[0].url} alt={post.attachments[0].name} width={160} height={160} className="w-40 h-40 rounded-md object-cover" />
+                        <div key={post.attachments[0].id} >
+                            <Image src={post.attachments[0].url} alt={post.attachments[0].name} width={160} height={160} className="w-40 h-40 rounded-md object-cover mt-8" />
                         </div>
                     )
                 }
             </div>
+            <div className="absolute top-4 right-4 flex items-center gap-2" onClick={(e) => e.stopPropagation()} onPointerDown={(e) => e.stopPropagation()}>
+                {(post as any).is_pinned && (
+                    <div className="flex items-center justify-center">
+                        <Pin className="size-4 text-orange-500" />
+                    </div>
+                )}
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 rounded-lg"
+                            onClick={(e) => e.stopPropagation()}
+                            onPointerDown={(e) => e.stopPropagation()}
+                        >
+                            <svg className="size-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M5 10C3.9 10 3 10.9 3 12C3 13.1 3.9 14 5 14C6.1 14 7 13.1 7 12C7 10.9 6.1 10 5 10Z" stroke="#292D32" strokeWidth="1.5" />
+                                <path d="M19 10C17.9 10 17 10.9 17 12C17 13.1 17.9 14 19 14C20.1 14 21 13.1 21 12C21 10.9 20.1 10 19 10Z" stroke="#292D32" strokeWidth="1.5" />
+                                <path d="M12 10C10.9 10 10 10.9 10 12C10 13.1 10.9 14 12 14C13.1 14 14 13.1 14 12C14 10.9 13.1 10 12 10Z" stroke="#292D32" strokeWidth="1.5" />
+                            </svg>
+                        </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={handleCopyLink}>
+                            Copy Link
+                        </DropdownMenuItem>
+                        <AccessControl allowedAccess={[UserAccess.OWNER, UserAccess.ADMIN]}>
+                            <DropdownMenuItem onClick={handleTogglePin}>
+                                {(post as any).is_pinned ? "Unpin Post" : "Pin Post"}
+                            </DropdownMenuItem>
+                        </AccessControl>
+                        <AccessControl allowedAccess={[UserAccess.OWNER, UserAccess.ADMIN]} allowedUserId={post.author_id}>
+                            <DropdownMenuItem onClick={handleChangeTopic}>
+                                Change Topic
+                            </DropdownMenuItem>
+                        </AccessControl>
+                        <AccessControl allowedAccess={[UserAccess.OWNER, UserAccess.ADMIN]} allowedUserId={post.author_id}>
+                            <DropdownMenuItem onClick={handleToggleCommentsClick}>
+                                {(post as any).comments_disabled ? "Turn on comments" : "Turn off comments"}
+                            </DropdownMenuItem>
+                        </AccessControl>
+                        <AccessControl allowedAccess={[UserAccess.MEMBER]}>
+                            <DropdownMenuItem>
+                                Report to admins
+                            </DropdownMenuItem>
+                        </AccessControl>
+                        <DropdownMenuSeparator />
+                        <AccessControl allowedAccess={[UserAccess.OWNER, UserAccess.ADMIN]} allowedUserId={post.author_id}>
+                            <DropdownMenuItem variant="destructive" onClick={handleDeletePostClick}>
+                                Delete post
+                            </DropdownMenuItem>
+                        </AccessControl>
+                        {/* Disabled for now */}
+                        {/* <AccessControl allowedAccess={[UserAccess.OWNER, UserAccess.ADMIN]}>
+                            <DropdownMenuItem variant="destructive">
+                                Delete post and ban
+                            </DropdownMenuItem>
+                        </AccessControl> */}
+                    </DropdownMenuContent>
+                </DropdownMenu>
+            </div>
+            <ChangeTopicModal
+                open={changeTopicModalOpen}
+                onOpenChange={setChangeTopicModalOpen}
+                postId={post.id}
+                currentTopicId={post.topic_id}
+                topics={topics}
+            />
+            <ToggleCommentsModal
+                open={toggleCommentsModalOpen}
+                onOpenChange={setToggleCommentsModalOpen}
+                onConfirm={handleConfirmToggleComments}
+                commentsDisabled={(post as any).comments_disabled || false}
+                isSubmitting={isTogglingComments}
+            />
+            <DeletePostModal
+                open={deletePostModalOpen}
+                onOpenChange={setDeletePostModalOpen}
+                onConfirm={handleConfirmDeletePost}
+                isSubmitting={isDeletingPost}
+            />
         </Card>
     )
 }

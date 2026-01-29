@@ -14,10 +14,27 @@ import { PlusIcon, XIcon } from "lucide-react";
 import { isValidVideoUrl, isValidUrl } from "@/utils/validate-video-url";
 import VideoEmbed from "@/components/video-embed";
 import { createPost, createPostImageAttachments } from "@/action/posts";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useUserAccess } from "@/components/access-context";
+import { UserAccess } from "@/enums/enums";
+import { TopicWritePermissionType } from "@/enums/enums";
 
-export default function CreatePostModal({ user, topics }: { user: UserData, topics: { id: number, name: string }[] }) {
+export default function CreatePostModal({ user, topics }: { user: UserData, topics: Tables<"topics">[] }) {
     const router = useRouter();
+
+    const searchParams = useSearchParams();
+    const topic = searchParams.get("topic");
+
+    const { userAccess, userId } = useUserAccess();
+
+    if (userAccess === UserAccess.MEMBER &&
+        topics.find(t => t.id === parseInt(topic || "0"))?.write_permission_type === TopicWritePermissionType.ADMINS) {
+        return null;
+    }
+
+    const filteredTopics = userAccess === UserAccess.MEMBER ?
+        topics.filter(t => t.write_permission_type === TopicWritePermissionType.PUBLIC) :
+        topics;
 
     const [open, setOpen] = useState<boolean>(false);
     const [videoModalOpen, setVideoModalOpen] = useState<boolean>(false);
@@ -305,8 +322,8 @@ export default function CreatePostModal({ user, topics }: { user: UserData, topi
                                     <XIcon className="size-6 stroke-grey-900" />
                                 </button>
 
-                                <Button 
-                                    variant="default" 
+                                <Button
+                                    variant="default"
                                     className="rounded-[10px] py-5 text-sm font-semibold px-10"
                                     onClick={handleSubmit}
                                     disabled={isSubmitting}
@@ -328,7 +345,7 @@ export default function CreatePostModal({ user, topics }: { user: UserData, topi
                                     Posting in
                                 </span>
 
-                                <Select defaultValue={topics[0].id.toString()} onValueChange={(value) => setSelectedTopic(parseInt(value))}>
+                                <Select defaultValue={filteredTopics[0].id.toString()} onValueChange={(value) => setSelectedTopic(parseInt(value))}>
                                     <SelectTrigger
                                         className="bg-grey-200 rounded-full border-none shadow-none text-sm md:text-base font-semibold"
                                         iconClassName="size-4"
@@ -338,7 +355,7 @@ export default function CreatePostModal({ user, topics }: { user: UserData, topi
                                     </SelectTrigger>
 
                                     <SelectContent>
-                                        {topics.map((topic) => (
+                                        {filteredTopics.map((topic) => (
                                             <SelectItem className="text-sm md:text-base font-medium" key={topic.id} value={topic.id.toString()}>
                                                 {topic.name}
                                             </SelectItem>
@@ -559,16 +576,16 @@ export default function CreatePostModal({ user, topics }: { user: UserData, topi
                         {
                             !isMobile && (
                                 <div className="flex items-center justify-end gap-3">
-                                    <Button 
-                                        variant="secondary" 
-                                        className="rounded-[10px] py-5 text-sm font-semibold px-8" 
+                                    <Button
+                                        variant="secondary"
+                                        className="rounded-[10px] py-5 text-sm font-semibold px-8"
                                         onClick={() => setOpen(false)}
                                         disabled={isSubmitting}
                                     >
                                         Cancel
                                     </Button>
-                                    <Button 
-                                        className="rounded-[10px] py-5 text-sm font-semibold px-10" 
+                                    <Button
+                                        className="rounded-[10px] py-5 text-sm font-semibold px-10"
                                         onClick={handleSubmit}
                                         disabled={isSubmitting}
                                     >

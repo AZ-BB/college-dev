@@ -1,8 +1,7 @@
 CREATE OR REPLACE FUNCTION get_comments(
     p_post_id INTEGER,
     p_comments_limit INTEGER DEFAULT 10,
-    p_replies_limit INTEGER DEFAULT 2,
-    p_comments_offset INTEGER DEFAULT 0
+    p_replies_limit INTEGER DEFAULT 2
 )
 RETURNS JSON AS $$
 DECLARE
@@ -53,7 +52,6 @@ BEGIN
                                     'last_name', reply_data.last_name
                                 )
                             )
-                            ORDER BY reply_data.created_at ASC
                         )
                         FROM (
                             SELECT 
@@ -79,7 +77,6 @@ BEGIN
                     '[]'::json
                 )
             )
-            ORDER BY c.created_at DESC
         ),
         '[]'::json
     ) INTO v_result
@@ -90,7 +87,6 @@ BEGIN
         AND c.reply_to_comment_id IS NULL
         ORDER BY c.created_at DESC
         LIMIT p_comments_limit
-        OFFSET p_comments_offset
     ) c
     INNER JOIN users u ON c.author_id = u.id;
     

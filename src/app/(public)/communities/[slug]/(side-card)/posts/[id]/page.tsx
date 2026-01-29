@@ -20,6 +20,8 @@ import CommentsList, { type Comment } from "./_components/comments-list";
 import { getUserData } from "@/utils/get-user-data";
 import { UserAccess } from "@/enums/enums";
 import AccessControl from "../../../../../../../components/access-control";
+import { getTopics } from "@/action/topics";
+import PostActionsDropdown from "./_components/post-actions-dropdown";
 
 interface PollResultUser {
     first_name: string;
@@ -41,8 +43,8 @@ interface PollResultsData {
     options: PollResultOption[];
 }
 
-export default async function PostPage({ params, searchParams }: { params: Promise<{ id: string }>, searchParams: Promise<{ expanded_comment_id?: string; highlighted_comment_id?: string }> }) {
-    const { id } = await params;
+export default async function PostPage({ params, searchParams }: { params: Promise<{ slug: string; id: string }>, searchParams: Promise<{ expanded_comment_id?: string; highlighted_comment_id?: string }> }) {
+    const { slug, id } = await params;
     const { expanded_comment_id, highlighted_comment_id } = await searchParams;
 
     const user = await getUserData();
@@ -78,6 +80,10 @@ export default async function PostPage({ params, searchParams }: { params: Promi
         return notFound();
     }
 
+    // Get topics for the community
+    const { data: topics, error: topicsError } = await getTopics(post.community_id);
+    const topicsList = topics || [];
+
     // Fetch poll results if user has voted
     let pollResults: PollResultsData | null = null;
     if (post.poll && isUserVotedOnPoll) {
@@ -103,7 +109,7 @@ export default async function PostPage({ params, searchParams }: { params: Promi
 
     return (
         <div>
-            <Card key={post.id} className="shadow-none border-grey-200 px-6 hover:shadow-sm transition-all duration-300"
+            <Card key={post.id} className="shadow-none border-grey-200 px-6 hover:shadow-sm transition-all duration-300 relative"
             >
                 <div className="flex flex-col gap-4 justify-between">
                     <div className="flex flex-col gap-6">
@@ -196,34 +202,53 @@ export default async function PostPage({ params, searchParams }: { params: Promi
                 <Separator className="my-4" />
 
                 <div className="flex flex-col gap-6">
-                    <AccessControl allowedAccess={[UserAccess.OWNER, UserAccess.ADMIN, UserAccess.MEMBER]}>
-                        <div className="flex w-full gap-2 items-center">
-                            <UserAvatar className="w-11 h-11 rounded-[14px]" user={user} />
-
-                            <form className="w-full"
-                                action={createComment}
-                            >
-                                <input type="hidden" name="post_id" value={post.id} />
-                                <Input
-                                    type="text"
-                                    name="comment_content"
-                                    placeholder="Add a comment"
-                                    className="h-11 md:text-base w-full"
-                                    maxLength={500}
-                                />
-                            </form>
+                    {post.comments_disabled ? (
+                        <div className="flex items-center justify-center py-4 px-4 bg-grey-50 rounded-lg border border-grey-200">
+                            <p className="text-sm text-grey-600 font-medium">Comments are disabled for this post</p>
                         </div>
-                    </AccessControl>
+                    ) : (
+                        <AccessControl allowedAccess={[UserAccess.OWNER, UserAccess.ADMIN, UserAccess.MEMBER]}>
+                            <div className="flex w-full gap-2 items-center">
+                                <UserAvatar className="w-11 h-11 rounded-[14px]" user={user} />
+
+                                <form className="w-full"
+                                    action={createComment}
+                                >
+                                    <input type="hidden" name="post_id" value={post.id} />
+                                    <Input
+                                        type="text"
+                                        name="comment_content"
+                                        placeholder="Add a comment"
+                                        className="h-11 md:text-base w-full"
+                                        maxLength={500}
+                                    />
+                                </form>
+                            </div>
+                        </AccessControl>
+                    )}
 
                     <div>
                         <CommentsList
                             comments={comments}
-                            postId={post.id} commentCount={mainCommentsCount}
+                            postId={post.id}
+                            commentCount={mainCommentsCount}
+                            commentsDisabled={post.comments_disabled || false}
                             extraExpandedCommentId={expanded_comment_id ? parseInt(expanded_comment_id) : undefined}
                             highlightedCommentId={highlighted_comment_id ? parseInt(highlighted_comment_id) : undefined}
                         />
                     </div>
                 </div>
+                <PostActionsDropdown
+                    post={{
+                        id: post.id,
+                        author_id: post.author_id,
+                        topic_id: post.topic_id,
+                        comments_disabled: post.comments_disabled,
+                        is_pinned: post.is_pinned,
+                    }}
+                    topics={topicsList}
+                    slug={slug}
+                />
             </Card>
         </div>
     )
