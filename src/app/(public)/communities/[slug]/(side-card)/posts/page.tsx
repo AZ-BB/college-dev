@@ -76,7 +76,7 @@ export default async function PostsPage({
 
 
             <AccessControl allowedAccess={[UserAccess.OWNER, UserAccess.ADMIN, UserAccess.MEMBER]}>
-                <CreatePostModal user={user} topics={topics.map((topic) => ({ id: topic.id, name: topic.name }))} />
+                <CreatePostModal user={user} topics={topics} />
             </AccessControl>
 
             <FirstSteps community={community} />
@@ -86,6 +86,7 @@ export default async function PostsPage({
                 communityId={community.id}
                 topic={initialTopic}
                 sortBy={initialSortBy}
+                topics={topics}
             />
         </div >
     )
