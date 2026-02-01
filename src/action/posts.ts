@@ -277,6 +277,9 @@ export type PostList = Tables<"posts"> & {
     users: Pick<Tables<"users">, "id" | "username" | "first_name" | "last_name" | "avatar_url">;
     attachments: Tables<"posts_attachments">[];
     comment_count: number;
+    likes_count?: number;
+    /** Set when p_user_id is passed to get_posts */
+    is_liked?: boolean | null;
     /** Optional; not returned by get_posts list RPC */
     poll?: Tables<"poll"> | null;
 };
@@ -285,7 +288,8 @@ export async function getPosts(
     communityId: number,
     topic: string,
     sortBy: string,
-    pagination: { limit: number; offset: number }
+    pagination: { limit: number; offset: number },
+    userId?: string | null
 ): Promise<GeneralResponse<Array<PostList>>> {
     const supabase = await createSupabaseServerClient();
 
@@ -296,13 +300,16 @@ export async function getPosts(
                 : parseInt(topic, 10);
         const validTopicId = Number.isNaN(topicId) ? null : topicId;
 
-        const rpcParams = {
+        const rpcParams: Record<string, unknown> = {
             p_community_id: communityId,
             p_topic_id: validTopicId,
             p_sort_by: sortBy === "new" || sortBy === "top" ? sortBy : "default",
             p_limit: pagination.limit,
             p_offset: pagination.offset,
         };
+        if (userId != null && userId !== "") {
+            rpcParams.p_user_id = userId;
+        }
 
         const { data, error } = await (supabase.rpc as any)("get_posts", rpcParams);
 
@@ -549,6 +556,8 @@ export interface CommentReply {
     reply_to_comment_id: number | null;
     created_at: string;
     updated_at: string;
+    likes_count?: number;
+    is_liked?: boolean | null;
     users: {
         id: string;
         username: string;
@@ -589,6 +598,7 @@ export async function getCommentReplies(commentId: number): Promise<GeneralRespo
             reply_to_comment_id: reply.reply_to_comment_id,
             created_at: reply.created_at,
             updated_at: reply.updated_at,
+            likes_count: reply.likes_count ?? 0,
             users: reply.users as CommentReply["users"],
         }));
 
@@ -764,6 +774,7 @@ export async function getCommentWithReplies(commentId: number): Promise<GeneralR
             reply_to_comment_id: reply.reply_to_comment_id,
             created_at: reply.created_at,
             updated_at: reply.updated_at,
+            likes_count: reply.likes_count ?? 0,
             users: reply.users as CommentWithReplies["users"],
             replies_count: 0, // Replies don't have nested replies
         }));
@@ -776,6 +787,7 @@ export async function getCommentWithReplies(commentId: number): Promise<GeneralR
             reply_to_comment_id: comment.reply_to_comment_id,
             created_at: comment.created_at,
             updated_at: comment.updated_at,
+            likes_count: comment.likes_count ?? 0,
             users: comment.users as CommentWithReplies["users"],
             replies_count: repliesCount || 0,
             replies: formattedReplies,

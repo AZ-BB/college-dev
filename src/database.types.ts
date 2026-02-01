@@ -73,6 +73,7 @@ export type Database = {
           content: string
           created_at: string
           id: number
+          likes_count: number
           post_id: number
           reply_to_comment_id: number | null
           updated_at: string
@@ -82,6 +83,7 @@ export type Database = {
           content: string
           created_at?: string
           id?: number
+          likes_count?: number
           post_id: number
           reply_to_comment_id?: number | null
           updated_at?: string
@@ -91,6 +93,7 @@ export type Database = {
           content?: string
           created_at?: string
           id?: number
+          likes_count?: number
           post_id?: number
           reply_to_comment_id?: number | null
           updated_at?: string
@@ -115,6 +118,52 @@ export type Database = {
             columns: ["reply_to_comment_id"]
             isOneToOne: false
             referencedRelation: "comments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      comments_likes: {
+        Row: {
+          comment_id: number
+          community_id: number
+          created_at: string
+          id: number
+          user_id: string
+        }
+        Insert: {
+          comment_id: number
+          community_id: number
+          created_at?: string
+          id?: number
+          user_id: string
+        }
+        Update: {
+          comment_id?: number
+          community_id?: number
+          created_at?: string
+          id?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comments_likes_comment_id_fkey"
+            columns: ["comment_id"]
+            isOneToOne: false
+            referencedRelation: "comments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comments_likes_community_id_fkey"
+            columns: ["community_id"]
+            isOneToOne: false
+            referencedRelation: "communities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comments_likes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
             referencedColumns: ["id"]
           },
         ]
@@ -345,6 +394,44 @@ export type Database = {
           },
         ]
       }
+      community_questions: {
+        Row: {
+          community_id: number
+          content: string
+          created_at: string
+          id: number
+          index: number
+          type: Database["public"]["Enums"]["community_question_type_enum"]
+          updated_at: string
+        }
+        Insert: {
+          community_id: number
+          content: string
+          created_at?: string
+          id?: number
+          index: number
+          type: Database["public"]["Enums"]["community_question_type_enum"]
+          updated_at?: string
+        }
+        Update: {
+          community_id?: number
+          content?: string
+          created_at?: string
+          id?: number
+          index?: number
+          type?: Database["public"]["Enums"]["community_question_type_enum"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_questions_community_id_fkey"
+            columns: ["community_id"]
+            isOneToOne: false
+            referencedRelation: "communities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       community_rules: {
         Row: {
           community_id: number
@@ -358,7 +445,7 @@ export type Database = {
           community_id: number
           created_at?: string
           id?: number
-          index?: number
+          index: number
           rule: string
           updated_at?: string
         }
@@ -505,6 +592,52 @@ export type Database = {
             columns: ["module_id"]
             isOneToOne: false
             referencedRelation: "modules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      likes: {
+        Row: {
+          community_id: number
+          created_at: string
+          id: number
+          post_id: number
+          user_id: string
+        }
+        Insert: {
+          community_id: number
+          created_at?: string
+          id?: number
+          post_id: number
+          user_id: string
+        }
+        Update: {
+          community_id?: number
+          created_at?: string
+          id?: number
+          post_id?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "likes_community_id_fkey"
+            columns: ["community_id"]
+            isOneToOne: false
+            referencedRelation: "communities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "likes_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "likes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
             referencedColumns: ["id"]
           },
         ]
@@ -667,6 +800,7 @@ export type Database = {
           created_at: string
           id: number
           is_pinned: boolean
+          likes_count: number
           poll_id: number | null
           title: string
           topic_id: number | null
@@ -681,6 +815,7 @@ export type Database = {
           created_at?: string
           id?: number
           is_pinned?: boolean
+          likes_count?: number
           poll_id?: number | null
           title: string
           topic_id?: number | null
@@ -695,6 +830,7 @@ export type Database = {
           created_at?: string
           id?: number
           is_pinned?: boolean
+          likes_count?: number
           poll_id?: number | null
           title?: string
           topic_id?: number | null
@@ -1005,6 +1141,7 @@ export type Database = {
         | "CHURNED"
         | "LEAVING_SOON"
       community_pricing_enum: "FREE" | "SUB" | "ONE_TIME"
+      community_question_type_enum: "TEXT" | "EMAIL" | "MULTIPLE_CHOICE"
       community_role_enum: "OWNER" | "MEMBER" | "ADMIN"
       lesson_resource_type_enum: "FILE" | "LINK"
       posts_attachment_type_enum: "IMAGE" | "LINK"
@@ -1153,6 +1290,7 @@ export const Constants = {
         "LEAVING_SOON",
       ],
       community_pricing_enum: ["FREE", "SUB", "ONE_TIME"],
+      community_question_type_enum: ["TEXT", "EMAIL", "MULTIPLE_CHOICE"],
       community_role_enum: ["OWNER", "MEMBER", "ADMIN"],
       lesson_resource_type_enum: ["FILE", "LINK"],
       posts_attachment_type_enum: ["IMAGE", "LINK"],

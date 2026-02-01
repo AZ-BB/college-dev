@@ -11,9 +11,10 @@ interface PostsListProps {
     topic: string;
     sortBy: string;
     topics: Tables<"topics">[];
+    userId?: string | null;
 }
 
-export default function PostsList({ initalPosts, communityId, topic, sortBy, topics }: PostsListProps) {
+export default function PostsList({ initalPosts, communityId, topic, sortBy, topics, userId }: PostsListProps) {
     const [posts, setPosts] = useState<PostList[]>(initalPosts);
     const [offset, setOffset] = useState(10);
     const [loading, setLoading] = useState(false);
@@ -38,7 +39,7 @@ export default function PostsList({ initalPosts, communityId, topic, sortBy, top
             const response = await getPosts(communityId, topic, sortBy, {
                 limit: 10,
                 offset: offset,
-            });
+            }, userId);
 
             if (response.data) {
                 const newPosts = response.data;
