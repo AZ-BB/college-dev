@@ -7,7 +7,7 @@ import { useState } from "react";
 import { updatePostTopic } from "@/action/posts";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import { useUserAccess } from "@/components/access-context";
+import { useUserAccess } from "@/contexts/access-context";
 import { UserAccess } from "@/enums/enums";
 import { TopicWritePermissionType } from "@/enums/enums";
 
@@ -82,7 +82,7 @@ export default function ChangeTopicModal({
                             value={selectedTopicId.toString()}
                             onValueChange={(value) => setSelectedTopicId(parseInt(value))}
                         >
-                            <SelectTrigger className="w-full">
+                            <SelectTrigger variant="secondary" className="w-full rounded-lg py-5">
                                 <SelectValue placeholder="Select a topic" />
                             </SelectTrigger>
                             <SelectContent>

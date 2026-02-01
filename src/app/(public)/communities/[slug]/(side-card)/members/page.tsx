@@ -20,7 +20,6 @@ export default async function MembersPage({
     const { slug } = await params;
     const { page, tab } = await searchParams;
 
-
     const { data: community, error: communityError } = await getCommunityBySlug(slug);
 
     if (communityError || !community) return null;
@@ -83,4 +82,4 @@ export default async function MembersPage({
             }
         </div>
     )
-}   
+}

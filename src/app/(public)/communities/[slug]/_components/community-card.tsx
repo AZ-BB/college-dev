@@ -7,6 +7,7 @@ import { notFound } from "next/navigation";
 import { CoverImageUpload } from "./cover-image-upload";
 import AccessControl from "../../../../../components/access-control";
 import { UserAccess } from "@/enums/enums";
+import Link from "next/link";
 
 export default async function CommunityCard({ slug }: { slug: string }) {
     const { data: community, error: communityError } = await getCommunityBySlug(slug);
@@ -62,12 +63,14 @@ export default async function CommunityCard({ slug }: { slug: string }) {
 
                 <div className="w-full">
                     <AccessControl allowedAccess={[UserAccess.OWNER, UserAccess.ADMIN]}>
-                        <Button
-                            variant="secondary"
-                            className="w-full py-7"
-                        >
-                            CONFIGURE
-                        </Button>
+                        <Link href={`/communities/${slug}/settings`}>
+                            <Button
+                                variant="secondary"
+                                className="w-full py-7"
+                            >
+                                CONFIGURE
+                            </Button>
+                        </Link>
                     </AccessControl>
                 </div>
 

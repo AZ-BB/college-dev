@@ -83,7 +83,7 @@ export default function AddTopicButton({ communityId }: { communityId: number })
                                 <SelectItem value={TopicWritePermissionType.PUBLIC}>Public</SelectItem>
                                 <SelectItem value={TopicWritePermissionType.ADMINS}>Admins</SelectItem>
                             </SelectContent>
-                            <SelectTrigger className="w-full">
+                            <SelectTrigger variant="secondary" className="w-full rounded-lg py-5">
                                 <SelectValue placeholder="Select write permission type" />
                             </SelectTrigger>
                         </Select>

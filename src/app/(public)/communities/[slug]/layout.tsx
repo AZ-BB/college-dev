@@ -1,7 +1,7 @@
 import { UserAccess } from "@/enums/enums";
 import { createSupabaseServerClient } from "@/utils/supabase-server";
 import { notFound } from "next/navigation";
-import { UserAccessProvider } from "../../../../components/access-context";
+import { UserAccessProvider } from "../../../../contexts/access-context";
 
 export default async function CommunityLayout({ children, params }: { children: React.ReactNode, params: Promise<{ slug: string }> }) {
     const { slug } = await params;

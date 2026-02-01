@@ -1,6 +1,6 @@
 "use client";
 import { UserAccess } from "@/enums/enums";
-import { useUserAccess } from "./access-context";
+import { useUserAccess } from "../contexts/access-context";
 
 export default function AccessControl({
     children,
