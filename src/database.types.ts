@@ -1045,24 +1045,16 @@ export type Database = {
         Args: { classroom_id_param: number }
         Returns: number
       }
-      get_comments:
-        | {
-            Args: {
-              p_comments_limit?: number
-              p_post_id: number
-              p_replies_limit?: number
-            }
-            Returns: Json
-          }
-        | {
-            Args: {
-              p_comments_limit?: number
-              p_comments_offset?: number
-              p_post_id: number
-              p_replies_limit?: number
-            }
-            Returns: Json
-          }
+      get_comments: {
+        Args: {
+          p_comments_limit?: number
+          p_comments_offset?: number
+          p_post_id: number
+          p_replies_limit?: number
+          p_user_id?: string
+        }
+        Returns: Json
+      }
       get_community_id_from_storage_path: {
         Args: { storage_path: string }
         Returns: number
@@ -1110,6 +1102,7 @@ export type Database = {
               p_offset?: number
               p_sort_by?: string
               p_topic_id?: number
+              p_user_id?: string
             }
             Returns: Json
           }

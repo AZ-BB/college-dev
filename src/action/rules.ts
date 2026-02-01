@@ -44,9 +44,17 @@ export async function createRule(communityId: number, rule: string) {
             statusCode: 400,
         };
     }
+    const { data: existingRules } = await supabase
+        .from("community_rules")
+        .select("index")
+        .eq("community_id", communityId)
+        .order("index", { ascending: false })
+        .limit(1);
+    const nextIndex =
+        existingRules?.[0] != null ? existingRules[0].index + 1 : 0;
     const { data: row, error } = await supabase
         .from("community_rules")
-        .insert({ community_id: communityId, rule: trimmed })
+        .insert({ community_id: communityId, rule: trimmed, index: nextIndex })
         .select()
         .single();
     if (error) {
