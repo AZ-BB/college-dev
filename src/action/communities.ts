@@ -6,6 +6,7 @@ import { GeneralResponse } from "@/utils/general-response"
 import { getUserData } from "@/utils/get-user-data";
 import { createSupabaseServerClient } from "@/utils/supabase-server";
 import { QueryFilters } from "@/utils/types";
+import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 
@@ -323,6 +324,127 @@ export async function addGalleryMedia(communityId: number, {
 }
 
 // UPDATE
+export async function updateCommunityDetails(
+  id: number,
+  { name, description, is_public, support_email }: { name: string; description: string; is_public?: boolean; support_email?: string | null }
+): Promise<GeneralResponse<Tables<"communities">>> {
+  try {
+    const supabase = await createSupabaseServerClient();
+    if (!id) {
+      return {
+        error: "Community ID is required",
+        message: "Community ID is required",
+        statusCode: 400,
+      };
+    }
+
+    const updateData: { name: string; description: string; is_public?: boolean; support_email?: string | null } = {
+      name,
+      description,
+    };
+    if (is_public !== undefined) updateData.is_public = is_public;
+    if (support_email !== undefined) updateData.support_email = support_email;
+
+    const { data: community, error: communityError } = await supabase
+      .from("communities")
+      .update(updateData)
+      .eq("id", id)
+      .select()
+      .single();
+
+    if (communityError) {
+      console.error("Error updating community details:", communityError);
+      return {
+        error: "Error updating community details",
+        message: communityError.message,
+        statusCode: 500,
+      };
+    }
+
+    revalidatePath(`/communities/${community.slug}`);
+    revalidatePath(`/communities/${community.slug}`, 'layout');
+
+    return {
+      data: community,
+      error: undefined,
+      message: "Community details updated successfully",
+      statusCode: 200,
+    };
+  } catch (error) {
+    console.error("Error updating community details:", error);
+    return {
+      error: "Error updating community details",
+      message: "Error updating community details",
+      statusCode: 500,
+    };
+  }
+}
+
+/** Normalize slug: lowercase, alphanumeric + hyphens only, trim hyphens. */
+function normalizeSlug(raw: string): string {
+  return raw.toLowerCase().replace(/[^a-z0-9-]+/g, "-").replace(/^-|-$/g, "") || "";
+}
+
+/** Check if a slug is available (not used by any community, or only by the given community). */
+export async function isSlugAvailable(
+  slug: string,
+  excludeCommunityId?: number
+): Promise<GeneralResponse<boolean>> {
+  try {
+    const normalized = normalizeSlug(slug);
+    if (!normalized) {
+      return { data: false, error: undefined, message: "Slug is required", statusCode: 400 };
+    }
+    const supabase = await createSupabaseServerClient();
+    const query = supabase.from("communities").select("id").eq("slug", normalized).maybeSingle();
+    const { data: existing, error } = await query;
+    if (error) {
+      return { error: "Error checking slug", message: error.message, statusCode: 500 };
+    }
+    const available = !existing || (excludeCommunityId != null && existing.id === excludeCommunityId);
+    return { data: available, error: undefined, message: available ? "URL is available" : "URL is not available", statusCode: 200 };
+  } catch (err) {
+    console.error("Error checking slug:", err);
+    return { error: "Error checking slug", message: "Error checking slug", statusCode: 500 };
+  }
+}
+
+/** Update community slug; validates format and uniqueness, then updates and returns new slug for redirect. */
+export async function updateCommunitySlug(
+  communityId: number,
+  newSlug: string
+): Promise<GeneralResponse<string>> {
+  try {
+    const normalized = normalizeSlug(newSlug);
+    if (!normalized) {
+      return { error: "Invalid slug", message: "Slug can only contain letters, numbers, and hyphens.", statusCode: 400 };
+    }
+    const supabase = await createSupabaseServerClient();
+    const { data: existing } = await supabase.from("communities").select("id").eq("slug", normalized).maybeSingle();
+    if (existing && existing.id !== communityId) {
+      return { error: "Slug taken", message: "Another community already uses this URL.", statusCode: 400 };
+    }
+    const { data: community, error } = await supabase
+      .from("communities")
+      .update({ slug: normalized })
+      .eq("id", communityId)
+      .select("slug")
+      .single();
+    if (error) {
+      console.error("Error updating community slug:", error);
+      return { error: "Error updating slug", message: error.message, statusCode: 500 };
+    }
+    revalidatePath(`/communities/${community.slug}`);
+    revalidatePath(`/communities/${community.slug}`, "layout");
+    revalidatePath(`/communities/${normalized}`);
+    revalidatePath(`/communities/${normalized}`, "layout");
+    return { data: community.slug, error: undefined, message: "Slug updated", statusCode: 200 };
+  } catch (err) {
+    console.error("Error updating community slug:", err);
+    return { error: "Error updating slug", message: "Error updating slug", statusCode: 500 };
+  }
+}
+
 export async function updateCommunity({
   id,
   name,

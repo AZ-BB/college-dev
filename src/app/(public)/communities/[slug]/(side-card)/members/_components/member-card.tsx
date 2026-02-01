@@ -1,15 +1,20 @@
 "use client"
 
+import { useState } from "react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { formatFullName } from "@/lib/utils"
 import { format } from "date-fns"
 import CalendarIcon from "@/components/icons/calendar"
 import ClockIcon from "@/components/icons/clock"
-import { Timer, WatchIcon } from "lucide-react"
+import { WatchIcon } from "lucide-react"
 import TagIcon from "@/components/icons/tag"
 import { Tables } from "@/database.types"
-import { CommunityRole } from "@/enums/enums"
+import { CommunityRole, UserAccess } from "@/enums/enums"
+import UserAvatar from "@/components/user-avatart"
+import AccessControl from "@/components/access-control"
+import { useUserAccess } from "@/contexts/access-context"
+import MemberSettingsModal from "./member-settings-modal"
 
 type MemberWithUser = Tables<"community_members"> & {
   users: {
@@ -95,6 +100,9 @@ function getRoleDisplayName(role: string): string {
 }
 
 export default function MemberCard({ member, community, invitedByUser, isCurrentUser = false }: MemberCardProps) {
+  const { userAccess } = useUserAccess()
+  const [editModalOpen, setEditModalOpen] = useState(false)
+
   const user = member.users
   const roleDisplayName = getRoleDisplayName(member.role)
   const isAdminOrOwner = member.role === CommunityRole.ADMIN || member.role === CommunityRole.OWNER
@@ -102,21 +110,33 @@ export default function MemberCard({ member, community, invitedByUser, isCurrent
   const membershipType = getMembershipType(community)
   const accessType = getAccessType(community)
 
+  function renderEditMemberButton() {
+    if (isCurrentUser) return null
+    if (member.role === CommunityRole.OWNER) return null
+    if (userAccess === UserAccess.ADMIN && member.role === CommunityRole.ADMIN) return null
+
+    return (
+      <Button
+        variant="secondary"
+        size="sm"
+        className="shrink-0 py-6 rounded-xl px-4 text-base font-semibold"
+        onClick={() => setEditModalOpen(true)}
+      >
+        Member Settings
+      </Button>
+    )
+  }
+
   return (
     <div className="bg-white rounded-xl border border-grey-200 shadow-sm p-6 flex flex-col gap-4">
       {/* Header Section */}
       <div className="flex items-start justify-between gap-4">
         <div className="flex items-start gap-3 flex-1">
-          <Avatar className="w-12 h-12 rounded-[12px] shrink-0">
-            <AvatarImage src={user.avatar_url || ""} />
-            <AvatarFallback className="bg-grey-200 text-grey-900 text-sm font-semibold rounded-[12px]">
-              {user.first_name?.charAt(0).toUpperCase() || "U"}
-            </AvatarFallback>
-          </Avatar>
+          <UserAvatar user={user} className="w-12 h-12 rounded-[12px] shrink-0" />
 
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
-              <h3 className="text-lg font-bold text-grey-900">
+              <h3 className="text-base font-bold text-grey-900">
                 {formatFullName(user.first_name, user.last_name)}
               </h3>
               {isAdminOrOwner && (
@@ -131,17 +151,9 @@ export default function MemberCard({ member, community, invitedByUser, isCurrent
           </div>
         </div>
 
-        {
-          !isCurrentUser && (
-            <Button
-              variant="secondary"
-              size="sm"
-              className="shrink-0"
-            >
-              Member Settings
-            </Button>
-          )
-        }
+        <AccessControl allowedAccess={[UserAccess.OWNER, UserAccess.ADMIN]}>
+          {renderEditMemberButton()}
+        </AccessControl>
       </div>
 
       {/* Bio Section */}
@@ -192,6 +204,14 @@ export default function MemberCard({ member, community, invitedByUser, isCurrent
           </div>
         </div>
       )}
+
+      <MemberSettingsModal
+        open={editModalOpen}
+        onOpenChange={setEditModalOpen}
+        member={member}
+        community={community}
+        invitedByUser={invitedByUser}
+      />
     </div>
   )
 }

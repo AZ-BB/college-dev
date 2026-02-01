@@ -345,6 +345,41 @@ export type Database = {
           },
         ]
       }
+      community_rules: {
+        Row: {
+          community_id: number
+          created_at: string
+          id: number
+          index: number
+          rule: string
+          updated_at: string
+        }
+        Insert: {
+          community_id: number
+          created_at?: string
+          id?: number
+          index?: number
+          rule: string
+          updated_at?: string
+        }
+        Update: {
+          community_id?: number
+          created_at?: string
+          id?: number
+          index?: number
+          rule?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_rules_community_id_fkey"
+            columns: ["community_id"]
+            isOneToOne: false
+            referencedRelation: "communities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       community_text_blocks: {
         Row: {
           community_id: number
@@ -737,6 +772,7 @@ export type Database = {
           community_id: number
           created_at: string
           id: number
+          index: number
           name: string
           updated_at: string
           write_permission_type: Database["public"]["Enums"]["topic_write_permission_type_enum"]
@@ -745,6 +781,7 @@ export type Database = {
           community_id: number
           created_at?: string
           id?: number
+          index?: number
           name: string
           updated_at?: string
           write_permission_type: Database["public"]["Enums"]["topic_write_permission_type_enum"]
@@ -753,6 +790,7 @@ export type Database = {
           community_id?: number
           created_at?: string
           id?: number
+          index?: number
           name?: string
           updated_at?: string
           write_permission_type?: Database["public"]["Enums"]["topic_write_permission_type_enum"]
@@ -863,6 +901,10 @@ export type Database = {
         Args: { comm_id: number }
         Returns: boolean
       }
+      can_write_to_topic: {
+        Args: { comm_id: number; topic_id_param: number }
+        Returns: boolean
+      }
       get_classroom_community_id: {
         Args: { classroom_id_param: number }
         Returns: number
@@ -910,16 +952,31 @@ export type Database = {
         Args: { module_id_param: number }
         Returns: number
       }
-      get_posts: {
-        Args: {
-          p_community_id: number
-          p_limit?: number
-          p_offset?: number
-          p_sort_by?: string
-          p_topic?: string
-        }
-        Returns: Json
+      get_post_community_id: {
+        Args: { post_id_param: number }
+        Returns: number
       }
+      get_posts:
+        | {
+            Args: {
+              p_community_id: number
+              p_limit?: number
+              p_offset?: number
+              p_sort_by?: string
+              p_topic?: string
+            }
+            Returns: Json
+          }
+        | {
+            Args: {
+              p_community_id: number
+              p_limit?: number
+              p_offset?: number
+              p_sort_by?: string
+              p_topic_id?: number
+            }
+            Returns: Json
+          }
       get_votes_result: { Args: { p_post_id: number }; Returns: Json }
       is_community_active_member: {
         Args: { comm_id: number }
@@ -930,6 +987,8 @@ export type Database = {
         Returns: boolean
       }
       is_community_owner: { Args: { comm_id: number }; Returns: boolean }
+      is_poll_post_author: { Args: { poll_id_param: number }; Returns: boolean }
+      is_post_author: { Args: { post_id_param: number }; Returns: boolean }
     }
     Enums: {
       audience_size_enum: "UNDER_10K" | "10K_TO_100K" | "100K_TO_1M" | "OVER_1M"

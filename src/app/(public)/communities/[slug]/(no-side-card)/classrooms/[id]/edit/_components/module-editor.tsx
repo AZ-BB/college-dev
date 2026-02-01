@@ -392,7 +392,7 @@ function TransferDialog({
                             value={selectedTargetModule}
                             onValueChange={onSelectedTargetModuleChange}
                         >
-                            <SelectTrigger id="target-module" className="w-full py-6 cursor-pointer">
+                            <SelectTrigger id="target-module" variant="secondary" className="w-full py-6 cursor-pointer rounded-lg py-5">
                                 <SelectValue placeholder="Select a module..." />
                             </SelectTrigger>
                             <SelectContent>

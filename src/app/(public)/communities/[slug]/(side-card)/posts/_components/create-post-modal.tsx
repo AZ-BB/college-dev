@@ -347,6 +347,7 @@ export default function CreatePostModal({ user, topics }: { user: UserData, topi
 
                                 <Select defaultValue={filteredTopics[0].id.toString()} onValueChange={(value) => setSelectedTopic(parseInt(value))}>
                                     <SelectTrigger
+                                        variant="secondary"
                                         className="bg-grey-200 rounded-full border-none shadow-none text-sm md:text-base font-semibold"
                                         iconClassName="size-4"
                                         size="sm"
@@ -398,8 +399,8 @@ export default function CreatePostModal({ user, topics }: { user: UserData, topi
                                     onClick={() => setLinkModalOpen(true)}
                                     className="hover:bg-grey-200 rounded-sm p-1">
                                     <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M10.8832 9.11719C12.7582 10.9922 12.7582 14.0255 10.8832 15.8922C9.00821 17.7589 5.97487 17.7672 4.1082 15.8922C2.24154 14.0172 2.2332 10.9839 4.1082 9.11719" stroke="#485057" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-                                        <path d="M8.8248 11.1734C6.8748 9.22344 6.8748 6.05677 8.8248 4.09844C10.7748 2.14011 13.9415 2.14844 15.8998 4.09844C17.8581 6.04844 17.8498 9.21511 15.8998 11.1734" stroke="#485057" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                                        <path d="M10.8832 9.11719C12.7582 10.9922 12.7582 14.0255 10.8832 15.8922C9.00821 17.7589 5.97487 17.7672 4.1082 15.8922C2.24154 14.0172 2.2332 10.9839 4.1082 9.11719" stroke="#485057" strokeWidth="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                                        <path d="M8.8248 11.1734C6.8748 9.22344 6.8748 6.05677 8.8248 4.09844C10.7748 2.14011 13.9415 2.14844 15.8998 4.09844C17.8581 6.04844 17.8498 9.21511 15.8998 11.1734" stroke="#485057" strokeWidth="1.5" stroke-linecap="round" stroke-linejoin="round" />
                                     </svg>
                                 </button>
 
@@ -415,7 +416,7 @@ export default function CreatePostModal({ user, topics }: { user: UserData, topi
                                     onClick={() => setHasPoll(true)}
                                     className="hover:bg-grey-200 rounded-sm p-1">
                                     <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M7.5 15.8333V10.8333C7.5 10.3913 7.3244 9.96738 7.01184 9.65482C6.69928 9.34226 6.27536 9.16667 5.83333 9.16667H4.16667C3.72464 9.16667 3.30072 9.34226 2.98816 9.65482C2.67559 9.96738 2.5 10.3913 2.5 10.8333V15.8333C2.5 16.2754 2.67559 16.6993 2.98816 17.0118C3.30072 17.3244 3.72464 17.5 4.16667 17.5H5.83333C6.27536 17.5 6.69928 17.3244 7.01184 17.0118C7.3244 16.6993 7.5 16.2754 7.5 15.8333ZM7.5 15.8333V7.5C7.5 7.05797 7.67559 6.63405 7.98816 6.32149C8.30072 6.00893 8.72464 5.83333 9.16667 5.83333H10.8333C11.2754 5.83333 11.6993 6.00893 12.0118 6.32149C12.3244 6.63405 12.5 7.05797 12.5 7.5V15.8333M7.5 15.8333C7.5 16.2754 7.67559 16.6993 7.98816 17.0118C8.30072 17.3244 8.72464 17.5 9.16667 17.5H10.8333C11.2754 17.5 11.6993 17.3244 12.0118 17.0118C12.3244 16.6993 12.5 16.2754 12.5 15.8333M12.5 15.8333V4.16667C12.5 3.72464 12.6756 3.30072 12.9882 2.98816C13.3007 2.67559 13.7246 2.5 14.1667 2.5H15.8333C16.2754 2.5 16.6993 2.67559 17.0118 2.98816C17.3244 3.30072 17.5 3.72464 17.5 4.16667V15.8333C17.5 16.2754 17.3244 16.6993 17.0118 17.0118C16.6993 17.3244 16.2754 17.5 15.8333 17.5H14.1667C13.7246 17.5 13.3007 17.3244 12.9882 17.0118C12.6756 16.6993 12.5 16.2754 12.5 15.8333Z" stroke="#485057" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" />
+                                        <path d="M7.5 15.8333V10.8333C7.5 10.3913 7.3244 9.96738 7.01184 9.65482C6.69928 9.34226 6.27536 9.16667 5.83333 9.16667H4.16667C3.72464 9.16667 3.30072 9.34226 2.98816 9.65482C2.67559 9.96738 2.5 10.3913 2.5 10.8333V15.8333C2.5 16.2754 2.67559 16.6993 2.98816 17.0118C3.30072 17.3244 3.72464 17.5 4.16667 17.5H5.83333C6.27536 17.5 6.69928 17.3244 7.01184 17.0118C7.3244 16.6993 7.5 16.2754 7.5 15.8333ZM7.5 15.8333V7.5C7.5 7.05797 7.67559 6.63405 7.98816 6.32149C8.30072 6.00893 8.72464 5.83333 9.16667 5.83333H10.8333C11.2754 5.83333 11.6993 6.00893 12.0118 6.32149C12.3244 6.63405 12.5 7.05797 12.5 7.5V15.8333M7.5 15.8333C7.5 16.2754 7.67559 16.6993 7.98816 17.0118C8.30072 17.3244 8.72464 17.5 9.16667 17.5H10.8333C11.2754 17.5 11.6993 17.3244 12.0118 17.0118C12.3244 16.6993 12.5 16.2754 12.5 15.8333M12.5 15.8333V4.16667C12.5 3.72464 12.6756 3.30072 12.9882 2.98816C13.3007 2.67559 13.7246 2.5 14.1667 2.5H15.8333C16.2754 2.5 16.6993 2.67559 17.0118 2.98816C17.3244 3.30072 17.5 3.72464 17.5 4.16667V15.8333C17.5 16.2754 17.3244 16.6993 17.0118 17.0118C16.6993 17.3244 16.2754 17.5 15.8333 17.5H14.1667C13.7246 17.5 13.3007 17.3244 12.9882 17.0118C12.6756 16.6993 12.5 16.2754 12.5 15.8333Z" stroke="#485057" strokeWidth="1.3" stroke-linecap="round" stroke-linejoin="round" />
                                     </svg>
                                 </button>
 
@@ -423,10 +424,10 @@ export default function CreatePostModal({ user, topics }: { user: UserData, topi
 
                                     className="hover:bg-grey-200 rounded-sm p-1">
                                     <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M7.49984 18.3307H12.4998C16.6665 18.3307 18.3332 16.6641 18.3332 12.4974V7.4974C18.3332 3.33073 16.6665 1.66406 12.4998 1.66406H7.49984C3.33317 1.66406 1.6665 3.33073 1.6665 7.4974V12.4974C1.6665 16.6641 3.33317 18.3307 7.49984 18.3307Z" stroke="#485057" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-                                        <path d="M5.8335 6.875C6.66683 7.70833 8.02516 7.70833 8.86683 6.875" stroke="#485057" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round" />
-                                        <path d="M11.1333 6.875C11.9666 7.70833 13.325 7.70833 14.1666 6.875" stroke="#485057" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round" />
-                                        <path d="M7 10.8359H13C13.4167 10.8359 13.75 11.1693 13.75 11.5859C13.75 13.6609 12.075 15.3359 10 15.3359C7.925 15.3359 6.25 13.6609 6.25 11.5859C6.25 11.1693 6.58333 10.8359 7 10.8359Z" stroke="#485057" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round" />
+                                        <path d="M7.49984 18.3307H12.4998C16.6665 18.3307 18.3332 16.6641 18.3332 12.4974V7.4974C18.3332 3.33073 16.6665 1.66406 12.4998 1.66406H7.49984C3.33317 1.66406 1.6665 3.33073 1.6665 7.4974V12.4974C1.6665 16.6641 3.33317 18.3307 7.49984 18.3307Z" stroke="#485057" strokeWidth="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                                        <path d="M5.8335 6.875C6.66683 7.70833 8.02516 7.70833 8.86683 6.875" stroke="#485057" strokeWidth="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round" />
+                                        <path d="M11.1333 6.875C11.9666 7.70833 13.325 7.70833 14.1666 6.875" stroke="#485057" strokeWidth="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round" />
+                                        <path d="M7 10.8359H13C13.4167 10.8359 13.75 11.1693 13.75 11.5859C13.75 13.6609 12.075 15.3359 10 15.3359C7.925 15.3359 6.25 13.6609 6.25 11.5859C6.25 11.1693 6.58333 10.8359 7 10.8359Z" stroke="#485057" strokeWidth="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round" />
                                     </svg>
                                 </button>
 
@@ -462,9 +463,9 @@ export default function CreatePostModal({ user, topics }: { user: UserData, topi
 
                                         <button className="hover:bg-grey-200 rounded-full p-1" onClick={() => setHasPoll(false)}>
                                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                <path d="M12 22C17.5 22 22 17.5 22 12C22 6.5 17.5 2 12 2C6.5 2 2 6.5 2 12C2 17.5 6.5 22 12 22Z" stroke="#0E1011" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-                                                <path d="M9.16992 14.8319L14.8299 9.17188" stroke="#0E1011" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-                                                <path d="M14.8299 14.8319L9.16992 9.17188" stroke="#0E1011" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                                                <path d="M12 22C17.5 22 22 17.5 22 12C22 6.5 17.5 2 12 2C6.5 2 2 6.5 2 12C2 17.5 6.5 22 12 22Z" stroke="#0E1011" strokeWidth="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                                                <path d="M9.16992 14.8319L14.8299 9.17188" stroke="#0E1011" strokeWidth="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                                                <path d="M14.8299 14.8319L9.16992 9.17188" stroke="#0E1011" strokeWidth="1.5" stroke-linecap="round" stroke-linejoin="round" />
                                             </svg>
                                         </button>
                                     </div>
@@ -484,9 +485,9 @@ export default function CreatePostModal({ user, topics }: { user: UserData, topi
                                                         disabled={pollOptions.length === 1}
                                                         className={cn(" hover:bg-grey-200 rounded-full p-1 transition-all duration-300", pollOptions.length === 1 && "opacity-50 cursor-not-allowed")} onClick={() => setPollOptions(pollOptions.filter((o) => o.id !== option.id))}>
                                                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                            <path d="M12 22C17.5 22 22 17.5 22 12C22 6.5 17.5 2 12 2C6.5 2 2 6.5 2 12C2 17.5 6.5 22 12 22Z" stroke="#0E1011" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-                                                            <path d="M9.16992 14.8319L14.8299 9.17188" stroke="#0E1011" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-                                                            <path d="M14.8299 14.8319L9.16992 9.17188" stroke="#0E1011" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                                                            <path d="M12 22C17.5 22 22 17.5 22 12C22 6.5 17.5 2 12 2C6.5 2 2 6.5 2 12C2 17.5 6.5 22 12 22Z" stroke="#0E1011" strokeWidth="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                                                            <path d="M9.16992 14.8319L14.8299 9.17188" stroke="#0E1011" strokeWidth="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                                                            <path d="M14.8299 14.8319L9.16992 9.17188" stroke="#0E1011" strokeWidth="1.5" stroke-linecap="round" stroke-linejoin="round" />
                                                         </svg>
                                                     </button>
                                                 </div>

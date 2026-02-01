@@ -61,9 +61,7 @@ export default async function PostsPage({
 
     const user = await getUserData();
 
-    const { data: posts, error: postsError } = await getPosts(community.id, initialTopic, initialSortBy, { limit: 10, offset: 0 });
-
-    console.log(posts);
+    const { data: posts } = await getPosts(community.id, initialTopic, initialSortBy, { limit: 10, offset: 0 });
 
     return (
         <div className="w-full space-y-5">
@@ -73,7 +71,6 @@ export default async function PostsPage({
                 initialSelectedTopic={initialTopic}
                 initialSortBy={initialSortBy}
             />
-
 
             <AccessControl allowedAccess={[UserAccess.OWNER, UserAccess.ADMIN, UserAccess.MEMBER]}>
                 <CreatePostModal user={user} topics={topics} />
@@ -90,4 +87,4 @@ export default async function PostsPage({
             />
         </div >
     )
-}   
+}

@@ -82,7 +82,7 @@ export default function ChangeTopicModal({
                             value={selectedTopicId.toString()}
                             onValueChange={(value) => setSelectedTopicId(parseInt(value))}
                         >
-                            <SelectTrigger className="w-full">
+                            <SelectTrigger variant="secondary" className="w-full rounded-lg py-5">
                                 <SelectValue placeholder="Select a topic" />
                             </SelectTrigger>
                             <SelectContent>
