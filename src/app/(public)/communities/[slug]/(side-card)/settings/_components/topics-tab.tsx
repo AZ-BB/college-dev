@@ -34,6 +34,7 @@ import {
 import { TopicWritePermissionType } from "@/enums/enums";
 import { Tables } from "@/database.types";
 import { useEffect, useState } from "react";
+import { Plus } from "lucide-react";
 import { toast } from "sonner";
 import {
     AlertDialog,
@@ -216,24 +217,24 @@ export function TopicsTab({ communityId: communityIdProp, slug }: TopicsTabProps
             <div className="flex flex-col gap-6">
                 <div className="flex flex-row items-start justify-between gap-4">
                     <div className="flex flex-col gap-1 min-w-0">
-                        <h1 className="text-xl font-bold text-black">Topics</h1>
-                        <p className="text-sm font-normal text-grey-600">
+                        <h1 className="text-2xl sm:text-xl font-bold text-black">Topics</h1>
+                        <p className="text-base sm:text-sm font-normal text-grey-600">
                             Add or Edit topics for posting inside community tab
                         </p>
                     </div>
                 </div>
-                <p className="text-sm text-grey-500">Loading community…</p>
+                <p className="text-base sm:text-sm text-grey-500">Loading community…</p>
             </div>
         );
     }
 
     return (
         <div className="flex flex-col gap-6">
-            {/* Header: title + subtitle left, Add New button right (aligned with title) */}
+            {/* Header: title + subtitle left, circular Add button right */}
             <div className="flex flex-row items-start justify-between gap-4">
                 <div className="flex flex-col gap-1 min-w-0">
-                    <h1 className="text-xl font-bold text-black">Topics</h1>
-                    <p className="text-sm font-normal text-grey-600">
+                    <h1 className="text-2xl sm:text-xl font-bold text-black">Topics</h1>
+                    <p className="text-base sm:text-sm font-normal text-grey-600">
                         Add or Edit topics for posting inside community tab
                     </p>
                 </div>
@@ -249,9 +250,9 @@ export function TopicsTab({ communityId: communityIdProp, slug }: TopicsTabProps
             </div>
 
             {loading ? (
-                <p className="text-sm text-grey-500">Loading topics…</p>
+                <p className="text-base sm:text-sm text-grey-500">Loading topics…</p>
             ) : topics.length === 0 ? (
-                <p className="text-sm text-grey-500">No topics yet. Add one to get started.</p>
+                <p className="text-base sm:text-sm text-grey-500">No topics yet. Add one to get started.</p>
             ) : (
                 <ul className="flex flex-col gap-3">
                     {topics.map((topic, index) => {
@@ -261,24 +262,23 @@ export function TopicsTab({ communityId: communityIdProp, slug }: TopicsTabProps
                         return (
                             <li
                                 key={topic.id}
-                                className="flex items-center justify-between gap-4 rounded-xl bg-grey-100 px-5 py-4 border border-grey-200"
+                                className="flex items-center justify-between gap-4 rounded-xl bg-white px-4 sm:px-5 py-4 border border-grey-200"
                             >
-                                <div className="flex flex-1 min-w-0 items-center gap-3">
-                                    <span className="font-semibold text-black truncate">{topic.name}</span>
-                                    <span className="text-sm font-normal text-grey-600 shrink-0">
+                                <div className="flex flex-1 min-w-0 flex-col gap-0.5">
+                                    <span className="text-lg sm:text-base font-semibold text-black truncate">{topic.name}</span>
+                                    <span className="text-base sm:text-sm font-normal text-grey-600">
                                         Permission : {permissionLabel(topic.write_permission_type)}
                                     </span>
                                 </div>
                                 <DropdownMenu>
                                     <DropdownMenuTrigger asChild>
-                                        <Button variant="ghost" size="icon" className="shrink-0 text-grey-600 hover:text-grey-900 hover:bg-grey-200/80" disabled={isMoving}>
+                                        <Button variant="ghost" size="icon" className="shrink-0 size-9 sm:size-10 text-grey-600 hover:text-grey-900 hover:bg-grey-200/80" disabled={isMoving}>
                                             <span className="sr-only">Open menu</span>
-                                            <svg className="size-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                <path d="M5 10C3.9 10 3 10.9 3 12C3 13.1 3.9 14 5 14C6.1 14 7 13.1 7 12C7 10.9 6.1 10 5 10Z" stroke="#292D32" stroke-width="1.5" />
-                                                <path d="M19 10C17.9 10 17 10.9 17 12C17 13.1 17.9 14 19 14C20.1 14 21 13.1 21 12C21 10.9 20.1 10 19 10Z" stroke="#292D32" stroke-width="1.5" />
-                                                <path d="M12 10C10.9 10 10 10.9 10 12C10 13.1 10.9 14 12 14C13.1 14 14 13.1 14 12C14 10.9 13.1 10 12 10Z" stroke="#292D32" stroke-width="1.5" />
+                                            <svg className="size-5 sm:size-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+                                                <path d="M5 10C3.9 10 3 10.9 3 12C3 13.1 3.9 14 5 14C6.1 14 7 13.1 7 12C7 10.9 6.1 10 5 10Z" stroke="currentColor" strokeWidth="1.5" />
+                                                <path d="M19 10C17.9 10 17 10.9 17 12C17 13.1 17.9 14 19 14C20.1 14 21 13.1 21 12C21 10.9 20.1 10 19 10Z" stroke="currentColor" strokeWidth="1.5" />
+                                                <path d="M12 10C10.9 10 10 10.9 10 12C10 13.1 10.9 14 12 14C13.1 14 14 13.1 14 12C14 10.9 13.1 10 12 10Z" stroke="currentColor" strokeWidth="1.5" />
                                             </svg>
-
                                         </Button>
                                     </DropdownMenuTrigger>
                                     <DropdownMenuContent align="end">
@@ -315,24 +315,25 @@ export function TopicsTab({ communityId: communityIdProp, slug }: TopicsTabProps
             <Dialog open={addOpen} onOpenChange={(o) => { setAddOpen(o); if (o) setAddNameError(null); }}>
                 <DialogContent showCloseButton={false}>
                     <DialogHeader>
-                        <DialogTitle>Add Topic</DialogTitle>
+                        <DialogTitle className="text-lg sm:text-base">Add Topic</DialogTitle>
                     </DialogHeader>
                     <div className="flex flex-col gap-4">
                         <div className="space-y-2">
-                            <Label>Name <span className="text-destructive">*</span></Label>
+                            <Label className="text-base sm:text-sm">Name <span className="text-destructive">*</span></Label>
                             <Input
                                 type="text"
                                 value={addName}
                                 onChange={(e) => { setAddName(e.target.value); setAddNameError(null); }}
                                 placeholder="Enter topic name"
                                 aria-invalid={!!addNameError}
+                                className="text-base sm:text-sm"
                             />
                             {addNameError && (
-                                <p className="text-sm text-destructive">{addNameError}</p>
+                                <p className="text-base sm:text-sm text-destructive">{addNameError}</p>
                             )}
                         </div>
                         <div className="space-y-2">
-                            <Label>Write Permission Type</Label>
+                            <Label className="text-base sm:text-sm">Write Permission Type</Label>
                             <Select
                                 value={addWritePermissionType}
                                 onValueChange={(v) => setAddWritePermissionType(v as TopicWritePermissionType)}
@@ -341,31 +342,31 @@ export function TopicsTab({ communityId: communityIdProp, slug }: TopicsTabProps
                                     <SelectItem value={TopicWritePermissionType.PUBLIC}>Public</SelectItem>
                                     <SelectItem value={TopicWritePermissionType.ADMINS}>Admins</SelectItem>
                                 </SelectContent>
-                                <SelectTrigger variant="secondary" className="w-full rounded-lg py-5">
+                                <SelectTrigger variant="secondary" className="w-full rounded-lg py-5 text-base sm:text-sm">
                                     <SelectValue placeholder="Select write permission type" />
                                 </SelectTrigger>
                             </Select>
                             {addWritePermissionType === TopicWritePermissionType.ADMINS && (
-                                <p className="text-sm text-muted-foreground">
+                                <p className="text-base sm:text-sm text-muted-foreground">
                                     Only admins can post or move posts to this category.
                                 </p>
                             )}
                             {addWritePermissionType === TopicWritePermissionType.PUBLIC && (
-                                <p className="text-sm text-muted-foreground">
+                                <p className="text-base sm:text-sm text-muted-foreground">
                                     Members and admins can post in this Topic.
                                 </p>
                             )}
                         </div>
-                        <div className="flex gap-2">
+                        <div className="flex flex-col sm:flex-row gap-2">
                             <Button
                                 disabled={!addName.trim()}
-                                className="py-7 rounded-[16px] flex-1"
+                                className="py-6 sm:py-7 rounded-[16px] flex-1 text-base sm:text-sm"
                                 onClick={handleAddSubmit}
                             >
                                 Add Topic
                             </Button>
                             <Button
-                                className="py-7 rounded-[16px] flex-1"
+                                className="py-6 sm:py-7 rounded-[16px] flex-1 text-base sm:text-sm"
                                 variant="secondary"
                                 onClick={() => setAddOpen(false)}
                             >
@@ -383,25 +384,26 @@ export function TopicsTab({ communityId: communityIdProp, slug }: TopicsTabProps
             >
                 <DialogContent showCloseButton={false}>
                     <DialogHeader>
-                        <DialogTitle>Edit Topic</DialogTitle>
+                        <DialogTitle className="text-lg sm:text-base">Edit Topic</DialogTitle>
                     </DialogHeader>
                     {editingTopic && (
                         <div className="flex flex-col gap-4">
                             <div className="space-y-2">
-                                <Label>Name <span className="text-destructive">*</span></Label>
+                                <Label className="text-base sm:text-sm">Name <span className="text-destructive">*</span></Label>
                                 <Input
                                     type="text"
                                     value={editName}
                                     onChange={(e) => { setEditName(e.target.value); setEditNameError(null); }}
                                     placeholder="Enter topic name"
                                     aria-invalid={!!editNameError}
+                                    className="text-base sm:text-sm"
                                 />
                                 {editNameError && (
-                                    <p className="text-sm text-destructive">{editNameError}</p>
+                                    <p className="text-base sm:text-sm text-destructive">{editNameError}</p>
                                 )}
                             </div>
                             <div className="space-y-2">
-                                <Label>Write Permission Type</Label>
+                                <Label className="text-base sm:text-sm">Write Permission Type</Label>
                                 <Select
                                     value={editWritePermissionType}
                                     onValueChange={(v) => setEditWritePermissionType(v as TopicWritePermissionType)}
@@ -410,31 +412,31 @@ export function TopicsTab({ communityId: communityIdProp, slug }: TopicsTabProps
                                         <SelectItem value={TopicWritePermissionType.PUBLIC}>Public</SelectItem>
                                         <SelectItem value={TopicWritePermissionType.ADMINS}>Admins</SelectItem>
                                     </SelectContent>
-                                    <SelectTrigger variant="secondary" className="w-full rounded-lg py-5">
+                                    <SelectTrigger variant="secondary" className="w-full rounded-lg py-5 text-base sm:text-sm">
                                         <SelectValue placeholder="Select write permission type" />
                                     </SelectTrigger>
                                 </Select>
                                 {editWritePermissionType === TopicWritePermissionType.ADMINS && (
-                                    <p className="text-sm text-muted-foreground">
+                                    <p className="text-base sm:text-sm text-muted-foreground">
                                         Only admins can post or move posts to this category.
                                     </p>
                                 )}
                                 {editWritePermissionType === TopicWritePermissionType.PUBLIC && (
-                                    <p className="text-sm text-muted-foreground">
+                                    <p className="text-base sm:text-sm text-muted-foreground">
                                         Members and admins can post in this Topic.
                                     </p>
                                 )}
                             </div>
-                            <div className="flex gap-2">
+                            <div className="flex flex-col sm:flex-row gap-2">
                                 <Button
                                     disabled={!editName.trim()}
-                                    className="py-7 rounded-[16px] flex-1"
+                                    className="py-6 sm:py-7 rounded-[16px] flex-1 text-base sm:text-sm"
                                     onClick={handleEditSubmit}
                                 >
                                     Update
                                 </Button>
                                 <Button
-                                    className="py-7 rounded-[16px] flex-1"
+                                    className="py-6 sm:py-7 rounded-[16px] flex-1 text-base sm:text-sm"
                                     variant="secondary"
                                     onClick={() => setEditingTopic(null)}
                                 >

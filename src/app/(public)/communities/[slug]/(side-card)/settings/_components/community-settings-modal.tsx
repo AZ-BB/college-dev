@@ -17,6 +17,7 @@ import { PricingTab } from "./pricing-tab"
 import { TopicsTab } from "./topics-tab"
 import { RulesTab } from "./rules-tab"
 import { DiscoveryTab } from "./discovery-tab"
+import SecondaryTabs from "@/components/secondery-tabs"
 
 const TABS = [
   { id: "details", label: "Details" },
@@ -127,8 +128,8 @@ export function CommunitySettingsModal({
       </div>
 
       {/* Tabs sidebar + content */}
-      <div className="flex min-h-0 flex-1 overflow-hidden">
-        <nav className="w-48 shrink-0 border-r border-grey-200 bg-grey-50/50 py-3 px-4 space-y-2">
+      <div className="flex min-h-0 flex-1 overflow-hidden sm:flex-row flex-col">
+        <nav className="w-48 shrink-0 border-r border-grey-200 bg-grey-50/50 py-3 px-4 space-y-2 hidden sm:block">
           {TABS.map((tab) => (
             <button
               key={tab.id}
@@ -144,6 +145,18 @@ export function CommunitySettingsModal({
               {tab.label}
             </button>
           ))}
+        </nav>
+
+        {/* Mobile: Horizontal tabs */}
+        <nav className="w-full sm:hidden overflow-x-auto pb-2 px-4 py-2">
+          <SecondaryTabs
+            tabs={TABS.map((tab) => ({
+              label: tab.label,
+              value: tab.id,
+            }))}
+            value={activeTab}
+            onTabChange={(value) => handleTabChange(value as TabId)}
+          />
         </nav>
 
         {/* Tab content */}
