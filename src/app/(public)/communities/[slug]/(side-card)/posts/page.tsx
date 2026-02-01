@@ -61,7 +61,7 @@ export default async function PostsPage({
 
     const user = await getUserData();
 
-    const { data: posts } = await getPosts(community.id, initialTopic, initialSortBy, { limit: 10, offset: 0 });
+    const { data: posts } = await getPosts(community.id, initialTopic, initialSortBy, { limit: 10, offset: 0 }, user?.id);
 
     return (
         <div className="w-full space-y-5">
@@ -84,6 +84,7 @@ export default async function PostsPage({
                 topic={initialTopic}
                 sortBy={initialSortBy}
                 topics={topics}
+                userId={user?.id}
             />
         </div >
     )

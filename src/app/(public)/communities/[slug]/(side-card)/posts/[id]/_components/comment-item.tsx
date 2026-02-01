@@ -10,6 +10,7 @@ import MenuDotsIcon from "@/components/icons/menu-dots";
 import { Input } from "@/components/ui/input";
 import { type Comment } from "./comments-list";
 import { getCommentReplies, createReply, deleteComment, type CommentReply } from "@/action/posts";
+import { likeComment, unlikeComment } from "@/action/likes";
 import { createSupabaseBrowserClient } from "@/utils/supabase-browser";
 import { UserAccess } from "@/enums/enums";
 import {
@@ -35,6 +36,7 @@ import AccessControl from "../../../../../../../../components/access-control";
 interface CommentItemProps {
     comment: Comment;
     postId: number;
+    communityId: number;
     commentsDisabled?: boolean;
     highlightedCommentId?: number;
 }
@@ -69,7 +71,7 @@ function formatTimeAgo(dateString: string | null): string {
 
 type ReplyDisplay = Comment | CommentReply;
 
-export default function CommentItem({ comment, postId, commentsDisabled = false, highlightedCommentId }: CommentItemProps) {
+export default function CommentItem({ comment, postId, communityId, commentsDisabled = false, highlightedCommentId }: CommentItemProps) {
     const router = useRouter();
     const searchParams = useSearchParams();
     const pathname = usePathname();
@@ -84,6 +86,12 @@ export default function CommentItem({ comment, postId, commentsDisabled = false,
     const [isDeleting, setIsDeleting] = useState(false);
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
     const [deleteTargetId, setDeleteTargetId] = useState<number | null>(null);
+    const [isLikingId, setIsLikingId] = useState<number | null>(null);
+    // Optimistic like state: commentId -> { liked, count }
+    const [optimisticLikes, setOptimisticLikes] = useState<Record<number, { liked: boolean; count: number }>>({});
+
+    const getDisplayLike = (commentId: number, baseLiked: boolean | null | undefined, baseCount: number) =>
+        optimisticLikes[commentId] ?? { liked: baseLiked ?? false, count: baseCount };
 
     const initialReplies = comment.replies || [];
     const hasMoreReplies = comment.replies_count > 2;
@@ -318,6 +326,27 @@ export default function CommentItem({ comment, postId, commentsDisabled = false,
         setDeleteDialogOpen(true);
     };
 
+    const handleLikeComment = async (commentId: number, baseLiked: boolean | null | undefined, baseCount: number) => {
+        if (isLikingId !== null) return;
+        const override = optimisticLikes[commentId];
+        const currentLiked = override?.liked ?? (baseLiked ?? false);
+        const currentCount = override?.count ?? baseCount;
+        const nextLiked = !currentLiked;
+        const nextCount = currentCount + (nextLiked ? 1 : -1);
+        setOptimisticLikes((prev) => ({ ...prev, [commentId]: { liked: nextLiked, count: nextCount } }));
+        setIsLikingId(commentId);
+        const result = currentLiked ? await unlikeComment(commentId) : await likeComment(communityId, commentId);
+        setIsLikingId(null);
+        if (result.error) {
+            setOptimisticLikes((prev) => {
+                const next = { ...prev };
+                delete next[commentId];
+                return next;
+            });
+            toast.error(result.message || "Failed to update like");
+        }
+    };
+
     const handleConfirmDelete = async () => {
         if (!deleteTargetId) return;
 
@@ -362,13 +391,29 @@ export default function CommentItem({ comment, postId, commentsDisabled = false,
                     </div>
 
                     <div className="flex items-center gap-5 text-grey-700 font-medium">
-                        <div className="flex items-center gap-1">
-                            <svg className="size-5" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M7.47998 18.3505L10.58 20.7505C10.98 21.1505 11.88 21.3505 12.48 21.3505H16.28C17.48 21.3505 18.78 20.4505 19.08 19.2505L21.48 11.9505C21.98 10.5505 21.08 9.35046 19.58 9.35046H15.58C14.98 9.35046 14.48 8.85046 14.58 8.15046L15.08 4.95046C15.28 4.05046 14.68 3.05046 13.78 2.75046C12.98 2.45046 11.98 2.85046 11.58 3.45046L7.47998 9.55046" stroke="#485057" strokeWidth="1.5" strokeMiterlimit="10" />
-                                <path d="M2.37988 18.3484V8.54844C2.37988 7.14844 2.97988 6.64844 4.37988 6.64844H5.37988C6.77988 6.64844 7.37988 7.14844 7.37988 8.54844V18.3484C7.37988 19.7484 6.77988 20.2484 5.37988 20.2484H4.37988C2.97988 20.2484 2.37988 19.7484 2.37988 18.3484Z" stroke="#485057" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                            </svg>
-                            <span>0</span>
-                        </div>
+                        <AccessControl allowedAccess={[UserAccess.OWNER, UserAccess.ADMIN, UserAccess.MEMBER]}>
+                            <div className="flex items-center gap-1">
+                                <button
+                                    type="button"
+                                    onClick={() => handleLikeComment(comment.id, comment.is_liked, comment.likes_count ?? 0)}
+                                    disabled={isLikingId === comment.id}
+                                    className="hover:opacity-70 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1"
+                                >
+                                    {getDisplayLike(comment.id, comment.is_liked, comment.likes_count ?? 0).liked ? (
+                                        <svg className="size-5" width="24" height="24" viewBox="0 0 24 24" fill="#F7670E" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M7.47998 18.3505L10.58 20.7505C10.98 21.1505 11.88 21.3505 12.48 21.3505H16.28C17.48 21.3505 18.78 20.4505 19.08 19.2505L21.48 11.9505C21.98 10.5505 21.08 9.35046 19.58 9.35046H15.58C14.98 9.35046 14.48 8.85046 14.58 8.15046L15.08 4.95046C15.28 4.05046 14.68 3.05046 13.78 2.75046C12.98 2.45046 11.98 2.85046 11.58 3.45046L7.47998 9.55046" stroke="#48505777" strokeWidth="1.5" strokeMiterlimit="10" />
+                                            <path d="M2.37988 18.3484V8.54844C2.37988 7.14844 2.97988 6.64844 4.37988 6.64844H5.37988C6.77988 6.64844 7.37988 7.14844 7.37988 8.54844V18.3484C7.37988 19.7484 6.77988 20.2484 5.37988 20.2484H4.37988C2.97988 20.2484 2.37988 19.7484 2.37988 18.3484Z" stroke="#48505777" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                                        </svg>
+                                    ) : (
+                                        <svg className="size-5" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M7.47998 18.3505L10.58 20.7505C10.98 21.1505 11.88 21.3505 12.48 21.3505H16.28C17.48 21.3505 18.78 20.4505 19.08 19.2505L21.48 11.9505C21.98 10.5505 21.08 9.35046 19.58 9.35046H15.58C14.98 9.35046 14.48 8.85046 14.58 8.15046L15.08 4.95046C15.28 4.05046 14.68 3.05046 13.78 2.75046C12.98 2.45046 11.98 2.85046 11.58 3.45046L7.47998 9.55046" stroke="#485057" strokeWidth="1.5" strokeMiterlimit="10" />
+                                            <path d="M2.37988 18.3484V8.54844C2.37988 7.14844 2.97988 6.64844 4.37988 6.64844H5.37988C6.77988 6.64844 7.37988 7.14844 7.37988 8.54844V18.3484C7.37988 19.7484 6.77988 20.2484 5.37988 20.2484H4.37988C2.97988 20.2484 2.37988 19.7484 2.37988 18.3484Z" stroke="#485057" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                                        </svg>
+                                    )}
+                                </button>
+                                <span>{getDisplayLike(comment.id, comment.is_liked, comment.likes_count ?? 0).count}</span>
+                            </div>
+                        </AccessControl>
 
                         {!commentsDisabled && (
                             <button
@@ -466,13 +511,29 @@ export default function CommentItem({ comment, postId, commentsDisabled = false,
                                                 </div>
                                             </div>
                                             <div className="flex items-center gap-5 text-grey-700 font-medium">
-                                                <div className="flex items-center gap-1">
-                                                    <svg className="size-5" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                        <path d="M7.47998 18.3505L10.58 20.7505C10.98 21.1505 11.88 21.3505 12.48 21.3505H16.28C17.48 21.3505 18.78 20.4505 19.08 19.2505L21.48 11.9505C21.98 10.5505 21.08 9.35046 19.58 9.35046H15.58C14.98 9.35046 14.48 8.85046 14.58 8.15046L15.08 4.95046C15.28 4.05046 14.68 3.05046 13.78 2.75046C12.98 2.45046 11.98 2.85046 11.58 3.45046L7.47998 9.55046" stroke="#485057" strokeWidth="1.5" strokeMiterlimit="10" />
-                                                        <path d="M2.37988 18.3484V8.54844C2.37988 7.14844 2.97988 6.64844 4.37988 6.64844H5.37988C6.77988 6.64844 7.37988 7.14844 7.37988 8.54844V18.3484C7.37988 19.7484 6.77988 20.2484 5.37988 20.2484H4.37988C2.97988 20.2484 2.37988 19.7484 2.37988 18.3484Z" stroke="#485057" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                                                    </svg>
-                                                    <span>0</span>
-                                                </div>
+                                                <AccessControl allowedAccess={[UserAccess.OWNER, UserAccess.ADMIN, UserAccess.MEMBER]}>
+                                                    <div className="flex items-center gap-1">
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => handleLikeComment(reply.id, "is_liked" in reply ? reply.is_liked : undefined, reply.likes_count ?? 0)}
+                                                            disabled={isLikingId === reply.id}
+                                                            className="hover:opacity-70 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1"
+                                                        >
+                                                            {getDisplayLike(reply.id, "is_liked" in reply ? reply.is_liked : undefined, reply.likes_count ?? 0).liked ? (
+                                                                <svg className="size-5" width="24" height="24" viewBox="0 0 24 24" fill="#F7670E" xmlns="http://www.w3.org/2000/svg">
+                                                                    <path d="M7.47998 18.3505L10.58 20.7505C10.98 21.1505 11.88 21.3505 12.48 21.3505H16.28C17.48 21.3505 18.78 20.4505 19.08 19.2505L21.48 11.9505C21.98 10.5505 21.08 9.35046 19.58 9.35046H15.58C14.98 9.35046 14.48 8.85046 14.58 8.15046L15.08 4.95046C15.28 4.05046 14.68 3.05046 13.78 2.75046C12.98 2.45046 11.98 2.85046 11.58 3.45046L7.47998 9.55046" stroke="#48505777" strokeWidth="1.5" strokeMiterlimit="10" />
+                                                                    <path d="M2.37988 18.3484V8.54844C2.37988 7.14844 2.97988 6.64844 4.37988 6.64844H5.37988C6.77988 6.64844 7.37988 7.14844 7.37988 8.54844V18.3484C7.37988 19.7484 6.77988 20.2484 5.37988 20.2484H4.37988C2.97988 20.2484 2.37988 19.7484 2.37988 18.3484Z" stroke="#48505777" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                                                                </svg>
+                                                            ) : (
+                                                                <svg className="size-5" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                                    <path d="M7.47998 18.3505L10.58 20.7505C10.98 21.1505 11.88 21.3505 12.48 21.3505H16.28C17.48 21.3505 18.78 20.4505 19.08 19.2505L21.48 11.9505C21.98 10.5505 21.08 9.35046 19.58 9.35046H15.58C14.98 9.35046 14.48 8.85046 14.58 8.15046L15.08 4.95046C15.28 4.05046 14.68 3.05046 13.78 2.75046C12.98 2.45046 11.98 2.85046 11.58 3.45046L7.47998 9.55046" stroke="#485057" strokeWidth="1.5" strokeMiterlimit="10" />
+                                                                    <path d="M2.37988 18.3484V8.54844C2.37988 7.14844 2.97988 6.64844 4.37988 6.64844H5.37988C6.77988 6.64844 7.37988 7.14844 7.37988 8.54844V18.3484C7.37988 19.7484 6.77988 20.2484 5.37988 20.2484H4.37988C2.97988 20.2484 2.37988 19.7484 2.37988 18.3484Z" stroke="#485057" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                                                                </svg>
+                                                            )}
+                                                        </button>
+                                                        <span>{getDisplayLike(reply.id, "is_liked" in reply ? reply.is_liked : undefined, reply.likes_count ?? 0).count}</span>
+                                                    </div>
+                                                </AccessControl>
 
                                                 <DropdownMenu>
                                                     <DropdownMenuTrigger asChild>

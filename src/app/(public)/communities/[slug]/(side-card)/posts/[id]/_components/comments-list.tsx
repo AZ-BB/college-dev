@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useTransition, useEffect } from "react";
-import { Tables } from "@/database.types";
 import CommentItem from "./comment-item";
 import { createSupabaseBrowserClient } from "@/utils/supabase-browser";
 import { getCommentWithReplies } from "@/action/posts";
@@ -14,7 +13,16 @@ export type CommentUser = {
     last_name: string;
 };
 
-export type Comment = Tables<"comments"> & {
+export type Comment = {
+    id: number;
+    post_id: number;
+    author_id: string;
+    content: string;
+    reply_to_comment_id: number | null;
+    created_at: string;
+    updated_at: string;
+    likes_count?: number;
+    is_liked?: boolean | null;
     users: CommentUser;
     replies_count: number;
     replies?: Comment[];
@@ -23,13 +31,15 @@ export type Comment = Tables<"comments"> & {
 interface CommentsListProps {
     comments: Comment[] | null;
     postId: number;
+    communityId: number;
+    userId?: string | null;
     commentCount: number | null;
     commentsDisabled?: boolean;
     extraExpandedCommentId?: number | undefined;
     highlightedCommentId?: number | undefined;
 }
 
-export default function CommentsList({ comments: initialComments, postId, commentCount, commentsDisabled = false, extraExpandedCommentId = undefined, highlightedCommentId = undefined }: CommentsListProps) {
+export default function CommentsList({ comments: initialComments, postId, communityId, userId, commentCount, commentsDisabled = false, extraExpandedCommentId = undefined, highlightedCommentId = undefined }: CommentsListProps) {
     const [comments, setComments] = useState<Comment[] | null>(initialComments);
     const [loadedCount, setLoadedCount] = useState(initialComments?.length || 0);
     const [isLoadingMore, startTransition] = useTransition();
@@ -86,7 +96,8 @@ export default function CommentsList({ comments: initialComments, postId, commen
                 p_post_id: postId,
                 p_comments_limit: 20,
                 p_replies_limit: 2,
-                p_comments_offset: loadedCount
+                p_comments_offset: loadedCount,
+                p_user_id: userId ?? null,
             });
 
             if (commentsError || !newCommentsData) {
@@ -119,7 +130,7 @@ export default function CommentsList({ comments: initialComments, postId, commen
     return (
         <div className="flex flex-col gap-4">
             {comments.map((comment) => (
-                <CommentItem key={comment.id} comment={comment} postId={postId} commentsDisabled={commentsDisabled} highlightedCommentId={highlightedCommentId} />
+                <CommentItem key={comment.id} comment={comment} postId={postId} communityId={communityId} commentsDisabled={commentsDisabled} highlightedCommentId={highlightedCommentId} />
             ))}
 
             {hasMoreComments && (

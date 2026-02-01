@@ -1,7 +1,6 @@
 "use client";
 import { PostList, togglePinPost } from "@/action/posts";
-import CommentIcon from "@/components/icons/comment";
-import LikeIcon from "@/components/icons/like";
+import { likePost, unlikePost } from "@/action/likes";
 import SaveIcon from "@/components/icons/save";
 import { Card } from "@/components/ui/card";
 import UserAvatar from "@/components/user-avatart";
@@ -24,7 +23,7 @@ import AccessControl from "@/components/access-control";
 import { UserAccess } from "@/enums/enums";
 import { toast } from "sonner";
 import { Pin } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Tables } from "@/database.types";
 import ChangeTopicModal from "./change-topic-modal";
 import ToggleCommentsModal from "./toggle-comments-modal";
@@ -40,6 +39,36 @@ export default function PostCard({ post, topics }: { post: PostList; topics: Tab
     const [isTogglingComments, setIsTogglingComments] = useState(false);
     const [deletePostModalOpen, setDeletePostModalOpen] = useState(false);
     const [isDeletingPost, setIsDeletingPost] = useState(false);
+    const [liked, setLiked] = useState(post.is_liked ?? false);
+    const [displayLikesCount, setDisplayLikesCount] = useState(post.likes_count ?? 0);
+    const [isLiking, setIsLiking] = useState(false);
+
+    useEffect(() => {
+        setLiked(post.is_liked ?? false);
+    }, [post.is_liked]);
+
+    useEffect(() => {
+        setDisplayLikesCount(post.likes_count ?? 0);
+    }, [post.likes_count]);
+
+    const handleLikeClick = async (e: React.MouseEvent) => {
+        e.stopPropagation();
+        if (isLiking) return;
+        const nextLiked = !liked;
+        const nextCount = displayLikesCount + (nextLiked ? 1 : -1);
+        setLiked(nextLiked);
+        setDisplayLikesCount(nextCount);
+        setIsLiking(true);
+        const result = liked
+            ? await unlikePost(post.id)
+            : await likePost(post.community_id, post.id);
+        setIsLiking(false);
+        if (result.error) {
+            setLiked(liked);
+            setDisplayLikesCount(displayLikesCount);
+            toast.error(result.message || "Failed to update like");
+        }
+    };
 
     const handleCopyLink = async (e: React.MouseEvent) => {
         e.stopPropagation();
@@ -159,15 +188,29 @@ export default function PostCard({ post, topics }: { post: PostList; topics: Tab
 
                 <div className="flex items-center gap-4">
 
-                    <div className="flex items-center gap-1">
-                        <button>
-                            <svg className="size-6" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M7.47998 18.3505L10.58 20.7505C10.98 21.1505 11.88 21.3505 12.48 21.3505H16.28C17.48 21.3505 18.78 20.4505 19.08 19.2505L21.48 11.9505C21.98 10.5505 21.08 9.35046 19.58 9.35046H15.58C14.98 9.35046 14.48 8.85046 14.58 8.15046L15.08 4.95046C15.28 4.05046 14.68 3.05046 13.78 2.75046C12.98 2.45046 11.98 2.85046 11.58 3.45046L7.47998 9.55046" stroke="#292D32" strokeWidth="1.5" stroke-miterlimit="10" />
-                                <path d="M2.37988 18.3484V8.54844C2.37988 7.14844 2.97988 6.64844 4.37988 6.64844H5.37988C6.77988 6.64844 7.37988 7.14844 7.37988 8.54844V18.3484C7.37988 19.7484 6.77988 20.2484 5.37988 20.2484H4.37988C2.97988 20.2484 2.37988 19.7484 2.37988 18.3484Z" stroke="#292D32" strokeWidth="1.5" stroke-linecap="round" stroke-linejoin="round" />
-                            </svg>
-                        </button>
-                        <span>0</span>
-                    </div>
+                    <AccessControl allowedAccess={[UserAccess.OWNER, UserAccess.ADMIN, UserAccess.MEMBER]}>
+                        <div className="flex items-center gap-1">
+                            <button
+                                type="button"
+                                onClick={handleLikeClick}
+                                disabled={isLiking}
+                                className="hover:opacity-70 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                {liked ? (
+                                    <svg className="size-6" width="24" height="24" viewBox="0 0 24 24" fill="#F7670E" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M7.47998 18.3505L10.58 20.7505C10.98 21.1505 11.88 21.3505 12.48 21.3505H16.28C17.48 21.3505 18.78 20.4505 19.08 19.2505L21.48 11.9505C21.98 10.5505 21.08 9.35046 19.58 9.35046H15.58C14.98 9.35046 14.48 8.85046 14.58 8.15046L15.08 4.95046C15.28 4.05046 14.68 3.05046 13.78 2.75046C12.98 2.45046 11.98 2.85046 11.58 3.45046L7.47998 9.55046" stroke="#48505777" strokeWidth="1.5" strokeMiterlimit="10" />
+                                        <path d="M2.37988 18.3484V8.54844C2.37988 7.14844 2.97988 6.64844 4.37988 6.64844H5.37988C6.77988 6.64844 7.37988 7.14844 7.37988 8.54844V18.3484C7.37988 19.7484 6.77988 20.2484 5.37988 20.2484H4.37988C2.97988 20.2484 2.37988 19.7484 2.37988 18.3484Z" stroke="#48505777" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                                    </svg>
+                                ) : (
+                                    <svg className="size-6" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M7.47998 18.3505L10.58 20.7505C10.98 21.1505 11.88 21.3505 12.48 21.3505H16.28C17.48 21.3505 18.78 20.4505 19.08 19.2505L21.48 11.9505C21.98 10.5505 21.08 9.35046 19.58 9.35046H15.58C14.98 9.35046 14.48 8.85046 14.58 8.15046L15.08 4.95046C15.28 4.05046 14.68 3.05046 13.78 2.75046C12.98 2.45046 11.98 2.85046 11.58 3.45046L7.47998 9.55046" stroke="#292D32" strokeWidth="1.5" strokeMiterlimit="10" />
+                                        <path d="M2.37988 18.3484V8.54844C2.37988 7.14844 2.97988 6.64844 4.37988 6.64844H5.37988C6.77988 6.64844 7.37988 7.14844 7.37988 8.54844V18.3484C7.37988 19.7484 6.77988 20.2484 5.37988 20.2484H4.37988C2.97988 20.2484 2.37988 19.7484 2.37988 18.3484Z" stroke="#292D32" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                                    </svg>
+                                )}
+                            </button>
+                            <span>{displayLikesCount}</span>
+                        </div>
+                    </AccessControl>
 
                     <div className="flex items-center gap-1">
                         <button>
