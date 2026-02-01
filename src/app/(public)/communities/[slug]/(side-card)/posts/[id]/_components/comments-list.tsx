@@ -97,7 +97,7 @@ export default function CommentsList({ comments: initialComments, postId, commun
                 p_comments_limit: 20,
                 p_replies_limit: 2,
                 p_comments_offset: loadedCount,
-                p_user_id: userId ?? null,
+                p_user_id: userId ?? undefined,
             });
 
             if (commentsError || !newCommentsData) {
