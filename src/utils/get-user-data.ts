@@ -1,3 +1,4 @@
+import { headers } from "next/headers"
 import { createSupabaseServerClient } from "@/utils/supabase-server"
 import { redirect } from "next/navigation"
 
@@ -10,12 +11,38 @@ export interface UserData {
   username?: string
 }
 
-export async function getUserData(): Promise<UserData> {
+const PUBLIC_PATHS = [
+  "/",
+  "/login",
+  "/signup",
+  "/auth",
+  "/auth/callback",
+  "/forget-password",
+  "/auth/reset-password",
+  "/communities",
+  "/onboarding",
+  "/verify-email",
+  "/privacy",
+]
+
+function isPublicPath(pathname: string | null): boolean {
+  if (!pathname) return false
+  if (PUBLIC_PATHS.includes(pathname)) return true
+  if (pathname.startsWith("/auth/")) return true
+  if (pathname.startsWith("/communities/")) return true
+  return false
+}
+
+export async function getUserData(): Promise<UserData | null> {
   try {
+    const pathname = (await headers()).get("x-pathname") ?? null
     const supabase = await createSupabaseServerClient()
     const { data: { user } } = await supabase.auth.getUser()
 
-    if (!user) return redirect("/login");
+    if (!user) {
+      if (isPublicPath(pathname)) return null
+      return redirect("/login")
+    }
 
     const { data: dbUser, error } = await supabase
       .from("users")
