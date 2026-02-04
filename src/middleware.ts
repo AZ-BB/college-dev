@@ -1,10 +1,15 @@
 import { createServerClient } from "@supabase/ssr"
-import { NextResponse, type NextRequest } from "next/server"
+import { NextResponse, NextRequest } from "next/server"
 import { isProfileComplete } from "./action/auth"
 
 export async function middleware(request: NextRequest) {
+  const pathname = request.nextUrl.pathname
+  const requestHeaders = new Headers(request.headers)
+  requestHeaders.set("x-pathname", pathname)
+  const requestWithPath = new NextRequest(request.url, { headers: requestHeaders })
+
   let supabaseResponse = NextResponse.next({
-    request,
+    request: requestWithPath,
   })
 
   const supabase = createServerClient(
@@ -13,12 +18,12 @@ export async function middleware(request: NextRequest) {
     {
       cookies: {
         getAll() {
-          return request.cookies.getAll()
+          return requestWithPath.cookies.getAll()
         },
         setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) => request.cookies.set(name, value))
+          cookiesToSet.forEach(({ name, value, options }) => requestWithPath.cookies.set(name, value))
           supabaseResponse = NextResponse.next({
-            request,
+            request: requestWithPath,
           })
           cookiesToSet.forEach(({ name, value, options }) =>
             supabaseResponse.cookies.set(name, value, options)
@@ -32,8 +37,6 @@ export async function middleware(request: NextRequest) {
   const {
     data: { user },
   } = await supabase.auth.getUser()
-
-  const { pathname } = request.nextUrl
 
   // Define public routes that don't require authentication
 
@@ -52,9 +55,10 @@ export async function middleware(request: NextRequest) {
   }
 
   // If user is authenticated and trying to access auth pages, redirect to home
-  // BUT allow the callback route to complete its processing
-  if (user && isPublicRoute && !isCallbackRoute) {
-    const isUserProfileComplete = await isProfileComplete(user.id) 
+  // BUT allow the callback route and /login (to avoid redirect loop after logout)
+  const isAuthPage = isPublicRoute && !isCallbackRoute && pathname !== "/login"
+  if (user && isAuthPage) {
+    const isUserProfileComplete = await isProfileComplete(user.id)
     if (isUserProfileComplete.data?.needsOnboarding) {
       return NextResponse.redirect(new URL('/onboarding', request.url))
     } else if (pathname !== "/" && pathname !== "/communities" && !pathname.startsWith("/communities/")) {
