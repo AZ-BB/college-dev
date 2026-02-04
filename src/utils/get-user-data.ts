@@ -33,14 +33,14 @@ function isPublicPath(pathname: string | null): boolean {
   return false
 }
 
-export async function getUserData(): Promise<UserData | null> {
+export async function getUserData(): Promise<UserData> {
   try {
     const pathname = (await headers()).get("x-pathname") ?? null
     const supabase = await createSupabaseServerClient()
     const { data: { user } } = await supabase.auth.getUser()
 
     if (!user) {
-      if (isPublicPath(pathname)) return null
+      if (isPublicPath(pathname)) return {} as UserData
       return redirect("/login")
     }
 
