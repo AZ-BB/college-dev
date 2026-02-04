@@ -326,7 +326,6 @@ export function SettingsForm({
       if (avatarFile) {
         const formData = new FormData()
         formData.append('file', avatarFile)
-        formData.append('userId', authUser.id)
 
         const uploadResponse = await fetch('/api/upload-avatar', {
           method: 'POST',

@@ -79,7 +79,6 @@ export function OnboardingForm({
       if (avatarFile) {
         const formData = new FormData()
         formData.append('file', avatarFile)
-        formData.append('userId', user.id)
 
         const uploadResponse = await fetch('/api/upload-avatar', {
           method: 'POST',
