@@ -5,11 +5,17 @@ import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
 import EditIcon from "@/components/icons/edit"
 import UploadIcon from "@/components/icons/upload"
-import { AlertTriangle, ArrowRight, Pencil, Trash2, X } from "lucide-react"
+import { AlertTriangle, ArrowRight, MoreVertical, Pencil, Plus, Trash2, X } from "lucide-react"
 import { Separator } from "@/components/ui/separator"
 import { useEffect, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 import { Community, addCtaLink, deleteCommunity, deleteCtaLink, getCommunityBySlug, isSlugAvailable, updateCommunityDetails, updateCommunitySlug, updateCtaLink } from "@/action/communities"
+import {
+    createCommunityQuestion,
+    deleteCommunityQuestion,
+    moveCommunityQuestion,
+    updateCommunityQuestion,
+} from "@/action/community-questions"
 import { cn } from "@/lib/utils"
 import Image from "next/image"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -19,6 +25,12 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog"
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 export function DetailsTab({ slug }: { slug: string }) {
     const router = useRouter()
@@ -47,6 +59,14 @@ export function DetailsTab({ slug }: { slug: string }) {
     const [linkUrl, setLinkUrl] = useState("")
     const [linkUrlError, setLinkUrlError] = useState<string | null>(null)
     const [linkSaving, setLinkSaving] = useState(false)
+
+    type QuestionType = "TEXT" | "EMAIL" | "MULTIPLE_CHOICE"
+    const [questionModalOpen, setQuestionModalOpen] = useState(false)
+    const [editingQuestionId, setEditingQuestionId] = useState<number | null>(null)
+    const [questionType, setQuestionType] = useState<QuestionType>("TEXT")
+    const [questionText, setQuestionText] = useState("")
+    const [questionOptions, setQuestionOptions] = useState<string[]>([""])
+    const [questionSaving, setQuestionSaving] = useState(false)
 
     type InnerTab = "details" | "questions" | "links" | "url"
     const [innerTab, setInnerTab] = useState<InnerTab>("details")
@@ -315,22 +335,357 @@ export function DetailsTab({ slug }: { slug: string }) {
         }
     }
 
+    const communityQuestions = (community?.community_questions ?? []).slice().sort((a, b) => a.index - b.index)
+    const questionTypeLabel: Record<QuestionType, string> = {
+        TEXT: "Text",
+        EMAIL: "Email",
+        MULTIPLE_CHOICE: "Multiple Choice",
+    }
+
+    function getQuestionDisplay(q: (typeof communityQuestions)[0]) {
+        if (q.type === "MULTIPLE_CHOICE") {
+            try {
+                const parsed = JSON.parse(q.content) as { question?: string; options?: string[] }
+                return { text: parsed.question ?? q.content, options: parsed.options ?? [] }
+            } catch {
+                return { text: q.content, options: [] }
+            }
+        }
+        return { text: q.content, options: [] }
+    }
+
+    function openAddQuestion() {
+        setEditingQuestionId(null)
+        setQuestionType("TEXT")
+        setQuestionText("")
+        setQuestionOptions([""])
+        setQuestionModalOpen(true)
+    }
+
+    function openEditQuestion(q: (typeof communityQuestions)[0]) {
+        setEditingQuestionId(q.id)
+        setQuestionType(q.type as QuestionType)
+        if (q.type === "MULTIPLE_CHOICE") {
+            try {
+                const parsed = JSON.parse(q.content) as { question?: string; options?: string[] }
+                setQuestionText(parsed.question ?? "")
+                setQuestionOptions(
+                    parsed.options?.length ? parsed.options : [""]
+                )
+            } catch {
+                setQuestionText(q.content)
+                setQuestionOptions([""])
+            }
+        } else {
+            setQuestionText(q.content)
+            setQuestionOptions([""])
+        }
+        setQuestionModalOpen(true)
+    }
+
+    function closeQuestionModal() {
+        setQuestionModalOpen(false)
+        setEditingQuestionId(null)
+        setQuestionType("TEXT")
+        setQuestionText("")
+        setQuestionOptions([""])
+    }
+
+    async function handleSaveQuestion() {
+        if (!community?.id) return
+        const isMcq = questionType === "MULTIPLE_CHOICE"
+        const content = isMcq
+            ? JSON.stringify({
+                  question: questionText.trim(),
+                  options: questionOptions.filter(Boolean),
+              })
+            : questionText.trim()
+        if (!content || (isMcq && questionOptions.filter(Boolean).length === 0)) return
+        setQuestionSaving(true)
+        try {
+            if (editingQuestionId !== null) {
+                const res = await updateCommunityQuestion(editingQuestionId, {
+                    content,
+                    type: questionType,
+                })
+                if (res.error || !res.data) throw new Error(res.message ?? res.error)
+                setCommunity((c) => ({
+                    ...c,
+                    community_questions: (c.community_questions ?? []).map((q) =>
+                        q.id === editingQuestionId ? res.data! : q
+                    ),
+                }))
+            } else {
+                const index = communityQuestions.length
+                const res = await createCommunityQuestion(community.id, {
+                    content,
+                    type: questionType,
+                    index,
+                })
+                if (res.error || !res.data) throw new Error(res.message ?? res.error)
+                setCommunity((c) => ({
+                    ...c,
+                    community_questions: [...(c.community_questions ?? []), res.data!].sort(
+                        (a, b) => a.index - b.index
+                    ),
+                }))
+            }
+            closeQuestionModal()
+        } catch (err) {
+            console.error(err)
+        } finally {
+            setQuestionSaving(false)
+        }
+    }
+
+    async function handleDeleteQuestion(questionId: number) {
+        try {
+            const res = await deleteCommunityQuestion(questionId)
+            if (res.error) throw new Error(res.message ?? res.error)
+            setCommunity((c) => ({
+                ...c,
+                community_questions: (c.community_questions ?? []).filter((q) => q.id !== questionId),
+            }))
+        } catch (err) {
+            console.error(err)
+        }
+    }
+
+    async function handleMoveQuestion(questionId: number, direction: "up" | "down") {
+        try {
+            const res = await moveCommunityQuestion(questionId, direction)
+            if (res.error || !res.data) throw new Error(res.message ?? res.error)
+            setCommunity((c) => ({ ...c, community_questions: res.data }))
+        } catch (err) {
+            console.error(err)
+        }
+    }
+
     return (
         <div className="flex flex-col gap-6">
             {innerTab === "questions" && (
                 <div className="flex flex-col gap-4">
-                    <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => setInnerTab("details")}
-                        className="w-fit -ml-2 flex items-center gap-2 text-base sm:text-sm font-medium text-grey-700 hover:text-grey-900"
-                    >
-                        <ArrowRight className="size-4 rotate-180" />
-                        Add Links
-                    </Button>
-                    <div className="rounded-lg border border-dashed border-grey-300 bg-grey-50/50 p-8 text-center text-base sm:text-sm text-grey-500">
-                        Membership questions content — coming soon.
+                    <div className="flex items-center justify-between gap-4">
+                        <div className="flex items-center gap-2">
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={() => setInnerTab("details")}
+                                className="w-fit -ml-2 flex items-center gap-2 text-base sm:text-sm font-medium text-grey-700 hover:text-grey-900 rounded-full size-9 p-0"
+                                aria-label="Back"
+                            >
+                                <ArrowRight className="size-4 rotate-180" />
+                            </Button>
+                            <span className="text-xl sm:text-lg font-semibold text-grey-900">
+                                Member Questions
+                            </span>
+                        </div>
+                        <Button
+                            type="button"
+                            onClick={openAddQuestion}
+                            className="rounded-lg bg-orange-500 hover:bg-orange-600 text-white text-base sm:text-sm font-semibold py-5 px-5"
+                        >
+                            Add New
+                        </Button>
                     </div>
+
+                    <div className="rounded-lg border border-grey-200 divide-y divide-grey-200 overflow-hidden">
+                        {communityQuestions.length === 0 ? (
+                            <div className="rounded-lg border border-dashed border-grey-300 bg-grey-50/50 p-8 text-center text-base sm:text-sm text-grey-500">
+                                No questions yet. Click &quot;Add New&quot; to add a member question.
+                            </div>
+                        ) : (
+                            communityQuestions.map((q, idx) => {
+                                const display = getQuestionDisplay(q)
+                                const typeLabel = questionTypeLabel[q.type as QuestionType] ?? q.type
+                                return (
+                                    <div
+                                        key={q.id}
+                                        className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 p-4 bg-white hover:bg-grey-50/50 transition-colors"
+                                    >
+                                        <div className="flex-1 min-w-0">
+                                            <p className="text-sm text-grey-500 font-medium">{typeLabel}</p>
+                                            <p className="text-base sm:text-sm font-semibold text-grey-900 mt-0.5">
+                                                {display.text || "Question"}
+                                            </p>
+                                            {q.type === "MULTIPLE_CHOICE" && display.options.length > 0 && (
+                                                <ul className="mt-2 pl-4 list-disc text-base sm:text-sm text-grey-700 space-y-0.5">
+                                                    {display.options.map((opt, i) => (
+                                                        <li key={i}>{opt}</li>
+                                                    ))}
+                                                </ul>
+                                            )}
+                                        </div>
+                                        <div className="flex items-center gap-2 shrink-0">
+                                            <Button
+                                                type="button"
+                                                variant="outline"
+                                                size="icon"
+                                                onClick={() => openEditQuestion(q)}
+                                                className="rounded-lg size-9 border-grey-300 text-grey-700 hover:bg-grey-100"
+                                                aria-label="Edit question"
+                                            >
+                                                <Pencil className="size-4" />
+                                            </Button>
+                                            <DropdownMenu>
+                                                <DropdownMenuTrigger asChild>
+                                                    <Button
+                                                        type="button"
+                                                        variant="outline"
+                                                        size="icon"
+                                                        className="rounded-lg size-9 border-grey-300 text-grey-700 hover:bg-grey-100"
+                                                        aria-label="More options"
+                                                    >
+                                                        <MoreVertical className="size-4" />
+                                                    </Button>
+                                                </DropdownMenuTrigger>
+                                                <DropdownMenuContent align="end">
+                                                    <DropdownMenuItem
+                                                        onClick={() => handleMoveQuestion(q.id, "up")}
+                                                        disabled={idx === 0}
+                                                    >
+                                                        Move up
+                                                    </DropdownMenuItem>
+                                                    <DropdownMenuItem
+                                                        onClick={() => handleMoveQuestion(q.id, "down")}
+                                                        disabled={idx === communityQuestions.length - 1}
+                                                    >
+                                                        Move down
+                                                    </DropdownMenuItem>
+                                                    <DropdownMenuItem
+                                                        variant="destructive"
+                                                        onClick={() => handleDeleteQuestion(q.id)}
+                                                    >
+                                                        Delete
+                                                    </DropdownMenuItem>
+                                                </DropdownMenuContent>
+                                            </DropdownMenu>
+                                        </div>
+                                    </div>
+                                )
+                            })
+                        )}
+                    </div>
+
+                    <Dialog
+                        open={questionModalOpen}
+                        onOpenChange={(open) => !open && closeQuestionModal()}
+                    >
+                        <DialogContent className="sm:max-w-[425px]">
+                            <DialogHeader>
+                                <DialogTitle>
+                                    {editingQuestionId !== null ? "Edit question" : "Add question"}
+                                </DialogTitle>
+                            </DialogHeader>
+                            <div className="space-y-4 pt-2">
+                                <div className="space-y-2">
+                                    <label className="text-sm font-medium text-grey-900" htmlFor="question-type">
+                                        Answer type
+                                    </label>
+                                    <select
+                                        id="question-type"
+                                        value={questionType}
+                                        onChange={(e) =>
+                                            setQuestionType(e.target.value as QuestionType)
+                                        }
+                                        className="w-full rounded-lg border border-grey-300 bg-grey-50 px-3 py-2 text-base sm:text-sm text-grey-900 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                                    >
+                                        <option value="TEXT">Plain text answer</option>
+                                        <option value="EMAIL">Email</option>
+                                        <option value="MULTIPLE_CHOICE">Multiple choice (MCQ)</option>
+                                    </select>
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-sm font-medium text-grey-900" htmlFor="question-text">
+                                        Question
+                                    </label>
+                                    <Input
+                                        id="question-text"
+                                        type="text"
+                                        placeholder="e.g. Why do you want to join?"
+                                        value={questionText}
+                                        onChange={(e) => setQuestionText(e.target.value)}
+                                        className="rounded-lg bg-grey-50 border-grey-300"
+                                    />
+                                </div>
+                                {questionType === "MULTIPLE_CHOICE" && (
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-medium text-grey-900">
+                                            Options
+                                        </label>
+                                        <div className="space-y-2">
+                                            {questionOptions.map((opt, i) => (
+                                                <div key={i} className="flex gap-2">
+                                                    <Input
+                                                        type="text"
+                                                        placeholder={`Option ${i + 1}`}
+                                                        value={opt}
+                                                        onChange={(e) => {
+                                                            const next = [...questionOptions]
+                                                            next[i] = e.target.value
+                                                            setQuestionOptions(next)
+                                                        }}
+                                                        className="rounded-lg bg-grey-50 border-grey-300 flex-1"
+                                                    />
+                                                    <Button
+                                                        type="button"
+                                                        variant="outline"
+                                                        size="icon"
+                                                        onClick={() =>
+                                                            setQuestionOptions(questionOptions.filter((_, j) => j !== i))
+                                                        }
+                                                        disabled={questionOptions.length <= 1}
+                                                        className="rounded-lg size-9 shrink-0 border-grey-300 text-grey-700"
+                                                        aria-label="Remove option"
+                                                    >
+                                                        <X className="size-4" />
+                                                    </Button>
+                                                </div>
+                                            ))}
+                                            <Button
+                                                type="button"
+                                                variant="outline"
+                                                size="sm"
+                                                onClick={() => setQuestionOptions([...questionOptions, ""])}
+                                                className="rounded-lg border-grey-300 text-grey-700"
+                                            >
+                                                <Plus className="size-4 mr-1" />
+                                                Add option
+                                            </Button>
+                                        </div>
+                                    </div>
+                                )}
+                                <div className="flex justify-end gap-2 pt-2">
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        onClick={closeQuestionModal}
+                                        disabled={questionSaving}
+                                        className="rounded-lg"
+                                    >
+                                        Cancel
+                                    </Button>
+                                    <Button
+                                        type="button"
+                                        onClick={handleSaveQuestion}
+                                        disabled={
+                                            questionSaving ||
+                                            !questionText.trim() ||
+                                            (questionType === "MULTIPLE_CHOICE" &&
+                                                questionOptions.filter(Boolean).length === 0)
+                                        }
+                                        className="rounded-lg bg-orange-500 hover:bg-orange-600 text-white"
+                                    >
+                                        {questionSaving
+                                            ? "Saving…"
+                                            : editingQuestionId !== null
+                                              ? "Save"
+                                              : "Add"}
+                                    </Button>
+                                </div>
+                            </div>
+                        </DialogContent>
+                    </Dialog>
                 </div>
             )}
 

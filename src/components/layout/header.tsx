@@ -17,6 +17,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { createSupabaseBrowserClient } from "@/utils/supabase-browser"
 import { usePathname, useRouter } from "next/navigation"
+import UserAvatar from "../user-avatart"
 
 interface HeaderProps {
   userData: UserData | null
@@ -196,18 +197,10 @@ export default function Header({ userData: initialUserData }: HeaderProps) {
                       variant="ghost"
                       className="relative ml-2 h-8 w-8 rounded-full p-0 cursor-pointer"
                     >
-                      <Avatar className="h-8 w-8">
-                        <AvatarImage
-                          src={userData.avatar_url || ""}
-                          alt={userData.first_name || userData.email}
-                          className="object-cover"
-                        />
-                        <AvatarFallback className="bg-orange-500 text-white">
-                          {userData.first_name
-                            ? userData.first_name.charAt(0).toUpperCase()
-                            : userData.email.charAt(0).toUpperCase()}
-                        </AvatarFallback>
-                      </Avatar>
+                      <UserAvatar
+                        className="h-8 w-8"
+                        user={userData}
+                      />
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent className="w-56" align="end" forceMount>
@@ -260,13 +253,13 @@ export default function Header({ userData: initialUserData }: HeaderProps) {
               <>
                 <Button
                   variant="default"
-                  className="bg-[#f4f4f6] text-grey-900 hover:bg-grey-400 font-semibold"
+                  className="bg-[#f4f4f6] text-grey-900 rounded-md hover:bg-grey-400 font-semibold"
                   asChild
                 >
                   <Link href="/login">Log In</Link>
                 </Button>
                 <Button
-                  className="bg-orange-500 hover:bg-orange-600 text-white"
+                  className="bg-orange-500 hover:bg-orange-600 text-white rounded-sm"
                   asChild
                 >
                   <Link href="/signup">Sign Up</Link>
