@@ -102,8 +102,14 @@ export async function moveCommunityQuestion(
       .eq("community_id", question.community_id)
       .order("index", { ascending: true })
 
+    const { data: fullList } = await supabase
+      .from("community_questions")
+      .select("*")
+      .eq("community_id", question.community_id)
+      .order("index", { ascending: true })
+
     if (!all || all.length < 2) {
-      return { data: all ?? [], error: undefined, message: "Order updated", statusCode: 200 }
+      return { data: fullList ?? [], error: undefined, message: "Order updated", statusCode: 200 }
     }
 
     const idx = all.findIndex((q) => q.id === id)
@@ -111,7 +117,7 @@ export async function moveCommunityQuestion(
 
     const swapIdx = direction === "up" ? idx - 1 : idx + 1
     if (swapIdx < 0 || swapIdx >= all.length) {
-      return { data: all, error: undefined, message: "Order updated", statusCode: 200 }
+      return { data: fullList ?? [], error: undefined, message: "Order updated", statusCode: 200 }
     }
 
     const a = all[idx]
