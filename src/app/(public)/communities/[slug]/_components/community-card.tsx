@@ -72,6 +72,25 @@ export default async function CommunityCard({ slug }: { slug: string }) {
                             </Button>
                         </Link>
                     </AccessControl>
+
+                    <AccessControl allowedAccess={[UserAccess.NOT_MEMBER]}>
+                        <div className="space-y-3">
+                            <Button
+                                variant="default"
+                                className="w-full py-7"
+                            >
+                                Join For Free
+                            </Button>
+
+                            <Button
+                                
+                                variant="secondary"
+                                className="w-full py-7"
+                            >
+                                Share
+                            </Button>
+                        </div>
+                    </AccessControl>
                 </div>
 
                 <Separator />

@@ -12,6 +12,7 @@ import { redirect } from "next/navigation";
 
 export type Community = Tables<"communities"> & {
   community_cta_links: Tables<"community_cta_links">[],
+  community_questions?: Tables<"community_questions">[],
   created_by: Tables<"users">,
   community_gallery_media: Tables<"community_gallery_media">[],
   posts_count: { count: number }[],
@@ -129,6 +130,7 @@ export async function getCommunityBySlug(slug: string): Promise<GeneralResponse<
     .from("communities")
     .select(`*, 
       community_cta_links(*), 
+      community_questions(*),
       created_by(*),
       community_gallery_media(*),
       posts_count: posts(count),
