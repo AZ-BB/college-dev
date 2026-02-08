@@ -24,7 +24,7 @@ import {
 } from "@/components/ui/select"
 import { cn } from "@/lib/utils"
 import { useUserAccess } from "@/contexts/access-context"
-import { updateMemberRole, removeMember } from "@/action/members"
+import { updateMemberRole, removeMember, getMemberAnswers } from "@/action/members"
 import { useRouter } from "next/navigation"
 import {
   AlertDialog,
@@ -130,6 +130,9 @@ export default function MemberSettingsModal({
   const [removeConfirmOpen, setRemoveConfirmOpen] = useState(false)
   const [removeLoading, setRemoveLoading] = useState(false)
   const [removeError, setRemoveError] = useState<string | null>(null)
+  const [answers, setAnswers] = useState<Array<{ id: number; question: string; answer: string; questionType: string }>>([])
+  const [loadingAnswers, setLoadingAnswers] = useState(false)
+  const [answersError, setAnswersError] = useState<string | null>(null)
 
   const canChangeRole = userAccess === UserAccess.OWNER
 
@@ -166,8 +169,26 @@ export default function MemberSettingsModal({
       setLoadedMember(member)
     } else {
       setLoadedMember(null)
+      setAnswers([])
+      setAnswersError(null)
     }
   }, [open, member])
+
+  // Fetch answers when questions tab is opened
+  useEffect(() => {
+    if (open && activeTab === "questions" && loadedMember && answers.length === 0 && !loadingAnswers) {
+      setLoadingAnswers(true)
+      setAnswersError(null)
+      getMemberAnswers(loadedMember.id).then((result) => {
+        setLoadingAnswers(false)
+        if (result.error || !result.data) {
+          setAnswersError(result.message || "Failed to load answers")
+        } else {
+          setAnswers(result.data.answers)
+        }
+      })
+    }
+  }, [open, activeTab, loadedMember, answers.length, loadingAnswers])
 
   return (
     <>
@@ -298,7 +319,24 @@ export default function MemberSettingsModal({
               )}
               {activeTab === "courses" && <div className="text-sm text-grey-500">No content yet.</div>}
               {activeTab === "payments" && <div className="text-sm text-grey-500">No content yet.</div>}
-              {activeTab === "questions" && <div className="text-sm text-grey-500">No content yet.</div>}
+              {activeTab === "questions" && (
+                <div className="space-y-4">
+                  {loadingAnswers ? (
+                    <div className="text-center py-8 text-grey-600">Loading answers...</div>
+                  ) : answersError ? (
+                    <div className="text-center py-8 text-destructive">{answersError}</div>
+                  ) : answers.length === 0 ? (
+                    <div className="text-center py-8 text-grey-500">No answers found</div>
+                  ) : (
+                    answers.map((answer) => (
+                      <div key={answer.id} className="space-y-2 p-4 bg-grey-50 rounded-lg border border-grey-200">
+                        <p className="text-sm font-semibold text-grey-900">{answer.question}</p>
+                        <p className="text-sm text-grey-700">{answer.answer}</p>
+                      </div>
+                    ))
+                  )}
+                </div>
+              )}
             </div>
           </div>
         </DialogContent>

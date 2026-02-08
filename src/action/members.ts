@@ -606,3 +606,240 @@ export async function inviteMemberByEmail(
         };
     }
 }
+
+export async function joinCommunity(
+    communityId: number,
+    slug: string,
+    options: { answers?: Record<number, string> }
+): Promise<GeneralResponse<{ memberId: number }>> {
+    try {
+        const supabase = await createSupabaseServerClient();
+
+        // --- Auth ---
+        const {
+            data: { user },
+        } = await supabase.auth.getUser();
+        if (!user) {
+            return {
+                error: "Not authenticated",
+                message: "You must be signed in to join.",
+                statusCode: 401,
+            };
+        }
+
+        const { data: existing } = await supabase
+            .from("community_members")
+            .select("id")
+            .eq("community_id", communityId)
+            .eq("user_id", user.id)
+            .maybeSingle();
+        if (existing) {
+            return {
+                error: "Already a member",
+                message: "You are already a member of this community.",
+                statusCode: 400,
+            };
+        }
+
+        // --- Community & questions ---
+        const { data: community } = await supabase
+            .from("communities")
+            .select("is_free, is_public")
+            .eq("id", communityId)
+            .single();
+
+        const { data: questions } = await supabase
+            .from("community_questions")
+            .select("id")
+            .eq("community_id", communityId)
+            .order("index", { ascending: true });
+
+        const isFree = community?.is_free === true;
+        const isPublic = community?.is_public === true;
+        const questionIds = (questions ?? []).map((q) => q.id);
+        const hasQuestions = questionIds.length > 0;
+
+        // --- Join case: status + whether answers are required ---
+        let status: CommunityMemberStatus;
+        let requireAnswers: boolean;
+
+        if (!isPublic && isFree) {
+            // PRIVATE FREE: always PENDING (request to join)
+            status = CommunityMemberStatus.PENDING;
+            requireAnswers = hasQuestions;
+        } else if (!isPublic && !isFree) {
+            // PRIVATE PAID: ACTIVE after payment
+            status = CommunityMemberStatus.ACTIVE;
+            requireAnswers = hasQuestions;
+        } else if (isPublic && !isFree) {
+            // PUBLIC PAID: ACTIVE after payment
+            status = CommunityMemberStatus.ACTIVE;
+            requireAnswers = hasQuestions;
+        } else {
+            // PUBLIC FREE: PENDING if questions, ACTIVE if no questions
+            status = hasQuestions ? CommunityMemberStatus.PENDING : CommunityMemberStatus.ACTIVE;
+            requireAnswers = hasQuestions;
+        }
+
+        // --- Validate answers (required vs unexpected) ---
+        if (requireAnswers) {
+            const answers = options.answers ?? {};
+            const missing = questionIds.filter((id) => !(answers[id] ?? "").trim());
+            if (missing.length > 0) {
+                return {
+                    error: "Answers required",
+                    message: "Please answer all member questions.",
+                    statusCode: 400,
+                };
+            }
+        } else if (options.answers && Object.keys(options.answers).length > 0) {
+            return {
+                error: "Unexpected answers",
+                message: "This community has no questions.",
+                statusCode: 400,
+            };
+        }
+
+        // --- Create membership ---
+        const { data: newMember, error: insertError } = await supabase
+            .from("community_members")
+            .insert({
+                community_id: communityId,
+                user_id: user.id,
+                role: CommunityRole.MEMBER,
+                member_status: status,
+                joined_at: status === CommunityMemberStatus.ACTIVE ? new Date().toISOString() : null,
+            })
+            .select("id")
+            .single();
+
+        if (insertError || !newMember) {
+            console.error("Error joining community:", insertError);
+            return {
+                error: "Error joining community",
+                message: insertError?.message ?? "Error joining community",
+                statusCode: 500,
+            };
+        }
+
+        // --- Save question answers when required ---
+        if (requireAnswers && options.answers) {
+            const answerRows = questionIds.map((questionId) => ({
+                community_question_id: questionId,
+                community_member_id: newMember.id,
+                user_id: user.id,
+                answer: String(options.answers![questionId] ?? "").trim(),
+            }));
+            const { error: answersError } = await supabase
+                .from("community_questions_answers")
+                .insert(answerRows);
+            if (answersError) {
+                console.error("Error saving answers:", answersError);
+                await supabase.from("community_members").delete().eq("id", newMember.id);
+                return {
+                    error: "Error saving answers",
+                    message: answersError.message,
+                    statusCode: 500,
+                };
+            }
+        }
+
+        // --- Revalidate & respond ---
+        revalidatePath(`/communities/${slug}`);
+        revalidatePath(`/communities/${slug}`, "layout");
+        return {
+            data: { memberId: newMember.id },
+            error: undefined,
+            message: "Joined successfully",
+            statusCode: 200,
+        };
+    } catch (error) {
+        console.error("Error joining community:", error);
+        return {
+            error: "Error joining community",
+            message: "Error joining community",
+            statusCode: 500,
+        };
+    }
+}
+
+export async function getMemberAnswers(
+    communityMemberId: number
+): Promise<GeneralResponse<{
+    answers: Array<{
+        id: number;
+        question: string;
+        answer: string;
+        questionType: string;
+    }>;
+}>> {
+    try {
+        const supabase = await createSupabaseServerClient();
+
+        const { data: answers, error } = await supabase
+            .from("community_questions_answers")
+            .select(`
+                id,
+                answer,
+                community_questions (
+                    id,
+                    content,
+                    type
+                )
+            `)
+            .eq("community_member_id", communityMemberId)
+            .order("id", { ascending: true });
+
+        if (error) {
+            console.error("Error fetching member answers:", error);
+            return {
+                error: "Error fetching answers",
+                message: error.message,
+                statusCode: 500,
+            };
+        }
+
+        const formattedAnswers = (answers || []).map((a: any) => {
+            const question = a.community_questions;
+            let questionText = question?.content || "Question";
+            let answerText = a.answer;
+            
+            // For multiple choice, extract the question text and convert answer ID to option text
+            if (question?.type === "MULTIPLE_CHOICE") {
+                try {
+                    const parsed = JSON.parse(question.content);
+                    questionText = parsed.question || question.content;
+                    
+                    // Convert answer index to actual option text
+                    const answerIndex = parseInt(a.answer);
+                    if (!isNaN(answerIndex) && parsed.options && parsed.options[answerIndex]) {
+                        answerText = parsed.options[answerIndex];
+                    }
+                } catch {
+                    questionText = question.content;
+                }
+            }
+
+            return {
+                id: a.id,
+                question: questionText,
+                answer: answerText,
+                questionType: question?.type || "TEXT",
+            };
+        });
+
+        return {
+            data: { answers: formattedAnswers },
+            error: undefined,
+            message: "Answers fetched successfully",
+            statusCode: 200,
+        };
+    } catch (error) {
+        console.error("Error fetching member answers:", error);
+        return {
+            error: "Error fetching answers",
+            message: "Error fetching answers",
+            statusCode: 500,
+        };
+    }
+}

@@ -7,6 +7,7 @@ import { getCommunityBySlug } from "@/action/communities";
 import CommunityTabs from "../_components/community-tabs";
 import { Suspense } from "react";
 import CommunityCard, { CommunityCardSkeleton } from "../_components/community-card";
+import { getUserMembership } from "@/utils/get-user-membership";
 
 export default async function CommunityLayout({ children, params }: { children: React.ReactNode, params: Promise<{ slug: string }> }) {
     const { slug } = await params;

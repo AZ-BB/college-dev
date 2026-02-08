@@ -7,7 +7,7 @@ import EditIcon from "@/components/icons/edit"
 import UploadIcon from "@/components/icons/upload"
 import { AlertTriangle, ArrowRight, MoreVertical, Pencil, Plus, Trash2, X } from "lucide-react"
 import { Separator } from "@/components/ui/separator"
-import { useEffect, useRef, useState } from "react"
+import { Fragment, useEffect, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 import { Community, addCtaLink, deleteCommunity, deleteCtaLink, getCommunityBySlug, isSlugAvailable, updateCommunityDetails, updateCommunitySlug, updateCtaLink } from "@/action/communities"
 import {
@@ -31,6 +31,13 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select"
 
 export function DetailsTab({ slug }: { slug: string }) {
     const router = useRouter()
@@ -67,6 +74,9 @@ export function DetailsTab({ slug }: { slug: string }) {
     const [questionText, setQuestionText] = useState("")
     const [questionOptions, setQuestionOptions] = useState<string[]>([""])
     const [questionSaving, setQuestionSaving] = useState(false)
+    const [deleteQuestionModalOpen, setDeleteQuestionModalOpen] = useState(false)
+    const [questionToDeleteId, setQuestionToDeleteId] = useState<number | null>(null)
+    const [deleteQuestionLoading, setDeleteQuestionLoading] = useState(false)
 
     type InnerTab = "details" | "questions" | "links" | "url"
     const [innerTab, setInnerTab] = useState<InnerTab>("details")
@@ -438,16 +448,27 @@ export function DetailsTab({ slug }: { slug: string }) {
         }
     }
 
-    async function handleDeleteQuestion(questionId: number) {
+    function openDeleteQuestionModal(questionId: number) {
+        setQuestionToDeleteId(questionId)
+        setDeleteQuestionModalOpen(true)
+    }
+
+    async function handleConfirmDeleteQuestion() {
+        if (questionToDeleteId === null) return
+        setDeleteQuestionLoading(true)
         try {
-            const res = await deleteCommunityQuestion(questionId)
+            const res = await deleteCommunityQuestion(questionToDeleteId)
             if (res.error) throw new Error(res.message ?? res.error)
             setCommunity((c) => ({
                 ...c,
-                community_questions: (c.community_questions ?? []).filter((q) => q.id !== questionId),
+                community_questions: (c.community_questions ?? []).filter((q) => q.id !== questionToDeleteId),
             }))
+            setDeleteQuestionModalOpen(false)
+            setQuestionToDeleteId(null)
         } catch (err) {
             console.error(err)
+        } finally {
+            setDeleteQuestionLoading(false)
         }
     }
 
@@ -471,7 +492,7 @@ export function DetailsTab({ slug }: { slug: string }) {
                                 type="button"
                                 variant="outline"
                                 onClick={() => setInnerTab("details")}
-                                className="w-fit -ml-2 flex items-center gap-2 text-base sm:text-sm font-medium text-grey-700 hover:text-grey-900 rounded-full size-9 p-0"
+                                className="w-fit -ml-2 flex items-center gap-2 text-base sm:text-sm font-medium text-grey-700 hover:text-grey-900 rounded-lg size-9 p-0"
                                 aria-label="Back"
                             >
                                 <ArrowRight className="size-4 rotate-180" />
@@ -489,7 +510,7 @@ export function DetailsTab({ slug }: { slug: string }) {
                         </Button>
                     </div>
 
-                    <div className="rounded-lg border border-grey-200 divide-y divide-grey-200 overflow-hidden">
+                    <div className="rounded-lg">
                         {communityQuestions.length === 0 ? (
                             <div className="rounded-lg border border-dashed border-grey-300 bg-grey-50/50 p-8 text-center text-base sm:text-sm text-grey-500">
                                 No questions yet. Click &quot;Add New&quot; to add a member question.
@@ -499,69 +520,71 @@ export function DetailsTab({ slug }: { slug: string }) {
                                 const display = getQuestionDisplay(q)
                                 const typeLabel = questionTypeLabel[q.type as QuestionType] ?? q.type
                                 return (
-                                    <div
-                                        key={q.id}
-                                        className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 p-4 bg-white hover:bg-grey-50/50 transition-colors"
-                                    >
-                                        <div className="flex-1 min-w-0">
-                                            <p className="text-sm text-grey-500 font-medium">{typeLabel}</p>
-                                            <p className="text-base sm:text-sm font-semibold text-grey-900 mt-0.5">
-                                                {display.text || "Question"}
-                                            </p>
-                                            {q.type === "MULTIPLE_CHOICE" && display.options.length > 0 && (
-                                                <ul className="mt-2 pl-4 list-disc text-base sm:text-sm text-grey-700 space-y-0.5">
-                                                    {display.options.map((opt, i) => (
-                                                        <li key={i}>{opt}</li>
-                                                    ))}
-                                                </ul>
-                                            )}
-                                        </div>
-                                        <div className="flex items-center gap-2 shrink-0">
-                                            <Button
-                                                type="button"
-                                                variant="outline"
-                                                size="icon"
-                                                onClick={() => openEditQuestion(q)}
-                                                className="rounded-lg size-9 border-grey-300 text-grey-700 hover:bg-grey-100"
-                                                aria-label="Edit question"
-                                            >
-                                                <Pencil className="size-4" />
-                                            </Button>
-                                            <DropdownMenu>
-                                                <DropdownMenuTrigger asChild>
-                                                    <Button
-                                                        type="button"
-                                                        variant="outline"
-                                                        size="icon"
-                                                        className="rounded-lg size-9 border-grey-300 text-grey-700 hover:bg-grey-100"
-                                                        aria-label="More options"
-                                                    >
-                                                        <MoreVertical className="size-4" />
-                                                    </Button>
-                                                </DropdownMenuTrigger>
-                                                <DropdownMenuContent align="end">
-                                                    <DropdownMenuItem
-                                                        onClick={() => handleMoveQuestion(q.id, "up")}
-                                                        disabled={idx === 0}
-                                                    >
-                                                        Move up
-                                                    </DropdownMenuItem>
-                                                    <DropdownMenuItem
-                                                        onClick={() => handleMoveQuestion(q.id, "down")}
-                                                        disabled={idx === communityQuestions.length - 1}
-                                                    >
-                                                        Move down
-                                                    </DropdownMenuItem>
+                                    <Fragment key={q.id}>
+                                        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 py-4 bg-white hover:bg-grey-50/50 transition-colors">
+                                            <div className="flex-1 min-w-0">
+                                                <p className="text-sm text-grey-500 font-medium mb-3">{typeLabel}</p>
+                                                <p className="text-base sm:text-base font-semibold text-grey-900 mt-0.5">
+                                                    {display.text || "Question"}
+                                                </p>
+                                                {q.type === "MULTIPLE_CHOICE" && display.options.length > 0 && (
+                                                    <div className="mt-2 list-disc text-base sm:text-sm text-grey-700 space-y-0.5">
+                                                        {display.options.map((opt, i) => (
+                                                            <div key={i}>- {opt}</div>
+                                                        ))}
+                                                    </div>
+                                                )}
+                                            </div>
+                                            <div className="flex items-center gap-2 shrink-0">
+                                                <Button
+                                                    type="button"
+                                                    variant="outline"
+                                                    size="icon"
+                                                    onClick={() => openEditQuestion(q)}
+                                                    className="rounded-lg size-9 border-grey-300 text-grey-700 hover:bg-grey-100"
+                                                    aria-label="Edit question"
+                                                >
+                                                    <Pencil className="size-4" />
+                                                </Button>
+                                                <DropdownMenu>
+                                                    <DropdownMenuTrigger asChild>
+                                                        <Button
+                                                            type="button"
+                                                            variant="outline"
+                                                            size="icon"
+                                                            className="rounded-lg size-9 border-grey-300 text-grey-700 hover:bg-grey-100"
+                                                            aria-label="More options"
+                                                        >
+                                                            <MoreVertical className="size-4" />
+                                                        </Button>
+                                                    </DropdownMenuTrigger>
+                                                    <DropdownMenuContent align="end">
+                                                        <DropdownMenuItem
+                                                            onClick={() => handleMoveQuestion(q.id, "up")}
+                                                            disabled={idx === 0}
+                                                        >
+                                                            Move up
+                                                        </DropdownMenuItem>
+                                                        <DropdownMenuItem
+                                                            onClick={() => handleMoveQuestion(q.id, "down")}
+                                                            disabled={idx === communityQuestions.length - 1}
+                                                        >
+                                                            Move down
+                                                        </DropdownMenuItem>
                                                     <DropdownMenuItem
                                                         variant="destructive"
-                                                        onClick={() => handleDeleteQuestion(q.id)}
+                                                        onClick={() => openDeleteQuestionModal(q.id)}
                                                     >
                                                         Delete
                                                     </DropdownMenuItem>
-                                                </DropdownMenuContent>
-                                            </DropdownMenu>
+                                                    </DropdownMenuContent>
+                                                </DropdownMenu>
+                                            </div>
                                         </div>
-                                    </div>
+                                        {idx < communityQuestions.length - 1 && (
+                                            <Separator className="bg-grey-200" />
+                                        )}
+                                    </Fragment>
                                 )
                             })
                         )}
@@ -582,18 +605,23 @@ export function DetailsTab({ slug }: { slug: string }) {
                                     <label className="text-sm font-medium text-grey-900" htmlFor="question-type">
                                         Answer type
                                     </label>
-                                    <select
-                                        id="question-type"
+                                    <Select
                                         value={questionType}
-                                        onChange={(e) =>
-                                            setQuestionType(e.target.value as QuestionType)
-                                        }
-                                        className="w-full rounded-lg border border-grey-300 bg-grey-50 px-3 py-2 text-base sm:text-sm text-grey-900 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                                        onValueChange={(value) => setQuestionType(value as QuestionType)}
                                     >
-                                        <option value="TEXT">Plain text answer</option>
-                                        <option value="EMAIL">Email</option>
-                                        <option value="MULTIPLE_CHOICE">Multiple choice (MCQ)</option>
-                                    </select>
+                                        <SelectTrigger
+                                            id="question-type"
+                                            variant="outline"
+                                            className="w-full rounded-lg border-grey-300 bg-grey-50 text-base sm:text-sm text-grey-900 h-10"
+                                        >
+                                            <SelectValue placeholder="Select answer type" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="TEXT">Plain text answer</SelectItem>
+                                            <SelectItem value="EMAIL">Email</SelectItem>
+                                            <SelectItem value="MULTIPLE_CHOICE">Multiple choice (MCQ)</SelectItem>
+                                        </SelectContent>
+                                    </Select>
                                 </div>
                                 <div className="space-y-2">
                                     <label className="text-sm font-medium text-grey-900" htmlFor="question-text">
@@ -605,7 +633,6 @@ export function DetailsTab({ slug }: { slug: string }) {
                                         placeholder="e.g. Why do you want to join?"
                                         value={questionText}
                                         onChange={(e) => setQuestionText(e.target.value)}
-                                        className="rounded-lg bg-grey-50 border-grey-300"
                                     />
                                 </div>
                                 {questionType === "MULTIPLE_CHOICE" && (
@@ -625,11 +652,10 @@ export function DetailsTab({ slug }: { slug: string }) {
                                                             next[i] = e.target.value
                                                             setQuestionOptions(next)
                                                         }}
-                                                        className="rounded-lg bg-grey-50 border-grey-300 flex-1"
                                                     />
                                                     <Button
                                                         type="button"
-                                                        variant="outline"
+                                                        variant="secondary"
                                                         size="icon"
                                                         onClick={() =>
                                                             setQuestionOptions(questionOptions.filter((_, j) => j !== i))
@@ -644,10 +670,10 @@ export function DetailsTab({ slug }: { slug: string }) {
                                             ))}
                                             <Button
                                                 type="button"
-                                                variant="outline"
+                                                variant="secondary"
                                                 size="sm"
                                                 onClick={() => setQuestionOptions([...questionOptions, ""])}
-                                                className="rounded-lg border-grey-300 text-grey-700"
+                                                className="rounded-lg text-grey-700 py-5"
                                             >
                                                 <Plus className="size-4 mr-1" />
                                                 Add option
@@ -683,6 +709,43 @@ export function DetailsTab({ slug }: { slug: string }) {
                                               : "Add"}
                                     </Button>
                                 </div>
+                            </div>
+                        </DialogContent>
+                    </Dialog>
+
+                    <Dialog
+                        open={deleteQuestionModalOpen}
+                        onOpenChange={(open) => {
+                            setDeleteQuestionModalOpen(open)
+                            if (!open) setQuestionToDeleteId(null)
+                        }}
+                    >
+                        <DialogContent className="sm:max-w-[425px]">
+                            <DialogHeader>
+                                <DialogTitle>Delete this question?</DialogTitle>
+                            </DialogHeader>
+                            <p className="text-sm text-grey-600 pt-1">
+                                This action cannot be undone. The question will be removed from your member questions.
+                            </p>
+                            <div className="flex justify-end gap-2 pt-4">
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    onClick={() => setDeleteQuestionModalOpen(false)}
+                                    disabled={deleteQuestionLoading}
+                                    className="rounded-lg"
+                                >
+                                    Cancel
+                                </Button>
+                                <Button
+                                    type="button"
+                                    variant="destructive"
+                                    onClick={handleConfirmDeleteQuestion}
+                                    disabled={deleteQuestionLoading}
+                                    className="rounded-lg bg-red-600 hover:bg-red-700 text-white"
+                                >
+                                    {deleteQuestionLoading ? "Deleting…" : "Delete"}
+                                </Button>
                             </div>
                         </DialogContent>
                     </Dialog>

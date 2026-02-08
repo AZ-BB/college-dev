@@ -432,6 +432,58 @@ export type Database = {
           },
         ]
       }
+      community_questions_answers: {
+        Row: {
+          answer: string
+          community_member_id: number
+          community_question_id: number
+          created_at: string
+          id: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          answer: string
+          community_member_id: number
+          community_question_id: number
+          created_at?: string
+          id?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          answer?: string
+          community_member_id?: number
+          community_question_id?: number
+          created_at?: string
+          id?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_questions_answers_community_member_id_fkey"
+            columns: ["community_member_id"]
+            isOneToOne: false
+            referencedRelation: "community_members"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "community_questions_answers_community_question_id_fkey"
+            columns: ["community_question_id"]
+            isOneToOne: false
+            referencedRelation: "community_questions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "community_questions_answers_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       community_rules: {
         Row: {
           community_id: number
@@ -1054,6 +1106,10 @@ export type Database = {
           p_user_id?: string
         }
         Returns: Json
+      }
+      get_community_id_from_question_id: {
+        Args: { question_id: number }
+        Returns: number
       }
       get_community_id_from_storage_path: {
         Args: { storage_path: string }

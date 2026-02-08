@@ -17,7 +17,7 @@ import { Input } from "@/components/ui/input";
 import { createComment } from "@/action/posts";
 import CommentsList, { type Comment } from "./_components/comments-list";
 import { getUserData } from "@/utils/get-user-data";
-import { UserAccess } from "@/enums/enums";
+import { CommunityMemberStatus, UserAccess } from "@/enums/enums";
 import AccessControl from "../../../../../../../components/access-control";
 import { getTopics } from "@/action/topics";
 import PostActionsDropdown from "./_components/post-actions-dropdown";
@@ -196,7 +196,7 @@ export default async function PostPage({ params, searchParams }: { params: Promi
                             <p className="text-sm text-grey-600 font-medium">Comments are disabled for this post</p>
                         </div>
                     ) : (
-                        <AccessControl allowedAccess={[UserAccess.OWNER, UserAccess.ADMIN, UserAccess.MEMBER]}>
+                        <AccessControl allowedStatus={[CommunityMemberStatus.ACTIVE]} allowedAccess={[UserAccess.OWNER, UserAccess.ADMIN, UserAccess.MEMBER]}>
                             <div className="flex w-full gap-2 items-center">
                                 <UserAvatar className="w-11 h-11 rounded-[14px]" user={user} />
 

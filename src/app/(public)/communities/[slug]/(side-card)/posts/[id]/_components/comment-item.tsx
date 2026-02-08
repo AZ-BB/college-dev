@@ -12,7 +12,7 @@ import { type Comment } from "./comments-list";
 import { getCommentReplies, createReply, deleteComment, type CommentReply } from "@/action/posts";
 import { likeComment, unlikeComment } from "@/action/likes";
 import { createSupabaseBrowserClient } from "@/utils/supabase-browser";
-import { UserAccess } from "@/enums/enums";
+import { CommunityMemberStatus, UserAccess } from "@/enums/enums";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -391,7 +391,7 @@ export default function CommentItem({ comment, postId, communityId, commentsDisa
                     </div>
 
                     <div className="flex items-center gap-5 text-grey-700 font-medium">
-                        <AccessControl allowedAccess={[UserAccess.OWNER, UserAccess.ADMIN, UserAccess.MEMBER]}>
+                        <AccessControl allowedStatus={[CommunityMemberStatus.ACTIVE]} allowedAccess={[UserAccess.OWNER, UserAccess.ADMIN, UserAccess.MEMBER]}>
                             <div className="flex items-center gap-1">
                                 <button
                                     type="button"
@@ -511,7 +511,7 @@ export default function CommentItem({ comment, postId, communityId, commentsDisa
                                                 </div>
                                             </div>
                                             <div className="flex items-center gap-5 text-grey-700 font-medium">
-                                                <AccessControl allowedAccess={[UserAccess.OWNER, UserAccess.ADMIN, UserAccess.MEMBER]}>
+                                                <AccessControl allowedStatus={[CommunityMemberStatus.ACTIVE]} allowedAccess={[UserAccess.OWNER, UserAccess.ADMIN, UserAccess.MEMBER]}>
                                                     <div className="flex items-center gap-1">
                                                         <button
                                                             type="button"
@@ -592,7 +592,7 @@ export default function CommentItem({ comment, postId, communityId, commentsDisa
 
 
                             {!commentsDisabled && (
-                                <AccessControl allowedAccess={[UserAccess.OWNER, UserAccess.ADMIN, UserAccess.MEMBER]}>
+                                <AccessControl allowedStatus={[CommunityMemberStatus.ACTIVE]} allowedAccess={[UserAccess.OWNER, UserAccess.ADMIN, UserAccess.MEMBER]}>
                                     {/* Reply input - visible when expanded or when showReplyInput is true */}
                                     {(showAllReplies || showReplyInput) && (
                                         <form

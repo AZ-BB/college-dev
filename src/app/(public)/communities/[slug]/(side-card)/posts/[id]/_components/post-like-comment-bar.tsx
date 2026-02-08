@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { likePost, unlikePost } from "@/action/likes";
 import SaveIcon from "@/components/icons/save";
 import AccessControl from "@/components/access-control";
-import { UserAccess } from "@/enums/enums";
+import { CommunityMemberStatus, UserAccess } from "@/enums/enums";
 import { toast } from "sonner";
 
 interface PostLikeCommentBarProps {
@@ -46,8 +46,10 @@ export default function PostLikeCommentBar({ postId, communityId, likesCount, co
 
     return (
         <div className="flex items-center gap-4">
-            <AccessControl allowedAccess={[UserAccess.OWNER, UserAccess.ADMIN, UserAccess.MEMBER]}>
-                <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1">
+                <AccessControl
+                    fallback={<span className="mr-1 font-medium">Likes</span>}
+                    allowedStatus={[CommunityMemberStatus.ACTIVE]} allowedAccess={[UserAccess.OWNER, UserAccess.ADMIN, UserAccess.MEMBER]}>
                     <button
                         type="button"
                         onClick={handleLikeClick}
@@ -66,9 +68,9 @@ export default function PostLikeCommentBar({ postId, communityId, likesCount, co
                             </svg>
                         )}
                     </button>
-                    <span>{displayLikesCount}</span>
-                </div>
-            </AccessControl>
+                </AccessControl>
+                <span>{displayLikesCount}</span>
+            </div>
 
             <div className="flex items-center gap-1">
                 <svg className="size-6" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">

@@ -1,7 +1,9 @@
 import { getCommunityBySlug } from "@/action/communities";
 import { getCommunityMembers } from "@/action/members";
-import { CommunityMemberStatus } from "@/enums/enums";
+import { CommunityMemberStatus, CommunityRole } from "@/enums/enums";
 import PendingMemberCard from "./_components/pending-member-card";
+import { getUserMembership } from "@/utils/get-user-membership";
+import { redirect } from "next/navigation";
 
 export default async function PendingMembersPage({
     params,
@@ -14,6 +16,12 @@ export default async function PendingMembersPage({
 }) {
     const { slug } = await params;
     const { page } = await searchParams;
+
+    const userMembership = await getUserMembership(slug);
+
+    if (userMembership?.role !== CommunityRole.ADMIN && userMembership?.role !== CommunityRole.OWNER) {
+        redirect(`/communities/${slug}`);
+    }
 
     const { data: community, error: communityError } = await getCommunityBySlug(slug);
     if (communityError || !community) return null;
@@ -30,8 +38,6 @@ export default async function PendingMembersPage({
 
     if (pendingMembersError || !pendingMembers) return null;
 
-    console.log(pendingMembers);
-
     return (
         <div>
             <h1 className="font-bold">Memberships Requests</h1>
@@ -42,6 +48,14 @@ export default async function PendingMembersPage({
                     member={member}
                 />
             ))}
+
+            {
+                pendingMembers.totalCount === 0 && (
+                    <div className="text-center text-sm text-grey-600 font-medium py-4">
+                        No Pending Memberships Requests
+                    </div>
+                )
+            }
         </div>
     )
 }
