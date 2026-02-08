@@ -16,8 +16,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Check } from "lucide-react";
-import { addVideoMedia } from "@/action/community_media";
+import { addVideoMedia } from "@/action/community-media";
 import { Fragment } from 'react'
+import AccessControl from "@/components/access-control";
+import { UserAccess } from "@/enums/enums";
 
 export default function CommunityMedia({
     media,
@@ -126,18 +128,20 @@ export default function CommunityMedia({
 
     return (
         <div className="space-y-4">
-            {
-                media.length === 0 && (
-                    <div
-                        onClick={() => setIsModalOpen(true)}
-                        className="w-full h-[500px] bg-grey-200 rounded-[12px] flex items-center justify-center gap-2 cursor-pointer hover:bg-grey-300 transition-all duration-300">
-                        <UploadIcon className="w-6 h-6 stroke-grey-700" />
-                        <span className="font-semibold text-grey-600">
-                            Upload videos or images
-                        </span>
-                    </div>
-                )
-            }
+            <AccessControl allowedAccess={[UserAccess.OWNER, UserAccess.ADMIN]}>
+                {
+                    media.length === 0 && (
+                        <div
+                            onClick={() => setIsModalOpen(true)}
+                            className="w-full h-[500px] bg-grey-200 rounded-[12px] flex items-center justify-center gap-2 cursor-pointer hover:bg-grey-300 transition-all duration-300">
+                            <UploadIcon className="w-6 h-6 stroke-grey-700" />
+                            <span className="font-semibold text-grey-600">
+                                Upload videos or images
+                            </span>
+                        </div>
+                    )
+                }
+            </AccessControl>
 
             {
                 media.length > 0 && (
@@ -197,12 +201,14 @@ export default function CommunityMedia({
                                         key={item.id}
                                         onClick={() => setSelectedMedia(index)}
                                         className={cn("relative cursor-pointer group rounded-[14px]", selectedMedia === index ? "border-3 border-orange-500" : 'p-[3px]')}>
-                                        <div className="z-10 absolute opacity-0 p-1 group-hover:opacity-100 hover:bg-orange-500 transition-all duration-300 cursor-pointer -top-1 -right-2 bg-white rounded-full flex items-center justify-center text-white text-xl font-semibold shrink-0">
-                                            <X className="w-4 h-4 hover:text-white text-grey-900" onClick={(e) => {
-                                                e.stopPropagation();
-                                                handleDeleteMedia(item.id, item.url, item.type);
-                                            }} />
-                                        </div>
+                                        <AccessControl allowedAccess={[UserAccess.OWNER, UserAccess.ADMIN]}>
+                                            <div className="z-10 absolute opacity-0 p-1 group-hover:opacity-100 hover:bg-orange-500 transition-all duration-300 cursor-pointer -top-1 -right-2 bg-white rounded-full flex items-center justify-center text-white text-xl font-semibold shrink-0">
+                                                <X className="w-4 h-4 hover:text-white text-grey-900" onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    handleDeleteMedia(item.id, item.url, item.type);
+                                                }} />
+                                            </div>
+                                        </AccessControl>
                                         <Image
                                             className="w-[80px] h-[80px] object-cover rounded-lg flex items-center justify-center text-white text-xl font-semibold shrink-0"
                                             src={item.url || ''}
@@ -220,12 +226,14 @@ export default function CommunityMedia({
                                         key={item.id}
                                         onClick={() => setSelectedMedia(index)}
                                         className={cn("relative cursor-pointer group rounded-[14px]", selectedMedia === index ? "border-3 border-orange-500" : 'p-[3px]')}>
-                                        <div className="z-10 absolute opacity-0 p-1 group-hover:opacity-100 hover:bg-orange-500 transition-all duration-300 cursor-pointer -top-1 -right-2 bg-white rounded-full flex items-center justify-center text-white text-xl font-semibold shrink-0">
-                                            <X className="w-4 h-4 hover:text-white text-grey-900" onClick={(e) => {
-                                                e.stopPropagation();
-                                                handleDeleteMedia(item.id, item.url, item.type);
-                                            }} />
-                                        </div>
+                                        <AccessControl allowedAccess={[UserAccess.OWNER, UserAccess.ADMIN]}>
+                                            <div className="z-10 absolute opacity-0 p-1 group-hover:opacity-100 hover:bg-orange-500 transition-all duration-300 cursor-pointer -top-1 -right-2 bg-white rounded-full flex items-center justify-center text-white text-xl font-semibold shrink-0">
+                                                <X className="w-4 h-4 hover:text-white text-grey-900" onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    handleDeleteMedia(item.id, item.url, item.type);
+                                                }} />
+                                            </div>
+                                        </AccessControl>
                                         <div className="relative w-[80px] h-[80px] rounded-lg overflow-hidden bg-grey-200">
                                             <Image
                                                 className="w-full h-full object-cover"
@@ -250,13 +258,15 @@ export default function CommunityMedia({
                                         key={item.id}
                                         onClick={() => setSelectedMedia(index)}
                                         className={cn("relative cursor-pointer group rounded-[14px]", selectedMedia === index ? "border-3 border-orange-500" : 'p-[3px]')}>
-                                        <div className="z-10 absolute opacity-0 p-1 group-hover:opacity-100 hover:bg-orange-500 transition-all duration-300 cursor-pointer -top-1 -right-2 bg-white rounded-full flex items-center justify-center text-white text-xl font-semibold shrink-0">
-                                            <X className="w-4 h-4 hover:text-white text-grey-900"
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    handleDeleteMedia(item.id, item.url, item.type);
-                                                }} />
-                                        </div>
+                                        <AccessControl allowedAccess={[UserAccess.OWNER, UserAccess.ADMIN]}>
+                                            <div className="z-10 absolute opacity-0 p-1 group-hover:opacity-100 hover:bg-orange-500 transition-all duration-300 cursor-pointer -top-1 -right-2 bg-white rounded-full flex items-center justify-center text-white text-xl font-semibold shrink-0">
+                                                <X className="w-4 h-4 hover:text-white text-grey-900"
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        handleDeleteMedia(item.id, item.url, item.type);
+                                                    }} />
+                                            </div>
+                                        </AccessControl>
                                         <div className="relative w-[80px] h-[80px] rounded-lg overflow-hidden bg-grey-200 flex items-center justify-center">
                                             <div className="absolute inset-0 bg-gradient-to-br from-purple-500 to-blue-500" />
                                             <div className="relative flex items-center justify-center">
@@ -275,12 +285,14 @@ export default function CommunityMedia({
                                         key={item.id}
                                         onClick={() => setSelectedMedia(index)}
                                         className={cn("relative cursor-pointer group rounded-[14px]", selectedMedia === index ? "border-3 border-orange-500" : 'p-[3px]')}>
-                                        <div className="z-10 absolute opacity-0 p-1 group-hover:opacity-100 hover:bg-orange-500 transition-all duration-300 cursor-pointer -top-1 -right-2 bg-white rounded-full flex items-center justify-center text-white text-xl font-semibold shrink-0">
-                                            <X className="w-4 h-4 hover:text-white text-grey-900" onClick={(e) => {
-                                                e.stopPropagation();
-                                                handleDeleteMedia(item.id, item.url, item.type);
-                                            }} />
-                                        </div>
+                                        <AccessControl allowedAccess={[UserAccess.OWNER, UserAccess.ADMIN]}>
+                                            <div className="z-10 absolute opacity-0 p-1 group-hover:opacity-100 hover:bg-orange-500 transition-all duration-300 cursor-pointer -top-1 -right-2 bg-white rounded-full flex items-center justify-center text-white text-xl font-semibold shrink-0">
+                                                <X className="w-4 h-4 hover:text-white text-grey-900" onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    handleDeleteMedia(item.id, item.url, item.type);
+                                                }} />
+                                            </div>
+                                        </AccessControl>
                                         <div className="relative w-[80px] h-[80px] rounded-lg overflow-hidden bg-grey-200 flex items-center justify-center">
                                             <div className="absolute inset-0 bg-gradient-to-br from-cyan-500 to-blue-600" />
                                             <div className="relative flex items-center justify-center">
@@ -296,272 +308,276 @@ export default function CommunityMedia({
                     ))
                 }
 
-                <div
-                    onClick={() => setIsModalOpen(true)}
-                    className="relative w-[80px] h-[80px] opacity-100 flex items-center justify-center hover:bg-grey-200 transition-all duration-300 rounded-lg cursor-pointer">
-                    <svg
-                        className="absolute inset-0 w-full h-full"
-                        width="80"
-                        height="80"
-                        xmlns="http://www.w3.org/2000/svg"
-                    >
-                        <rect
-                            x="0.5"
-                            y="0.5"
-                            width="79"
-                            height="79"
-                            rx="16"
-                            fill="none"
-                            stroke="#4B5563a0"
-                            strokeWidth="1"
-                            strokeDasharray="4, 4"
-                        />
-                    </svg>
-                    <Plus className="text-orange-500 w-6 h-6" />
-                </div>
+                <AccessControl allowedAccess={[UserAccess.OWNER, UserAccess.ADMIN]}>
+                    <div
+                        onClick={() => setIsModalOpen(true)}
+                        className="relative w-[80px] h-[80px] opacity-100 flex items-center justify-center hover:bg-grey-200 transition-all duration-300 rounded-lg cursor-pointer">
+                        <svg
+                            className="absolute inset-0 w-full h-full"
+                            width="80"
+                            height="80"
+                            xmlns="http://www.w3.org/2000/svg"
+                        >
+                            <rect
+                                x="0.5"
+                                y="0.5"
+                                width="79"
+                                height="79"
+                                rx="16"
+                                fill="none"
+                                stroke="#4B5563a0"
+                                strokeWidth="1"
+                                strokeDasharray="4, 4"
+                            />
+                        </svg>
+                        <Plus className="text-orange-500 w-6 h-6" />
+                    </div>
+                </AccessControl>
 
             </div>
 
             {/* Upload Media Modal */}
-            <Dialog open={isModalOpen} onOpenChange={(open) => {
-                setIsModalOpen(open);
-                if (!open) {
-                    // Reset form when modal closes
-                    setSelectedFile(null);
-                    setVideoUrl("");
-                    setVideoUrlError("");
-                    setActiveTab("image");
-                    setVideoType("youtube");
-                    if (fileInputRef.current) {
-                        fileInputRef.current.value = '';
+            <AccessControl allowedAccess={[UserAccess.OWNER, UserAccess.ADMIN]}>
+                <Dialog open={isModalOpen} onOpenChange={(open) => {
+                    setIsModalOpen(open);
+                    if (!open) {
+                        // Reset form when modal closes
+                        setSelectedFile(null);
+                        setVideoUrl("");
+                        setVideoUrlError("");
+                        setActiveTab("image");
+                        setVideoType("youtube");
+                        if (fileInputRef.current) {
+                            fileInputRef.current.value = '';
+                        }
                     }
-                }
-            }}>
-                <DialogContent className="sm:max-w-md">
-                    <DialogHeader>
-                        <DialogTitle>Upload Media</DialogTitle>
-                    </DialogHeader>
+                }}>
+                    <DialogContent className="sm:max-w-md">
+                        <DialogHeader>
+                            <DialogTitle>Upload Media</DialogTitle>
+                        </DialogHeader>
 
-                    <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as "image" | "video")} className="w-full">
-                        <TabsList className="w-full">
-                            <TabsTrigger value="image" className="flex-1">
-                                Image
-                            </TabsTrigger>
-                            <TabsTrigger value="video" className="flex-1">
-                                Video
-                            </TabsTrigger>
-                        </TabsList>
+                        <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as "image" | "video")} className="w-full">
+                            <TabsList className="w-full">
+                                <TabsTrigger value="image" className="flex-1">
+                                    Image
+                                </TabsTrigger>
+                                <TabsTrigger value="video" className="flex-1">
+                                    Video
+                                </TabsTrigger>
+                            </TabsList>
 
-                        <TabsContent value="image" className="space-y-4 mt-4 w-full max-w-full">
-                            <div className="space-y-3 w-full max-w-full">
-                                <Button
-                                    type="button"
-                                    variant="outline"
-                                    className="w-full"
-                                    onClick={() => {
-                                        fileInputRef.current?.click();
-                                    }}
-                                >
-                                    Select Image
-                                </Button>
-                                <input
-                                    ref={fileInputRef}
-                                    type="file"
-                                    accept="image/*"
-                                    className="hidden"
-                                    onChange={(e) => {
-                                        const file = e.target.files?.[0];
-                                        if (file) {
-                                            setSelectedFile(file);
-                                        }
-                                    }}
-                                />
-
-                                {/* Image Selected Indicator */}
-                                {selectedFile && (
-                                    <div className="flex items-center gap-3 p-3 bg-green-50 border border-green-200 rounded-lg w-full overflow-hidden">
-                                        <div className="shrink-0 w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-                                            <Check className="w-5 h-5 text-green-600" />
-                                        </div>
-                                        <div className="flex-1 min-w-0 w-0 overflow-hidden">
-                                            <p className="text-sm font-medium text-green-900 truncate whitespace-nowrap overflow-hidden text-ellipsis" title={selectedFile.name}>
-                                                {selectedFile.name}
-                                            </p>
-                                            <p className="text-xs text-green-600 truncate whitespace-nowrap overflow-hidden text-ellipsis">
-                                                {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
-                                            </p>
-                                        </div>
-                                        <Button
-                                            type="button"
-                                            variant="ghost"
-                                            size="icon"
-                                            className="h-8 w-8 shrink-0"
-                                            onClick={() => {
-                                                setSelectedFile(null);
-                                                if (fileInputRef.current) {
-                                                    fileInputRef.current.value = '';
-                                                }
-                                            }}
-                                        >
-                                            <X className="w-4 h-4" />
-                                        </Button>
-                                    </div>
-                                )}
-                            </div>
-                        </TabsContent>
-
-                        <TabsContent value="video" className="space-y-4 mt-4">
-                            <div className="space-y-4">
-                                <div className="space-y-2">
-                                    <label className="text-sm font-medium">Video Type</label>
-                                    <div className="flex gap-2">
-                                        <Button
-                                            type="button"
-                                            variant={videoType === "youtube" ? "default" : "outline"}
-                                            className={"flex-1 " + (videoType === 'youtube' ? 'rounded-md' : '')}
-                                            onClick={() => {
-                                                setVideoType("youtube");
-                                                if (videoUrl) {
-                                                    const error = validateVideoUrl(videoUrl, "youtube");
-                                                    setVideoUrlError(error);
-                                                }
-                                            }}
-                                        >
-                                            YouTube
-                                        </Button>
-                                        <Button
-                                            type="button"
-                                            variant={videoType === "loom" ? "default" : "outline"}
-                                            className={"flex-1 " + (videoType === 'loom' ? 'rounded-md' : '')}
-                                            onClick={() => {
-                                                setVideoType("loom");
-                                                if (videoUrl) {
-                                                    const error = validateVideoUrl(videoUrl, "loom");
-                                                    setVideoUrlError(error);
-                                                }
-                                            }}
-                                        >
-                                            Loom
-                                        </Button>
-                                        <Button
-                                            type="button"
-                                            variant={videoType === "vimeo" ? "default" : "outline"}
-                                            className={"flex-1 " + (videoType === 'vimeo' ? 'rounded-md' : '')}
-                                            onClick={() => {
-                                                setVideoType("vimeo");
-                                                if (videoUrl) {
-                                                    const error = validateVideoUrl(videoUrl, "vimeo");
-                                                    setVideoUrlError(error);
-                                                }
-                                            }}
-                                        >
-                                            Vimeo
-                                        </Button>
-                                    </div>
-                                </div>
-
-                                <div className="space-y-2">
-                                    <label htmlFor="video-url" className="text-sm font-medium">
-                                        Video URL
-                                    </label>
-                                    <Input
-                                        id="video-url"
-                                        type="url"
-                                        placeholder={`Enter ${videoType} URL`}
-                                        value={videoUrl}
-                                        onChange={(e) => {
-                                            const url = e.target.value;
-                                            setVideoUrl(url);
-                                            const error = validateVideoUrl(url, videoType);
-                                            setVideoUrlError(error);
+                            <TabsContent value="image" className="space-y-4 mt-4 w-full max-w-full">
+                                <div className="space-y-3 w-full max-w-full">
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        className="w-full"
+                                        onClick={() => {
+                                            fileInputRef.current?.click();
                                         }}
-                                        className={videoUrlError ? "border-red-500 focus-visible:border-red-500 focus-visible:ring-red-500" : ""}
+                                    >
+                                        Select Image
+                                    </Button>
+                                    <input
+                                        ref={fileInputRef}
+                                        type="file"
+                                        accept="image/*"
+                                        className="hidden"
+                                        onChange={(e) => {
+                                            const file = e.target.files?.[0];
+                                            if (file) {
+                                                setSelectedFile(file);
+                                            }
+                                        }}
                                     />
-                                    {videoUrlError && (
-                                        <p className="text-sm text-red-600">{videoUrlError}</p>
+
+                                    {/* Image Selected Indicator */}
+                                    {selectedFile && (
+                                        <div className="flex items-center gap-3 p-3 bg-green-50 border border-green-200 rounded-lg w-full overflow-hidden">
+                                            <div className="shrink-0 w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                                                <Check className="w-5 h-5 text-green-600" />
+                                            </div>
+                                            <div className="flex-1 min-w-0 w-0 overflow-hidden">
+                                                <p className="text-sm font-medium text-green-900 truncate whitespace-nowrap overflow-hidden text-ellipsis" title={selectedFile.name}>
+                                                    {selectedFile.name}
+                                                </p>
+                                                <p className="text-xs text-green-600 truncate whitespace-nowrap overflow-hidden text-ellipsis">
+                                                    {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
+                                                </p>
+                                            </div>
+                                            <Button
+                                                type="button"
+                                                variant="ghost"
+                                                size="icon"
+                                                className="h-8 w-8 shrink-0"
+                                                onClick={() => {
+                                                    setSelectedFile(null);
+                                                    if (fileInputRef.current) {
+                                                        fileInputRef.current.value = '';
+                                                    }
+                                                }}
+                                            >
+                                                <X className="w-4 h-4" />
+                                            </Button>
+                                        </div>
                                     )}
                                 </div>
-                            </div>
-                        </TabsContent>
-                    </Tabs>
+                            </TabsContent>
 
-                    <DialogFooter>
-                        <Button
-                            type="button"
-                            variant="outline"
-                            onClick={() => setIsModalOpen(false)}
-                        >
-                            Cancel
-                        </Button>
-                        <Button
-                            className="rounded-md"
-                            type="button"
-                            disabled={isSubmitting || (activeTab === "image" && !selectedFile) || (activeTab === "video" && (!videoUrl || !!videoUrlError))}
-                            onClick={async () => {
-                                if (activeTab === "image" && selectedFile) {
-                                    setIsSubmitting(true);
-                                    try {
-                                        const formData = new FormData();
-                                        formData.append('file', selectedFile);
-                                        formData.append('commSlug', slug);
+                            <TabsContent value="video" className="space-y-4 mt-4">
+                                <div className="space-y-4">
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-medium">Video Type</label>
+                                        <div className="flex gap-2">
+                                            <Button
+                                                type="button"
+                                                variant={videoType === "youtube" ? "default" : "outline"}
+                                                className={"flex-1 " + (videoType === 'youtube' ? 'rounded-md' : '')}
+                                                onClick={() => {
+                                                    setVideoType("youtube");
+                                                    if (videoUrl) {
+                                                        const error = validateVideoUrl(videoUrl, "youtube");
+                                                        setVideoUrlError(error);
+                                                    }
+                                                }}
+                                            >
+                                                YouTube
+                                            </Button>
+                                            <Button
+                                                type="button"
+                                                variant={videoType === "loom" ? "default" : "outline"}
+                                                className={"flex-1 " + (videoType === 'loom' ? 'rounded-md' : '')}
+                                                onClick={() => {
+                                                    setVideoType("loom");
+                                                    if (videoUrl) {
+                                                        const error = validateVideoUrl(videoUrl, "loom");
+                                                        setVideoUrlError(error);
+                                                    }
+                                                }}
+                                            >
+                                                Loom
+                                            </Button>
+                                            <Button
+                                                type="button"
+                                                variant={videoType === "vimeo" ? "default" : "outline"}
+                                                className={"flex-1 " + (videoType === 'vimeo' ? 'rounded-md' : '')}
+                                                onClick={() => {
+                                                    setVideoType("vimeo");
+                                                    if (videoUrl) {
+                                                        const error = validateVideoUrl(videoUrl, "vimeo");
+                                                        setVideoUrlError(error);
+                                                    }
+                                                }}
+                                            >
+                                                Vimeo
+                                            </Button>
+                                        </div>
+                                    </div>
 
-                                        const response = await fetch('/api/commuinty/upload-media', {
-                                            method: 'POST',
-                                            body: formData,
-                                        });
+                                    <div className="space-y-2">
+                                        <label htmlFor="video-url" className="text-sm font-medium">
+                                            Video URL
+                                        </label>
+                                        <Input
+                                            id="video-url"
+                                            type="url"
+                                            placeholder={`Enter ${videoType} URL`}
+                                            value={videoUrl}
+                                            onChange={(e) => {
+                                                const url = e.target.value;
+                                                setVideoUrl(url);
+                                                const error = validateVideoUrl(url, videoType);
+                                                setVideoUrlError(error);
+                                            }}
+                                            className={videoUrlError ? "border-red-500 focus-visible:border-red-500 focus-visible:ring-red-500" : ""}
+                                        />
+                                        {videoUrlError && (
+                                            <p className="text-sm text-red-600">{videoUrlError}</p>
+                                        )}
+                                    </div>
+                                </div>
+                            </TabsContent>
+                        </Tabs>
 
-                                        const data = await response.json();
+                        <DialogFooter>
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={() => setIsModalOpen(false)}
+                            >
+                                Cancel
+                            </Button>
+                            <Button
+                                className="rounded-md"
+                                type="button"
+                                disabled={isSubmitting || (activeTab === "image" && !selectedFile) || (activeTab === "video" && (!videoUrl || !!videoUrlError))}
+                                onClick={async () => {
+                                    if (activeTab === "image" && selectedFile) {
+                                        setIsSubmitting(true);
+                                        try {
+                                            const formData = new FormData();
+                                            formData.append('file', selectedFile);
+                                            formData.append('commSlug', slug);
 
-                                        if (!response.ok) {
-                                            throw new Error(data.error || 'Failed to upload image');
+                                            const response = await fetch('/api/commuinty/upload-media', {
+                                                method: 'POST',
+                                                body: formData,
+                                            });
+
+                                            const data = await response.json();
+
+                                            if (!response.ok) {
+                                                throw new Error(data.error || 'Failed to upload image');
+                                            }
+
+                                            // Reset form and close modal
+                                            setSelectedFile(null);
+                                            setVideoUrl("");
+                                            setIsModalOpen(false);
+                                            if (fileInputRef.current) {
+                                                fileInputRef.current.value = '';
+                                            }
+
+                                            // Reload the page to show the new media
+                                            window.location.reload();
+                                        } catch (error) {
+                                            console.error('Error uploading image:', error);
+                                            alert(error instanceof Error ? error.message : 'Failed to upload image');
+                                        } finally {
+                                            setIsSubmitting(false);
                                         }
+                                    } else if (activeTab === "video" && videoUrl) {
+                                        setIsSubmitting(true);
+                                        try {
+                                            const result = await addVideoMedia(slug, videoType, videoUrl);
 
-                                        // Reset form and close modal
-                                        setSelectedFile(null);
-                                        setVideoUrl("");
-                                        setIsModalOpen(false);
-                                        if (fileInputRef.current) {
-                                            fileInputRef.current.value = '';
+                                            if (result.error) {
+                                                throw new Error(result.error);
+                                            }
+
+                                            // Reset form and close modal
+                                            setSelectedFile(null);
+                                            setVideoUrl("");
+                                            setIsModalOpen(false);
+
+                                            // Reload the page to show the new media
+                                            window.location.reload();
+                                        } catch (error) {
+                                            console.error('Error adding video:', error);
+                                            alert(error instanceof Error ? error.message : 'Failed to add video');
+                                        } finally {
+                                            setIsSubmitting(false);
                                         }
-
-                                        // Reload the page to show the new media
-                                        window.location.reload();
-                                    } catch (error) {
-                                        console.error('Error uploading image:', error);
-                                        alert(error instanceof Error ? error.message : 'Failed to upload image');
-                                    } finally {
-                                        setIsSubmitting(false);
                                     }
-                                } else if (activeTab === "video" && videoUrl) {
-                                    setIsSubmitting(true);
-                                    try {
-                                        const result = await addVideoMedia(slug, videoType, videoUrl);
-
-                                        if (result.error) {
-                                            throw new Error(result.error);
-                                        }
-
-                                        // Reset form and close modal
-                                        setSelectedFile(null);
-                                        setVideoUrl("");
-                                        setIsModalOpen(false);
-
-                                        // Reload the page to show the new media
-                                        window.location.reload();
-                                    } catch (error) {
-                                        console.error('Error adding video:', error);
-                                        alert(error instanceof Error ? error.message : 'Failed to add video');
-                                    } finally {
-                                        setIsSubmitting(false);
-                                    }
-                                }
-                            }}
-                        >
-                            {isSubmitting ? 'Uploading...' : 'Submit'}
-                        </Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
+                                }}
+                            >
+                                {isSubmitting ? 'Uploading...' : 'Submit'}
+                            </Button>
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
+            </AccessControl>
         </div >
     )
 }

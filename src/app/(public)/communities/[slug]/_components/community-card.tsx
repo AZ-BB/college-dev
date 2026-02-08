@@ -6,8 +6,9 @@ import { GlobeIcon, LockIcon } from "lucide-react";
 import { notFound } from "next/navigation";
 import { CoverImageUpload } from "./cover-image-upload";
 import AccessControl from "../../../../../components/access-control";
-import { UserAccess } from "@/enums/enums";
+import { CommunityMemberStatus, UserAccess } from "@/enums/enums";
 import Link from "next/link";
+import JoinCommunityModal from "./join-community-modal";
 
 export default async function CommunityCard({ slug }: { slug: string }) {
     const { data: community, error: communityError } = await getCommunityBySlug(slug);
@@ -27,12 +28,18 @@ export default async function CommunityCard({ slug }: { slug: string }) {
                     />
                 </AccessControl>
                 <AccessControl allowedAccess={[UserAccess.NOT_MEMBER, UserAccess.ANONYMOUS, UserAccess.MEMBER]}>
-                    <img
-                        key={community.cover_image}
-                        src={community.cover_image ?? ""}
-                        alt="Community cover"
-                        className="h-56 w-full object-cover rounded-t-[20px]"
-                    />
+                    {
+                        community.cover_image ? (
+                            <img
+                                key={community.cover_image}
+                                src={community.cover_image}
+                                alt="Community cover"
+                                className="h-56 w-full object-cover rounded-t-[20px]"
+                            />
+                        ) : (
+                            <div className="h-56 w-full object-cover rounded-t-[20px] bg-grey-200" />
+                        )
+                    }
                 </AccessControl>
             </div>
 
@@ -74,22 +81,49 @@ export default async function CommunityCard({ slug }: { slug: string }) {
                     </AccessControl>
 
                     <AccessControl allowedAccess={[UserAccess.NOT_MEMBER]}>
-                        <div className="space-y-3">
+                        <JoinCommunityModal
+                            questions={community.community_questions ?? []}
+                            communityId={community.id}
+                            communityName={community.name}
+                            slug={slug}
+                            isPublic={community.is_public ?? false}
+                            isFree={community.is_free ?? false}
+                            pricing={community.pricing}
+                            amountPerMonth={community.amount_per_month ?? null}
+                            amountPerYear={community.amount_per_year ?? null}
+                            amountOneTime={community.amount_one_time ?? null}
+                            billingCycle={community.billing_cycle ?? null}
+                        />
+                    </AccessControl>
+
+                    <AccessControl allowedAccess={[UserAccess.MEMBER]} allowedStatus={[CommunityMemberStatus.ACTIVE, CommunityMemberStatus.LEAVING_SOON]}>
+                        <Button
+                            variant="secondary"
+                            className="w-full py-7"
+                        >
+                            Invite Members
+                        </Button>
+                    </AccessControl>
+
+                    <AccessControl allowedAccess={[UserAccess.MEMBER]} allowedStatus={[CommunityMemberStatus.PENDING]}>
+                        <Button
+                            disabled
+                            variant="secondary"
+                            className="w-full py-7"
+                        >
+                            Request sent
+                        </Button>
+                    </AccessControl>
+
+                    <AccessControl allowedAccess={[UserAccess.ANONYMOUS]}>
+                        <Link href={`/signup`}>
                             <Button
                                 variant="default"
                                 className="w-full py-7"
                             >
-                                Join For Free
+                                Sign Up
                             </Button>
-
-                            <Button
-                                
-                                variant="secondary"
-                                className="w-full py-7"
-                            >
-                                Share
-                            </Button>
-                        </div>
+                        </Link>
                     </AccessControl>
                 </div>
 

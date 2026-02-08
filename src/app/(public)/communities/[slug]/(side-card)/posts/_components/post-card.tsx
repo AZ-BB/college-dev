@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import AccessControl from "@/components/access-control";
-import { UserAccess } from "@/enums/enums";
+import { CommunityMemberStatus, UserAccess } from "@/enums/enums";
 import { toast } from "sonner";
 import { Pin } from "lucide-react";
 import { useState, useEffect } from "react";
@@ -106,7 +106,7 @@ export default function PostCard({ post, topics }: { post: PostList; topics: Tab
         setIsTogglingComments(true);
         const result = await toggleCommentsDisabled(post.id);
         setIsTogglingComments(false);
-        
+
         if (result.error) {
             toast.error(result.message || "Failed to toggle comments");
         } else {
@@ -125,7 +125,7 @@ export default function PostCard({ post, topics }: { post: PostList; topics: Tab
         setIsDeletingPost(true);
         const result = await deletePost(post.id);
         setIsDeletingPost(false);
-        
+
         if (result.error) {
             toast.error(result.message || "Failed to delete post");
             setDeletePostModalOpen(false);
@@ -188,7 +188,7 @@ export default function PostCard({ post, topics }: { post: PostList; topics: Tab
 
                 <div className="flex items-center gap-4">
 
-                    <AccessControl allowedAccess={[UserAccess.OWNER, UserAccess.ADMIN, UserAccess.MEMBER]}>
+                    <AccessControl allowedStatus={[CommunityMemberStatus.ACTIVE]} allowedAccess={[UserAccess.OWNER, UserAccess.ADMIN, UserAccess.MEMBER]}>
                         <div className="flex items-center gap-1">
                             <button
                                 type="button"
@@ -286,7 +286,7 @@ export default function PostCard({ post, topics }: { post: PostList; topics: Tab
                                 {(post as any).comments_disabled ? "Turn on comments" : "Turn off comments"}
                             </DropdownMenuItem>
                         </AccessControl>
-                        <AccessControl allowedAccess={[UserAccess.MEMBER]}>
+                        <AccessControl allowedStatus={[CommunityMemberStatus.ACTIVE]} allowedAccess={[UserAccess.MEMBER]}>
                             <DropdownMenuItem>
                                 Report to admins
                             </DropdownMenuItem>

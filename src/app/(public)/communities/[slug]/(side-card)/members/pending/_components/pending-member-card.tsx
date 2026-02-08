@@ -116,8 +116,8 @@ export default function PendingMemberCard({ member }: PendingMemberCardProps) {
       </div>
 
       <div className="flex items-center gap-2 justify-end">
-        <Button className="rounded-[8px]" variant="secondary" onClick={handleAcceptMember}>Decline</Button>
-        <Button className="rounded-[8px]" variant="default" onClick={handleRejectMember}>Approve</Button>
+        <Button className="rounded-[8px]" variant="secondary" onClick={handleRejectMember}>Decline</Button>
+        <Button className="rounded-[8px]" variant="default" onClick={handleAcceptMember}>Approve</Button>
       </div>
 
     </div>

@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import AccessControl from "@/components/access-control";
-import { UserAccess } from "@/enums/enums";
+import { CommunityMemberStatus, UserAccess } from "@/enums/enums";
 import { toast } from "sonner";
 import { Pin } from "lucide-react";
 import { Tables } from "@/database.types";
@@ -75,7 +75,7 @@ export default function PostActionsDropdown({ post, topics, slug }: PostActionsD
         setIsTogglingComments(true);
         const result = await toggleCommentsDisabled(post.id);
         setIsTogglingComments(false);
-        
+
         if (result.error) {
             toast.error(result.message || "Failed to toggle comments");
         } else {
@@ -94,7 +94,7 @@ export default function PostActionsDropdown({ post, topics, slug }: PostActionsD
         setIsDeletingPost(true);
         const result = await deletePost(post.id);
         setIsDeletingPost(false);
-        
+
         if (result.error) {
             toast.error(result.message || "Failed to delete post");
             setDeletePostModalOpen(false);
@@ -147,7 +147,7 @@ export default function PostActionsDropdown({ post, topics, slug }: PostActionsD
                                 {post.comments_disabled ? "Turn on comments" : "Turn off comments"}
                             </DropdownMenuItem>
                         </AccessControl>
-                        <AccessControl allowedAccess={[UserAccess.MEMBER]}>
+                        <AccessControl allowedAccess={[UserAccess.MEMBER]} allowedStatus={[CommunityMemberStatus.ACTIVE]}>
                             <DropdownMenuItem>
                                 Report to admins
                             </DropdownMenuItem>
