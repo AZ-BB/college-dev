@@ -333,6 +333,58 @@ export type Database = {
           },
         ]
       }
+      community_member_classrooms: {
+        Row: {
+          classroom_id: number
+          community_id: number
+          created_at: string
+          id: number
+          progress_lessons: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          classroom_id: number
+          community_id: number
+          created_at?: string
+          id?: number
+          progress_lessons?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          classroom_id?: number
+          community_id?: number
+          created_at?: string
+          id?: number
+          progress_lessons?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_member_classrooms_classroom_id_fkey"
+            columns: ["classroom_id"]
+            isOneToOne: false
+            referencedRelation: "classrooms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "community_member_classrooms_community_id_fkey"
+            columns: ["community_id"]
+            isOneToOne: false
+            referencedRelation: "communities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "community_member_classrooms_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       community_members: {
         Row: {
           community_id: number
@@ -955,6 +1007,58 @@ export type Database = {
           },
         ]
       }
+      posts_reports: {
+        Row: {
+          community_id: number
+          created_at: string
+          description: string | null
+          id: number
+          post_id: number
+          rules_ids: string | null
+          user_id: string
+        }
+        Insert: {
+          community_id: number
+          created_at?: string
+          description?: string | null
+          id?: number
+          post_id: number
+          rules_ids?: string | null
+          user_id: string
+        }
+        Update: {
+          community_id?: number
+          created_at?: string
+          description?: string | null
+          id?: number
+          post_id?: number
+          rules_ids?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "posts_reports_community_id_fkey"
+            columns: ["community_id"]
+            isOneToOne: false
+            referencedRelation: "communities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "posts_reports_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "posts_reports_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       topics: {
         Row: {
           community_id: number
@@ -1097,6 +1201,31 @@ export type Database = {
         Args: { classroom_id_param: number }
         Returns: number
       }
+      get_classrooms_with_join_status: {
+        Args: {
+          p_community_id: number
+          p_user_id?: string
+          p_view_drafts?: boolean
+        }
+        Returns: {
+          amount_one_time: number
+          community_id: number
+          cover_url: string
+          created_at: string
+          description: string
+          id: number
+          is_draft: boolean
+          is_joined: boolean
+          lessons_count: number
+          modules_count: number
+          name: string
+          resources_count: number
+          slug: string
+          time_unlock_in_days: number
+          type: Database["public"]["Enums"]["classroom_type_enum"]
+          updated_at: string
+        }[]
+      }
       get_comments: {
         Args: {
           p_comments_limit?: number
@@ -1120,7 +1249,7 @@ export type Database = {
           p_community_id: number
           p_limit?: number
           p_page?: number
-          p_role?: Database["public"]["Enums"]["community_role_enum"]
+          p_roles?: Database["public"]["Enums"]["community_role_enum"][]
           p_search?: string
           p_sort_by?: string
           p_sort_order?: string
@@ -1168,6 +1297,10 @@ export type Database = {
         Returns: boolean
       }
       is_community_admin_or_owner: {
+        Args: { comm_id: number }
+        Returns: boolean
+      }
+      is_community_member_any_status: {
         Args: { comm_id: number }
         Returns: boolean
       }

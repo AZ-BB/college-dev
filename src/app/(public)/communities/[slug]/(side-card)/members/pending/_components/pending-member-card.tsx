@@ -5,9 +5,12 @@ import { formatFullName } from "@/lib/utils"
 import ClockIcon from "@/components/icons/clock"
 import { Tables } from "@/database.types"
 import { formatDistanceToNow } from "date-fns"
-import { acceptMember, rejectMember } from "@/action/members"
+import { acceptMember, rejectMember, getMemberAnswers } from "@/action/members"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
+import UserAvatar from "@/components/user-avatart"
+import Link from "next/link"
+import { useEffect, useState } from "react"
 
 type MemberWithUser = Tables<"community_members"> & {
   users: {
@@ -38,12 +41,12 @@ function formatTimeAgo(dateString: string | null): string {
       // No timezone indicator - assume UTC and append 'Z'
       date = new Date(dateString + 'Z')
     }
-    
+
     // Verify the date is valid
     if (isNaN(date.getTime())) {
       return "just now"
     }
-    
+
     // Use formatDistanceToNow from date-fns to get "X ago" format
     // The Date object represents the UTC time, but formatDistanceToNow compares
     // it with the current local time, giving us the correct relative time
@@ -56,6 +59,21 @@ function formatTimeAgo(dateString: string | null): string {
 export default function PendingMemberCard({ member }: PendingMemberCardProps) {
   const user = member.users
   const timeAgo = formatTimeAgo(member.created_at)
+  const [answers, setAnswers] = useState<Array<{ id: number; question: string; answer: string; questionType: string }>>([])
+  const [loadingAnswers, setLoadingAnswers] = useState(false)
+
+  useEffect(() => {
+    setLoadingAnswers(true)
+    getMemberAnswers(member.id).then((result) => {
+      setLoadingAnswers(false)
+      if (result.error || !result.data) {
+        // Silently fail - answers are optional
+        setAnswers([])
+      } else {
+        setAnswers(result.data.answers)
+      }
+    })
+  }, [member.id])
 
   const handleAcceptMember = async () => {
     const response = await acceptMember(member.id)
@@ -79,25 +97,22 @@ export default function PendingMemberCard({ member }: PendingMemberCardProps) {
     <div className="bg-white rounded-xl border border-grey-200 shadow-sm p-6 flex flex-col gap-4">
       {/* Header Section */}
       <div className="flex items-start justify-between gap-4">
-        <div className="flex items-start gap-3 flex-1">
-          <Avatar className="w-12 h-12 rounded-[12px] shrink-0">
-            <AvatarImage src={user.avatar_url || ""} />
-            <AvatarFallback className="bg-grey-200 text-grey-900 text-sm font-semibold rounded-[12px]">
-              {user.first_name?.charAt(0).toUpperCase() || "U"}
-            </AvatarFallback>
-          </Avatar>
+        <Link
+          href={`/profile/${user.username}`}
+          className="flex items-start gap-3 flex-1 group">
+          <UserAvatar user={user} className="w-12 h-12 rounded-[12px] shrink-0" />
 
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
-              <h3 className="text-lg font-bold text-grey-900">
+              <h3 className="text-lg font-bold text-grey-900 group-hover:underline">
                 {formatFullName(user.first_name, user.last_name)}
               </h3>
             </div>
-            <p className="text-sm text-grey-600 mt-0.5">
+            <p className="text-sm text-grey-600 mt-0.5 group-hover:underline">
               @{user.username}
             </p>
           </div>
-        </div>
+        </Link>
       </div>
 
       {/* Bio Section */}
@@ -115,9 +130,37 @@ export default function PendingMemberCard({ member }: PendingMemberCardProps) {
         </div>
       </div>
 
+      {/* Questions Section */}
+      {answers.length > 0 && (
+        <div className="space-y-3">
+          <p className="text-sm font-semibold text-grey-900">Questions & Answers</p>
+          <div className="bg-grey-200 rounded-lg p-4 space-y-4">
+            {answers.map((answer) => {
+              const isMcq = answer.questionType === "MULTIPLE_CHOICE";
+              const answerParts = isMcq ? answer.answer.split(", ") : [answer.answer];
+              
+              return (
+                <div key={answer.id} className="border-b border-grey-200 last:border-b-0 pb-3 last:pb-0">
+                  <p className="text-sm font-semibold text-grey-900 mb-1.5">{answer.question}</p>
+                  {isMcq && answerParts.length > 1 ? (
+                    <ul className="list-disc list-inside space-y-0.5">
+                      {answerParts.map((part, i) => (
+                        <li key={i} className="text-sm font-medium text-grey-800">{part}</li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p className="text-sm font-medium text-grey-800">{answer.answer}</p>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
       <div className="flex items-center gap-2 justify-end">
-        <Button className="rounded-[8px]" variant="secondary" onClick={handleRejectMember}>Decline</Button>
-        <Button className="rounded-[8px]" variant="default" onClick={handleAcceptMember}>Approve</Button>
+        <Button className="rounded-[12px] py-5 px-6 text-sm font-semibold" variant="secondary" onClick={handleRejectMember}>Decline</Button>
+        <Button className="rounded-[12px] py-5 px-5 text-sm font-semibold" variant="default" onClick={handleAcceptMember}>Approve</Button>
       </div>
 
     </div>

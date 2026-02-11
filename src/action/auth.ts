@@ -5,27 +5,53 @@ import { createSupabaseAdminServerClient, createSupabaseServerClient } from "@/u
 import config, { OAuthProvider } from "../../config"
 
 /**
+ * Sanitize username to be URL-safe by removing/replacing invalid characters
+ * Allows only alphanumeric characters, hyphens, and underscores
+ */
+function sanitizeUsername(username: string): string {
+    return username
+        // Convert to lowercase for consistency
+        .toLowerCase()
+        // Replace spaces with hyphens
+        .replace(/\s+/g, '-')
+        // Remove any character that's not alphanumeric, hyphen, or underscore
+        .replace(/[^a-z0-9\-_]/g, '')
+        // Remove leading/trailing hyphens and underscores
+        .replace(/^[-_]+|[-_]+$/g, '');
+}
+
+/**
  * Generate a unique username by checking if it already exists
  * If the base username is taken, append a random number
+ * Ensures the username is URL-safe
  */
 async function generateUniqueUsername(baseUsername: string, supabaseClient: any): Promise<string | null> {
     try {
-        // Check if base username exists
+        // Sanitize the base username to ensure it's URL-safe
+        let sanitizedUsername = sanitizeUsername(baseUsername);
+
+        // If sanitization resulted in an empty string, return null
+        if (!sanitizedUsername || sanitizedUsername.length === 0) {
+            console.warn("Username became empty after sanitization:", baseUsername);
+            return null;
+        }
+
+        // Check if sanitized base username exists
         const { data: existingUser } = await supabaseClient
             .from("users")
             .select("username")
-            .eq("username", baseUsername)
+            .eq("username", sanitizedUsername)
             .single();
 
         // If base username doesn't exist, use it
         if (!existingUser) {
-            return baseUsername;
+            return sanitizedUsername;
         }
 
         // Try adding random numbers until we find an available username
         for (let i = 0; i < 10; i++) {
             const randomNum = Math.floor(Math.random() * 10000);
-            const newUsername = `${baseUsername}${randomNum}`;
+            const newUsername = `${sanitizedUsername}${randomNum}`;
 
             const { data: user } = await supabaseClient
                 .from("users")

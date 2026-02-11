@@ -1,0 +1,8 @@
+CREATE TABLE posts_reports (
+    id SERIAL PRIMARY KEY,
+    post_id INTEGER NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    rules_ids TEXT NULL,
+    description TEXT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);

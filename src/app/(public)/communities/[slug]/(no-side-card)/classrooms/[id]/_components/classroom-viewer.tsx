@@ -2,21 +2,33 @@
 import { Dialog, DialogContent, DialogHeader } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { DialogTitle } from "@radix-ui/react-dialog";
-import { ArrowLeft, ChevronDown } from "lucide-react";
+import { ArrowLeft, ChevronDown, Check } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useState } from "react";
-import { LessonContentBadge } from "../../../../../../../../components/lesson-content-badge";
+import { LessonContentBadge } from "@/components/lesson-content-badge";
 import { ContentViewer } from "./content-viewer";
 import { Tables } from "@/database.types";
 import { getClassroom } from "@/action/classroom";
 import { Button } from "@/components/ui/button";
+import AccessControl from "@/components/access-control";
+import { UserAccess } from "@/enums/enums";
 
 
-export default function ClassroomViewer({ classroom }: { classroom: Awaited<ReturnType<typeof getClassroom>>["data"] }) {
+export default function ClassroomViewer({ 
+    classroom, 
+    userId, 
+    communityId, 
+    progressLessons 
+}: { 
+    classroom: Awaited<ReturnType<typeof getClassroom>>["data"];
+    userId: string | null;
+    communityId: number;
+    progressLessons: number[];
+}) {
     const params = useParams();
 
-    const [selectedModuleIndex, setSelectedModuleIndex] = useState<number | null>(null);
+    const [selectedModuleIndex, setSelectedModuleIndex] = useState<number | null>(0);
     const [selectedLessonIndex, setSelectedLessonIndex] = useState<number | null>(null);
 
     const handleModuleSelect = (moduleIndex: number) => {
@@ -54,11 +66,13 @@ export default function ClassroomViewer({ classroom }: { classroom: Awaited<Retu
                                 </span>
                             </div>
 
-                            <Link href={`/communities/${params.slug}/classrooms/${classroom?.id}/edit`}>
-                                <Button variant="secondary" className="rounded-[12px] py-5 px-8 text-sm font-semibold">
-                                    Edit Course
-                                </Button>
-                            </Link>
+                            <AccessControl allowedAccess={[UserAccess.OWNER, UserAccess.ADMIN]}>
+                                <Link href={`/communities/${params.slug}/classrooms/${classroom?.id}/edit`}>
+                                    <Button variant="secondary" className="rounded-[12px] py-5 px-8 text-sm font-semibold">
+                                        Edit Course
+                                    </Button>
+                                </Link>
+                            </AccessControl>
                         </div>
                     </div>
                 </DialogTitle>
@@ -111,6 +125,11 @@ export default function ClassroomViewer({ classroom }: { classroom: Awaited<Retu
                                                             </div>
                                                             <LessonContentBadge lesson={lesson} />
                                                         </div>
+                                                        {progressLessons.includes(lesson.id) && (
+                                                            <div className="bg-orange-500 rounded-full p-1">
+                                                                <Check className="w-4 h-4 text-white" />
+                                                            </div>
+                                                        )}
                                                     </div>
                                                 </div>
                                             ))}
@@ -129,6 +148,9 @@ export default function ClassroomViewer({ classroom }: { classroom: Awaited<Retu
                             selectedLessonIndex={selectedLessonIndex}
                             setSelectedLessonIndex={setSelectedLessonIndex}
                             classroom={classroom}
+                            userId={userId}
+                            communityId={communityId}
+                            progressLessons={progressLessons}
                         />
                     </div>
                 </div>

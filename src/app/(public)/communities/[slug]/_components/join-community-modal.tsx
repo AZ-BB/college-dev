@@ -87,7 +87,7 @@ export default function JoinCommunityModal({
     const [modalStep, setModalStep] = useState<"questions" | "payment" | "success">("questions");
     const [membershipStatus, setMembershipStatus] = useState<"ACTIVE" | "PENDING">("ACTIVE");
     const [joining, setJoining] = useState(false);
-    const [answers, setAnswers] = useState<Record<number, string>>({});
+    const [answers, setAnswers] = useState<Record<number, string | string[]>>({});
     const [selectedPlan, setSelectedPlan] = useState<"monthly" | "yearly">("monthly");
     const sortedQuestions = [...questions].sort((a, b) => a.index - b.index);
     const isPaid = !isFree;
@@ -98,9 +98,24 @@ export default function JoinCommunityModal({
         setAnswers((prev) => ({ ...prev, [questionId]: value }));
     }, []);
 
+    const toggleMcqAnswer = useCallback((questionId: number, optionId: string) => {
+        setAnswers((prev) => {
+            const current = prev[questionId];
+            const currentArray = Array.isArray(current) ? current : current ? [current] : [];
+            const isSelected = currentArray.includes(optionId);
+            const newArray = isSelected
+                ? currentArray.filter((id) => id !== optionId)
+                : [...currentArray, optionId];
+            return { ...prev, [questionId]: newArray };
+        });
+    }, []);
+
     const allAnswered = sortedQuestions.every((q) => {
-        const v = answers[q.id]?.trim() ?? "";
-        return v.length > 0;
+        const v = answers[q.id];
+        if (q.type === "MULTIPLE_CHOICE") {
+            return Array.isArray(v) && v.length > 0;
+        }
+        return typeof v === "string" && v.trim().length > 0;
     });
 
     // Determine expected membership status based on community type
@@ -157,6 +172,20 @@ export default function JoinCommunityModal({
             .catch(() => toast.error("Failed to copy link"));
     }, [slug]);
 
+    // Prepare answers for server: convert MCQ arrays to JSON strings
+    const prepareAnswersForServer = useCallback(() => {
+        const prepared: Record<number, string> = {};
+        sortedQuestions.forEach((q) => {
+            const answer = answers[q.id];
+            if (q.type === "MULTIPLE_CHOICE" && Array.isArray(answer)) {
+                prepared[q.id] = JSON.stringify(answer);
+            } else if (typeof answer === "string") {
+                prepared[q.id] = answer;
+            }
+        });
+        return prepared;
+    }, [answers, sortedQuestions]);
+
     // Handle questions step completion
     async function handleQuestionsComplete() {
         if (!allAnswered) {
@@ -171,7 +200,8 @@ export default function JoinCommunityModal({
         } else {
             // For free communities, call action
             setJoining(true);
-            const res = await joinCommunity(communityId, slug, { answers });
+            const preparedAnswers = prepareAnswersForServer();
+            const res = await joinCommunity(communityId, slug, { answers: preparedAnswers });
             setJoining(false);
             if (res.error) {
                 toast.error(res.message ?? res.error);
@@ -186,7 +216,8 @@ export default function JoinCommunityModal({
     // Handle payment (for paid communities)
     async function handlePayment() {
         setJoining(true);
-        const res = await joinCommunity(communityId, slug, hasQuestions ? { answers } : {});
+        const preparedAnswers = prepareAnswersForServer();
+        const res = await joinCommunity(communityId, slug, hasQuestions ? { answers: preparedAnswers } : {});
         setJoining(false);
         if (res.error) {
             toast.error(res.message ?? res.error);
@@ -260,7 +291,8 @@ export default function JoinCommunityModal({
                             <div className="overflow-y-auto flex-1 min-h-0 space-y-5 py-2 px-1">
                                 {sortedQuestions.map((q) => {
                                     const display = getQuestionDisplay(q);
-                                    const value = answers[q.id] ?? "";
+                                    const answerValue = answers[q.id];
+                                    const value = typeof answerValue === "string" ? answerValue : "";
 
                                     return (
                                         <div key={q.id} className="space-y-3">
@@ -293,7 +325,8 @@ export default function JoinCommunityModal({
                                                     <div className="flex flex-col gap-2 pt-1">
                                                         {display.options.map((opt, i) => {
                                                             const optionId = String(i);
-                                                            const isSelected = value === optionId;
+                                                            const selectedArray = Array.isArray(answerValue) ? answerValue : [];
+                                                            const isSelected = selectedArray.includes(optionId);
                                                             return (
                                                                 <label
                                                                     key={i}
@@ -306,15 +339,13 @@ export default function JoinCommunityModal({
                                                                     )}
                                                                 >
                                                                     <input
-                                                                        type="radio"
+                                                                        type="checkbox"
                                                                         id={`q-${q.id}-opt-${i}`}
-                                                                        name={`q-${q.id}`}
-                                                                        value={optionId}
                                                                         checked={isSelected}
                                                                         onChange={() =>
-                                                                            setAnswer(q.id, optionId)
+                                                                            toggleMcqAnswer(q.id, optionId)
                                                                         }
-                                                                        className="size-4 border-grey-300 text-orange-500 focus:ring-orange-500"
+                                                                        className="size-4 border-grey-300 text-orange-500 focus:ring-orange-500 rounded"
                                                                     />
                                                                     <span className="text-sm font-medium text-grey-900">
                                                                         {opt}

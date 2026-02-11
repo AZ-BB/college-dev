@@ -26,8 +26,8 @@ export default function AccessControl({
     if (!isAllowed) return fallback ?? null;
 
     return (
-        <div>
+        <>
             {children}
-        </div>
+        </>
     )
 }

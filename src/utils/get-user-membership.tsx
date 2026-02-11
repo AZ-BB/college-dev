@@ -23,7 +23,7 @@ export async function getUserMembership(community: number | string) {
 
     const { data: membership, error: membershipError } = await supabase
         .from("community_members")
-        .select("role, member_status")
+        .select("role, member_status, joined_at")
         .eq("user_id", userId)
         // @ts-ignore
         .eq("community_id", communityId)

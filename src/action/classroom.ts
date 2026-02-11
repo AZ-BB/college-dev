@@ -267,7 +267,8 @@ export async function createLessonResource(
 // READ
 export async function getClassroom(classroomId: number) {
     const supabase = await createSupabaseServerClient();
-    const { data: classroom, error: classroomError } = await supabase
+
+    const query = supabase
         .from("classrooms")
         .select(`
             *,
@@ -276,6 +277,8 @@ export async function getClassroom(classroomId: number) {
         .eq("id", classroomId)
         .single();
 
+
+    const { data: classroom, error: classroomError } = await query;
     if (classroomError || !classroom) {
         return {
             error: "Classroom not found",
@@ -291,12 +294,19 @@ export async function getClassroom(classroomId: number) {
     };
 }
 
-export async function getClassrooms() {
+export async function getClassrooms(communityId: number, viewDrafts: boolean = true) {
     const supabase = await createSupabaseServerClient();
 
-    const { data: classrooms, error: classroomsError } = await supabase
+    const query = supabase
         .from("classrooms")
-        .select("*");
+        .select("*")
+        .eq("community_id", communityId);
+
+    if (!viewDrafts) {
+        query.eq("is_draft", false);
+    }
+
+    const { data: classrooms, error: classroomsError } = await query;
 
     if (classroomsError) {
         console.error("Error fetching classrooms:", classroomsError);
@@ -772,4 +782,199 @@ export async function deleteClassroom(classroomId: number, communitySlug: string
         };
     }
 
+}
+
+// MEMBER CLASSROOM PROGRESS
+
+export async function toggleLessonCompletion(
+    userId: string,
+    communityId: number,
+    classroomId: number,
+    lessonId: number,
+    isCompleted: boolean
+): Promise<GeneralResponse<{ progress_lessons: string | null }>> {
+    const supabase = await createSupabaseServerClient();
+    const user = await getUserData();
+
+    if (!user) {
+        return {
+            error: "User not authenticated",
+            message: "User not authenticated",
+            statusCode: 401,
+        };
+    }
+
+    try {
+        // Get current progress
+        const { data: existingProgress, error: fetchError } = await supabase
+            .from("community_member_classrooms")
+            .select("progress_lessons")
+            .eq("user_id", userId)
+            .eq("community_id", communityId)
+            .eq("classroom_id", classroomId)
+            .single();
+
+        if (fetchError && fetchError.code !== 'PGRST116') {
+            console.error("Error fetching progress:", fetchError);
+            return {
+                error: "Error fetching progress",
+                message: "Error fetching progress",
+                statusCode: 500,
+            };
+        }
+
+        // Parse existing progress or initialize empty array
+        let completedLessons: number[] = [];
+        if (existingProgress?.progress_lessons) {
+            try {
+                completedLessons = JSON.parse(existingProgress.progress_lessons);
+            } catch (e) {
+                completedLessons = [];
+            }
+        }
+
+        // Toggle lesson completion
+        if (isCompleted) {
+            // Add lesson if not already in array
+            if (!completedLessons.includes(lessonId)) {
+                completedLessons.push(lessonId);
+            }
+        } else {
+            // Remove lesson from array
+            completedLessons = completedLessons.filter(id => id !== lessonId);
+        }
+
+        const updatedProgress = JSON.stringify(completedLessons);
+
+        // Update or insert progress
+        if (existingProgress) {
+            const { error: updateError } = await supabase
+                .from("community_member_classrooms")
+                .update({ progress_lessons: updatedProgress })
+                .eq("user_id", userId)
+                .eq("community_id", communityId)
+                .eq("classroom_id", classroomId);
+
+            if (updateError) {
+                console.error("Error updating progress:", updateError);
+                return {
+                    error: "Error updating progress",
+                    message: "Error updating progress",
+                    statusCode: 500,
+                };
+            }
+        } else {
+            const { error: insertError } = await supabase
+                .from("community_member_classrooms")
+                .insert({
+                    user_id: userId,
+                    community_id: communityId,
+                    classroom_id: classroomId,
+                    progress_lessons: updatedProgress,
+                });
+
+            if (insertError) {
+                console.error("Error creating progress:", insertError);
+                return {
+                    error: "Error creating progress",
+                    message: "Error creating progress",
+                    statusCode: 500,
+                };
+            }
+        }
+
+        return {
+            data: { progress_lessons: updatedProgress },
+            message: isCompleted ? "Lesson marked as completed" : "Lesson marked as incomplete",
+            statusCode: 200,
+        };
+    } catch (error) {
+        console.error("Error in toggleLessonCompletion:", error);
+        return {
+            error: "Error updating progress",
+            message: "Error updating lesson progress",
+            statusCode: 500,
+        };
+    }
+}
+
+export async function createMemberClassroomProgress(
+    userId: string,
+    communityId: number,
+    classroomId: number
+): Promise<GeneralResponse<void>> {
+    const supabase = await createSupabaseServerClient();
+    const user = await getUserData();
+
+    if (!user) {
+        return {
+            error: "User not authenticated",
+            message: "User not authenticated",
+            statusCode: 401,
+        };
+    }
+
+    try {
+        // Check if the record already exists
+        const { data: existing, error: checkError } = await supabase
+            .from("community_member_classrooms")
+            .select("id")
+            .eq("user_id", userId)
+            .eq("community_id", communityId)
+            .eq("classroom_id", classroomId)
+            .single();
+
+        if (existing) {
+            // Record already exists, no need to insert
+            return {
+                data: undefined,
+                message: "Progress already exists",
+                statusCode: 200,
+            };
+        }
+
+        // Insert new record
+        const { error: insertError } = await supabase
+            .from("community_member_classrooms")
+            .insert({
+                user_id: userId,
+                community_id: communityId,
+                classroom_id: classroomId,
+                progress_lessons: null,
+            });
+
+        if (insertError) {
+            console.error("Error creating member classroom progress:", insertError);
+            return {
+                error: "Error creating progress",
+                message: "Error creating classroom progress",
+                statusCode: 500,
+            };
+        }
+
+        const { data: community, error: communityError } = await supabase.from("communities").select("slug").eq("id", communityId).single();
+        if (communityError) {
+            console.error("Error getting community:", communityError);
+            return {
+                error: "Error getting community",
+                message: "Error getting community",
+                statusCode: 500,
+            };
+        }
+
+        revalidatePath(`/communities/${community.slug}/classrooms`);
+
+        return {
+            data: undefined,
+            message: "Progress created successfully",
+            statusCode: 200,
+        };
+    } catch (error) {
+        console.error("Error in createMemberClassroomProgress:", error);
+        return {
+            error: "Error creating progress",
+            message: "Error creating classroom progress",
+            statusCode: 500,
+        };
+    }
 }

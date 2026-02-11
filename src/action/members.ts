@@ -30,7 +30,7 @@ export async function getCommunityMembers(id: number, {
     search?: string,
     filter?: {
         status?: CommunityMemberStatus,
-        role?: CommunityRole,
+        roles?: CommunityRole[],
     },
     sortBy?: keyof Tables<"community_members"> | keyof Tables<"users">,
     sortOrder?: "asc" | "desc",
@@ -47,7 +47,7 @@ export async function getCommunityMembers(id: number, {
             p_limit: limit,
             p_search: search?.trim() || null,
             p_status: filter?.status || null,
-            p_role: filter?.role || null,
+            p_roles: filter?.roles || null,
             p_sort_by: sortBy,
             p_sort_order: sortOrder
         });
@@ -96,6 +96,7 @@ export async function getCommunityMembersCounts(id: number): Promise<GeneralResp
     leavingSoon: number,
     churned: number,
     banned: number,
+    admins: number,
 }>> {
     try {
         const supabase = await createSupabaseServerClient();
@@ -120,8 +121,13 @@ export async function getCommunityMembersCounts(id: number): Promise<GeneralResp
             .eq("community_id", id)
             .eq("member_status", CommunityMemberStatus.BANNED)
 
-        if (e1 || e2 || e3 || e4) {
-            console.error("Error fetching members counts:", e1 || e2 || e3 || e4)
+        const { count: admins, error: e5 } = await supabase.from("community_members")
+            .select("*", { count: "exact", head: true })
+            .eq("community_id", id)
+            .in("role", [CommunityRole.ADMIN, CommunityRole.OWNER])
+
+        if (e1 || e2 || e3 || e4 || e5) {
+            console.error("Error fetching members counts:", e1 || e2 || e3 || e4 || e5)
             return {
                 error: "Error fetching members counts",
                 message: "Error fetching members counts",
@@ -135,6 +141,7 @@ export async function getCommunityMembersCounts(id: number): Promise<GeneralResp
                 leavingSoon: leavingSoonMembers || 0,
                 churned: churnedMembers || 0,
                 banned: bannedMembers || 0,
+                admins: admins || 0,
             },
             error: undefined,
             message: "Members counts fetched successfully",
@@ -233,7 +240,7 @@ export async function rejectMember(memberShipId: number): Promise<GeneralRespons
             }
         }
         revalidatePath(`/communities/${existingMembership.communities.slug}/members/pending`)
-        
+
         return {
             data: {
                 message: "Member rejected successfully",
@@ -650,7 +657,7 @@ export async function joinCommunity(
 
         const { data: questions } = await supabase
             .from("community_questions")
-            .select("id")
+            .select("id, type")
             .eq("community_id", communityId)
             .order("index", { ascending: true });
 
@@ -658,6 +665,7 @@ export async function joinCommunity(
         const isPublic = community?.is_public === true;
         const questionIds = (questions ?? []).map((q) => q.id);
         const hasQuestions = questionIds.length > 0;
+        const questionMap = new Map((questions ?? []).map((q) => [q.id, q.type]));
 
         // --- Join case: status + whether answers are required ---
         let status: CommunityMemberStatus;
@@ -684,7 +692,20 @@ export async function joinCommunity(
         // --- Validate answers (required vs unexpected) ---
         if (requireAnswers) {
             const answers = options.answers ?? {};
-            const missing = questionIds.filter((id) => !(answers[id] ?? "").trim());
+            const missing = questionIds.filter((id) => {
+                const answer = answers[id] ?? "";
+                const questionType = questionMap.get(id);
+                if (questionType === "MULTIPLE_CHOICE") {
+                    // For MCQ, answer should be a JSON array string with at least one element
+                    try {
+                        const parsed = JSON.parse(answer);
+                        return !Array.isArray(parsed) || parsed.length === 0;
+                    } catch {
+                        return true; // Invalid JSON or empty string
+                    }
+                }
+                return !answer.trim();
+            });
             if (missing.length > 0) {
                 return {
                     error: "Answers required",
@@ -803,17 +824,38 @@ export async function getMemberAnswers(
             const question = a.community_questions;
             let questionText = question?.content || "Question";
             let answerText = a.answer;
-            
-            // For multiple choice, extract the question text and convert answer ID to option text
+
+            // For multiple choice, extract the question text and convert answer IDs to option texts
             if (question?.type === "MULTIPLE_CHOICE") {
                 try {
                     const parsed = JSON.parse(question.content);
                     questionText = parsed.question || question.content;
-                    
-                    // Convert answer index to actual option text
-                    const answerIndex = parseInt(a.answer);
-                    if (!isNaN(answerIndex) && parsed.options && parsed.options[answerIndex]) {
-                        answerText = parsed.options[answerIndex];
+
+                    // Try parsing answer as JSON array (multi-select) first
+                    try {
+                        const answerIndices = JSON.parse(a.answer);
+                        if (Array.isArray(answerIndices) && parsed.options) {
+                            // Multi-select: map all indices to option texts
+                            const selectedOptions = answerIndices
+                                .map((idx: string | number) => {
+                                    const index = typeof idx === "string" ? parseInt(idx) : idx;
+                                    return !isNaN(index) && parsed.options[index] ? parsed.options[index] : null;
+                                })
+                                .filter((opt: string | null) => opt !== null);
+                            answerText = selectedOptions.length > 0 ? selectedOptions.join(", ") : a.answer;
+                        } else {
+                            // Fallback to single index (backward compatibility)
+                            const answerIndex = typeof answerIndices === "number" ? answerIndices : parseInt(a.answer);
+                            if (!isNaN(answerIndex) && parsed.options && parsed.options[answerIndex]) {
+                                answerText = parsed.options[answerIndex];
+                            }
+                        }
+                    } catch {
+                        // Not JSON, try as single index string (backward compatibility)
+                        const answerIndex = parseInt(a.answer);
+                        if (!isNaN(answerIndex) && parsed.options && parsed.options[answerIndex]) {
+                            answerText = parsed.options[answerIndex];
+                        }
                     }
                 } catch {
                     questionText = question.content;

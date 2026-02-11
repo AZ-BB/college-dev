@@ -1,0 +1,1 @@
+ALTER TABLE posts_reports ADD COLUMN community_id INTEGER NOT NULL REFERENCES communities(id) ON DELETE CASCADE;

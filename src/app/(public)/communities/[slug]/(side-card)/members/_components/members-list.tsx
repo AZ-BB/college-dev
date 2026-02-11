@@ -1,5 +1,5 @@
 import { getCommunityMembers } from "@/action/members";
-import { CommunityMemberStatus } from "@/enums/enums";
+import { CommunityMemberStatus, CommunityRole } from "@/enums/enums";
 import MemberCard from "./member-card";
 import { unstable_noStore as noStore } from "next/cache";
 import { getUserData } from "@/utils/get-user-data";
@@ -7,7 +7,7 @@ import { getUserData } from "@/utils/get-user-data";
 type MembersListProps = {
     communityId: number;
     page: number;
-    tab?: CommunityMemberStatus;
+    tab?: CommunityMemberStatus | "admins";
     community: {
         pricing: "FREE" | "SUB" | "ONE_TIME";
         billing_cycle: "MONTHLY" | "YEARLY" | "MONTHLY_YEARLY" | null;
@@ -26,12 +26,15 @@ export default async function MembersList({
     // Prevent caching to ensure Suspense works properly
     noStore();
 
+    console.log('Tab:', tab);
+
     const { data: members, error: membersError } = await getCommunityMembers(communityId, {
         page,
         limit: 10,
         filter: {
-            status: (tab && ['LEAVING_SOON', 'CHURNED', 'BANNED'].includes(tab)) ? tab as CommunityMemberStatus : CommunityMemberStatus.ACTIVE
-        }
+            status: (tab && ['LEAVING_SOON', 'CHURNED', 'BANNED'].includes(tab)) ? tab as CommunityMemberStatus : CommunityMemberStatus.ACTIVE,
+            roles: tab === "admins" ? [CommunityRole.ADMIN, CommunityRole.OWNER] : undefined
+        },
     });
 
     if (membersError || !members) {

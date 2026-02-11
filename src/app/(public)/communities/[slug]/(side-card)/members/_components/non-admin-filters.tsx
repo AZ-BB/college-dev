@@ -10,15 +10,13 @@ import { ChevronDownIcon } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, startTransition } from "react";
 
-export default function Filters({
+export default function NonAdminFilters({
     counts,
     communitySlug
 }: {
     counts: {
         all: number,
-        leavingSoon: number,
-        churned: number,
-        banned: number,
+        admins: number,
     }
     communitySlug: string
 }) {
@@ -56,9 +54,7 @@ export default function Filters({
                 }}
                 tabs={[
                     { label: "All", value: "all", count: counts.all },
-                    { label: "Leaving Soon", value: CommunityMemberStatus.LEAVING_SOON, count: counts.leavingSoon },
-                    { label: "Churned", value: CommunityMemberStatus.CHURNED, count: counts.churned },
-                    { label: "Banned", value: CommunityMemberStatus.BANNED, count: counts.banned },
+                    { label: "Admins", value: "admins", count: counts.admins },
                 ]}
             />
 
@@ -69,21 +65,6 @@ export default function Filters({
                         Invite
                     </Button>
                 </InviteMemberLinkModal>
-                <Button variant={'ghost'} className="text-sm font-semibold text-grey-600 px-1.5">
-                    <ExportIcon className="size-5 stroke-grey-600" />
-                    Export
-                </Button>
-                <DropdownMenu>
-                    <DropdownMenuTrigger>
-                        <Button variant="outline" className="text-sm font-semibold px-1.5">
-                            Filter
-                            <ChevronDownIcon className="size-4" />
-                        </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent>
-                        <DropdownMenuLabel>Filter</DropdownMenuLabel>
-                    </DropdownMenuContent>
-                </DropdownMenu>
             </div>
         </div>
     )
