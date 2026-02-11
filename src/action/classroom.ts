@@ -265,7 +265,7 @@ export async function createLessonResource(
 
 
 // READ
-export async function getClassroom(classroomId: number, memberId: string) {
+export async function getClassroom(classroomId: number) {
     const supabase = await createSupabaseServerClient();
 
     const query = supabase

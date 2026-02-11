@@ -29,7 +29,7 @@ export default async function ClassroomPage({ params }: { params: Promise<{ slug
     // Get user first to pass to getClassroom
     const user = await getUserData();
     
-    const classroom: Awaited<ReturnType<typeof getClassroom>> = await getClassroom(classroomId, user?.id || '');
+    const classroom: Awaited<ReturnType<typeof getClassroom>> = await getClassroom(classroomId);
     if (classroom.error || !classroom.data) {
         return notFound();
     }
