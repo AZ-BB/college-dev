@@ -9,6 +9,7 @@ import AccessControl from "../../../../../components/access-control";
 import { CommunityMemberStatus, UserAccess } from "@/enums/enums";
 import Link from "next/link";
 import JoinCommunityModal from "./join-community-modal";
+import { InviteMemberLinkModal } from "@/components/invite-member-link";
 
 export default async function CommunityCard({ slug }: { slug: string }) {
     const { data: community, error: communityError } = await getCommunityBySlug(slug);
@@ -97,12 +98,14 @@ export default async function CommunityCard({ slug }: { slug: string }) {
                     </AccessControl>
 
                     <AccessControl allowedAccess={[UserAccess.MEMBER]} allowedStatus={[CommunityMemberStatus.ACTIVE, CommunityMemberStatus.LEAVING_SOON]}>
-                        <Button
-                            variant="secondary"
-                            className="w-full py-7"
-                        >
-                            Invite Members
-                        </Button>
+                        <InviteMemberLinkModal slug={slug}>
+                            <Button
+                                variant="secondary"
+                                className="w-full py-7"
+                            >
+                                Invite Members
+                            </Button>
+                        </InviteMemberLinkModal>
                     </AccessControl>
 
                     <AccessControl allowedAccess={[UserAccess.MEMBER]} allowedStatus={[CommunityMemberStatus.PENDING]}>

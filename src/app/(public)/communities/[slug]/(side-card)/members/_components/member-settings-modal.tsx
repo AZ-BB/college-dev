@@ -328,12 +328,38 @@ export default function MemberSettingsModal({
                   ) : answers.length === 0 ? (
                     <div className="text-center py-8 text-grey-500">No answers found</div>
                   ) : (
-                    answers.map((answer) => (
-                      <div key={answer.id} className="space-y-2 p-4 bg-grey-50 rounded-lg border border-grey-200">
-                        <p className="text-sm font-semibold text-grey-900">{answer.question}</p>
-                        <p className="text-sm text-grey-700">{answer.answer}</p>
+                    <>
+                      <p className="font-bold text-lg text-grey-900 mb-2">Questions Answers</p>
+                      <div className="bg-grey-200 rounded-lg p-4 overflow-y-auto max-h-[300px] space-y-5">
+                        {
+                          answers.map((answer) => {
+                            const isMcq = answer.questionType === "MULTIPLE_CHOICE";
+                            const answerParts = isMcq ? answer.answer.split(", ") : [answer.answer];
+                            
+                            return (
+                              <div key={answer.id} className="">
+                                <p className="text-base font-bold text-grey-900 mb-1">{answer.question}</p>
+                                {isMcq && answerParts.length > 1 ? (
+                                  <ul className="list-disc list-inside space-y-0.5">
+                                    {answerParts.map((part, i) => (
+                                      <li key={i} className="text-base font-medium text-grey-800">{part}</li>
+                                    ))}
+                                  </ul>
+                                ) : (
+                                  <p className="text-base font-medium text-grey-800">{answer.answer}</p>
+                                )}
+                              </div>
+                            );
+                          })
+                        }
+
+                        {
+                          answers.length === 0 && (
+                            <p>No questions to show</p>
+                          )
+                        }
                       </div>
-                    ))
+                    </>
                   )}
                 </div>
               )}

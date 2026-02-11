@@ -4,6 +4,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { formatPrice } from "@/utils/communities"
 import UsersIcon from "@/components/icons/users"
 import MoneyIcon from "@/components/icons/money"
+import UserAvatar from "@/components/user-avatart"
 
 export default function CommunityDetails({ community }: { community: Community }) {
     return (
@@ -43,16 +44,7 @@ export default function CommunityDetails({ community }: { community: Community }
             )}
 
             <div className="flex items-center gap-2">
-                <Avatar
-                    className="w-6 h-6"
-                >
-                    <AvatarImage src={community.created_by?.avatar_url || ""} />
-                    <AvatarFallback>
-                        <div className="w-6 h-6 flex items-center justify-center text-xs rounded-full bg-orange-500 text-[#f8fafc]">
-                            {community.created_by?.first_name?.charAt(0).toUpperCase() || "Unknown"}
-                        </div>
-                    </AvatarFallback>
-                </Avatar>
+                <UserAvatar className="w-6 h-6 rounded-full" user={community.created_by} />
                 <span className="">
                     By {community.created_by?.first_name || "Unknown"} {community.created_by?.last_name || ""}
                 </span>

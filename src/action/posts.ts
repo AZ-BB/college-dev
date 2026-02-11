@@ -1188,10 +1188,11 @@ export async function deletePost(postId: number): Promise<GeneralResponse<void>>
             };
         }
 
-        // Revalidate the posts page
+        // Revalidate the posts page and reports page
         const community = post.community as any;
         if (community?.slug) {
             revalidatePath(`/communities/${community.slug}/posts`);
+            revalidatePath(`/communities/${community.slug}/posts/reports`);
         }
 
         return {

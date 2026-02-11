@@ -28,6 +28,7 @@ import { Tables } from "@/database.types";
 import ChangeTopicModal from "./change-topic-modal";
 import ToggleCommentsModal from "./toggle-comments-modal";
 import DeletePostModal from "./delete-post-modal";
+import ReportPostModal from "./report-post-modal";
 import { toggleCommentsDisabled, deletePost } from "@/action/posts";
 
 export default function PostCard({ post, topics }: { post: PostList; topics: Tables<"topics">[] }) {
@@ -39,6 +40,7 @@ export default function PostCard({ post, topics }: { post: PostList; topics: Tab
     const [isTogglingComments, setIsTogglingComments] = useState(false);
     const [deletePostModalOpen, setDeletePostModalOpen] = useState(false);
     const [isDeletingPost, setIsDeletingPost] = useState(false);
+    const [reportPostModalOpen, setReportPostModalOpen] = useState(false);
     const [liked, setLiked] = useState(post.is_liked ?? false);
     const [displayLikesCount, setDisplayLikesCount] = useState(post.likes_count ?? 0);
     const [isLiking, setIsLiking] = useState(false);
@@ -135,9 +137,14 @@ export default function PostCard({ post, topics }: { post: PostList; topics: Tab
         }
     };
 
+    const handleReportPostClick = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        setReportPostModalOpen(true);
+    };
+
     const handleCardClick = () => {
         // Don't navigate if any modal is open
-        if (changeTopicModalOpen || toggleCommentsModalOpen || deletePostModalOpen) {
+        if (changeTopicModalOpen || toggleCommentsModalOpen || deletePostModalOpen || reportPostModalOpen) {
             return;
         }
         router.push(`/communities/${slug}/posts/${post.id}`);
@@ -172,7 +179,7 @@ export default function PostCard({ post, topics }: { post: PostList; topics: Tab
                         <div className="w-fit text-sm font-medium text-orange-500 bg-orange-50 rounded-full px-2 py-1 flex items-center gap-1">
                             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <g clip-path="url(#clip0_36878_5161)">
-                                    <path d="M1.3335 14.6693H14.6668M6.00016 5.73594C6.00016 5.45304 5.88778 5.18173 5.68774 4.98169C5.4877 4.78165 5.21639 4.66927 4.9335 4.66927H3.06683C2.78393 4.66927 2.51262 4.78165 2.31258 4.98169C2.11254 5.18173 2.00016 5.45304 2.00016 5.73594V14.6693M6.00016 14.6693V2.4026C6.00016 2.11971 6.11254 1.8484 6.31258 1.64836C6.51262 1.44832 6.78393 1.33594 7.06683 1.33594H8.9335C9.21639 1.33594 9.4877 1.44832 9.68774 1.64836C9.88778 1.8484 10.0002 2.11971 10.0002 2.4026V14.6693M14.0002 14.6693V9.06927C14.0002 8.78637 13.8878 8.51506 13.6877 8.31502C13.4877 8.11498 13.2164 8.0026 12.9335 8.0026H11.0668C10.7839 8.0026 10.5126 8.11498 10.3126 8.31502C10.1125 8.51506 10.0002 8.78637 10.0002 9.06927" stroke="#F7670E" strokeWidth="1.25" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round" />
+                                    <path d="M1.3335 14.6693H14.6668M6.00016 5.73594C6.00016 5.45304 5.88778 5.18173 5.68774 4.98169C5.4877 4.78165 5.21639 4.66927 4.9335 4.66927H3.06683C2.78393 4.66927 2.51262 4.78165 2.31258 4.98169C2.11254 5.18173 2.00016 5.45304 2.00016 5.73594V14.6693M6.00016 14.6693V2.4026C6.00016 2.11971 6.11254 1.8484 6.31258 1.64836C6.51262 1.44832 6.78393 1.33594 7.06683 1.33594H8.9335C9.21639 1.33594 9.4877 1.44832 9.68774 1.64836C9.88778 1.8484 10.0002 2.11971 10.0002 2.4026V14.6693M14.0002 14.6693V9.06927C14.0002 8.78637 13.8878 8.51506 13.6877 8.31502C13.4877 8.11498 13.2164 8.0026 12.9335 8.0026H11.0668C10.7839 8.0026 10.5126 8.11498 10.3126 8.31502C10.1125 8.51506 10.0002 8.78637 10.0002 9.06927" stroke="#F7670E" strokeWidth="1.25" stroke-miterlimit="10" strokeLinecap="round" strokeLinejoin="round" />
                                 </g>
                                 <defs>
                                     <clipPath id="clip0_36878_5161">
@@ -215,8 +222,8 @@ export default function PostCard({ post, topics }: { post: PostList; topics: Tab
                     <div className="flex items-center gap-1">
                         <button>
                             <svg className="size-6" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M18.4698 16.83L18.8598 19.99C18.9598 20.82 18.0698 21.4 17.3598 20.97L13.1698 18.48C12.7098 18.48 12.2599 18.45 11.8199 18.39C12.5599 17.52 12.9998 16.42 12.9998 15.23C12.9998 12.39 10.5398 10.09 7.49985 10.09C6.33985 10.09 5.26985 10.42 4.37985 11C4.34985 10.75 4.33984 10.5 4.33984 10.24C4.33984 5.68999 8.28985 2 13.1698 2C18.0498 2 21.9998 5.68999 21.9998 10.24C21.9998 12.94 20.6098 15.33 18.4698 16.83Z" stroke="#292D32" strokeWidth="1.5" stroke-linecap="round" stroke-linejoin="round" />
-                                <path d="M13 15.2337C13 16.4237 12.56 17.5237 11.82 18.3937C10.83 19.5937 9.26 20.3637 7.5 20.3637L4.89 21.9137C4.45 22.1837 3.89 21.8137 3.95 21.3037L4.2 19.3337C2.86 18.4037 2 16.9137 2 15.2337C2 13.4737 2.94 11.9237 4.38 11.0037C5.27 10.4237 6.34 10.0938 7.5 10.0938C10.54 10.0938 13 12.3937 13 15.2337Z" stroke="#292D32" strokeWidth="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                                <path d="M18.4698 16.83L18.8598 19.99C18.9598 20.82 18.0698 21.4 17.3598 20.97L13.1698 18.48C12.7098 18.48 12.2599 18.45 11.8199 18.39C12.5599 17.52 12.9998 16.42 12.9998 15.23C12.9998 12.39 10.5398 10.09 7.49985 10.09C6.33985 10.09 5.26985 10.42 4.37985 11C4.34985 10.75 4.33984 10.5 4.33984 10.24C4.33984 5.68999 8.28985 2 13.1698 2C18.0498 2 21.9998 5.68999 21.9998 10.24C21.9998 12.94 20.6098 15.33 18.4698 16.83Z" stroke="#292D32" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                                <path d="M13 15.2337C13 16.4237 12.56 17.5237 11.82 18.3937C10.83 19.5937 9.26 20.3637 7.5 20.3637L4.89 21.9137C4.45 22.1837 3.89 21.8137 3.95 21.3037L4.2 19.3337C2.86 18.4037 2 16.9137 2 15.2337C2 13.4737 2.94 11.9237 4.38 11.0037C5.27 10.4237 6.34 10.0938 7.5 10.0938C10.54 10.0938 13 12.3937 13 15.2337Z" stroke="#292D32" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                             </svg>
                         </button>
                         <span>{post.comment_count ?? 0}</span>
@@ -287,7 +294,7 @@ export default function PostCard({ post, topics }: { post: PostList; topics: Tab
                             </DropdownMenuItem>
                         </AccessControl>
                         <AccessControl allowedStatus={[CommunityMemberStatus.ACTIVE]} allowedAccess={[UserAccess.MEMBER]}>
-                            <DropdownMenuItem>
+                            <DropdownMenuItem onClick={handleReportPostClick}>
                                 Report to admins
                             </DropdownMenuItem>
                         </AccessControl>
@@ -325,6 +332,12 @@ export default function PostCard({ post, topics }: { post: PostList; topics: Tab
                 onOpenChange={setDeletePostModalOpen}
                 onConfirm={handleConfirmDeletePost}
                 isSubmitting={isDeletingPost}
+            />
+            <ReportPostModal
+                open={reportPostModalOpen}
+                onOpenChange={setReportPostModalOpen}
+                postId={post.id}
+                communityId={post.community_id}
             />
         </Card>
     )

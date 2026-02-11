@@ -17,6 +17,8 @@ import PostCard from "./_components/post-card";
 import PostsList from "./_components/posts-list";
 import AccessControl from "../../../../../../components/access-control";
 import { CommunityMemberStatus, UserAccess } from "@/enums/enums";
+import { createSupabaseServerClient } from "@/utils/supabase-server";
+import Link from "next/link";
 
 function validateSearchParams(sp: { topic?: string; sortBy?: string }, topics: Tables<"topics">[], slug: string) {
     const validTopicIds = new Set(topics.map((t) => t.id.toString()));
@@ -63,8 +65,61 @@ export default async function PostsPage({
 
     const { data: posts } = await getPosts(community.id, initialTopic, initialSortBy, { limit: 10, offset: 0 }, user?.id);
 
+
+    const supabase = await createSupabaseServerClient();
+    const { count: pendingMembersCount } = await supabase.from("community_members")
+        .select("id", { count: "exact", head: true })
+        .eq("community_id", community.id)
+        .eq("member_status", CommunityMemberStatus.PENDING);
+
+    const hasPendingMembers = pendingMembersCount ? pendingMembersCount > 0 : false;
+
+    const { count: reportedPostsCount } = await supabase.from("posts_reports")
+        .select("id", { count: "exact", head: true })
+        .eq("community_id", community.id);
+
+    const hasReportedPosts = reportedPostsCount ? reportedPostsCount > 0 : false;
+
     return (
         <div className="w-full space-y-5">
+            <AccessControl allowedAccess={[UserAccess.OWNER, UserAccess.ADMIN]}>
+                {
+                    (hasReportedPosts || hasPendingMembers) && (
+                        <div className="flex justify-start items-center gap-2">
+                            {
+                                hasReportedPosts && (
+                                    <Link href={`/communities/${slug}/posts/reports`}
+                                        className="hover:bg-grey-300 transition-all duration-300 w-1/2 flex items-center justify-start gap-2 bg-grey-200 rounded-lg p-2">
+                                        <div className="text-base bg-red-600 w-8 h-8 flex items-center justify-center text-white rounded-lg font-semibold p-1">
+                                            {reportedPostsCount}
+                                        </div>
+
+                                        <div className="text-base font-medium text-grey-900">
+                                            Posts reported by members
+                                        </div>
+                                    </Link>
+                                )
+                            }
+
+                            {
+                                hasPendingMembers && (
+                                    <Link href={`/communities/${slug}/members/pending`}
+                                        className="hover:bg-grey-300 transition-all duration-300 w-1/2 flex items-center justify-start gap-2 bg-grey-200 rounded-lg p-2">
+                                        <div className="text-base bg-red-600 w-8 h-8 flex items-center justify-center text-white rounded-lg font-semibold p-1">
+                                            {pendingMembersCount}
+                                        </div>
+
+                                        <div className="text-base font-medium text-grey-900">
+                                            Pending memebership requests
+                                        </div>
+                                    </Link>
+                                )
+                            }
+                        </div>
+                    )
+                }
+            </AccessControl>
+
             <PostsFilters
                 topics={topics}
                 communityId={community.id}

@@ -257,7 +257,7 @@ function ToolbarPlugin() {
           onClick={() => formatText("code")}
           className={cn(
             "h-8 w-8",
-            isCode && "bg-grey-200 dark:bg-grey-800"
+            isCode && "bg-grey-200 text-grey-900 dark:bg-grey-800"
           )}
           title="Code"
         >
@@ -456,7 +456,7 @@ export function MarkdownEditor({
             contentEditable={
               <ContentEditable
                 className={cn(
-                  "min-h-[200px] p-4 outline-none prose prose-sm max-w-none",
+                  "min-h-[200px] p-4 outline-none prose text-grey-900 prose-sm max-w-none",
                   "dark:prose-invert",
                   readonly && "cursor-default"
                 )}

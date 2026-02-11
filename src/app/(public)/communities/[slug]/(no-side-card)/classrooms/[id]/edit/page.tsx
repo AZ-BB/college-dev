@@ -4,6 +4,8 @@ import ClassroomModal from "../../_components/create-classroom-modal";
 import { ClassroomEditor } from "./_components/classroom-editor";
 import { getClassroom } from "@/action/classroom";
 import { Classroom } from "./_components/types";
+import { getUserMembership } from "@/utils/get-user-membership";
+import { UserAccess } from "@/enums/enums";
 
 export default async function EditClassroomPage({ params }: { params: Promise<{ slug: string; id: string }> }) {
     const { slug, id } = await params;
@@ -12,6 +14,12 @@ export default async function EditClassroomPage({ params }: { params: Promise<{ 
     const { data: community, error: communityError } = await getCommunityBySlug(slug);
 
     if (communityError || !community) {
+        return notFound();
+    }
+
+    const membership = await getUserMembership(community.id);
+
+    if (membership?.role !== UserAccess.OWNER && membership?.role !== UserAccess.ADMIN) {
         return notFound();
     }
 

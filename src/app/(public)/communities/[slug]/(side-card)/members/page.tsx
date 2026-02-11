@@ -2,10 +2,13 @@ import { getCommunityBySlug } from "@/action/communities";
 import Filters from "./_components/filters";
 import { getCommunityMembersCounts } from "@/action/members";
 import PaginationControl from "@/components/pagination-control";
-import { CommunityMemberStatus } from "@/enums/enums";
+import { CommunityMemberStatus, CommunityRole, UserAccess } from "@/enums/enums";
 import { Suspense } from "react";
 import MembersList from "./_components/members-list";
 import { Skeleton } from "@/components/ui/skeleton";
+import AccessControl from "@/components/access-control";
+import NonAdminFilters from "./_components/non-admin-filters";
+import { getUserMembership } from "@/utils/get-user-membership";
 
 export default async function MembersPage({
     params,
@@ -14,7 +17,7 @@ export default async function MembersPage({
     params: Promise<{ slug: string }>,
     searchParams: Promise<{
         page?: string,
-        tab?: CommunityMemberStatus,
+        tab?: CommunityMemberStatus | "admins",
     }>
 }) {
     const { slug } = await params;
@@ -35,16 +38,26 @@ export default async function MembersPage({
         : currentTab === CommunityMemberStatus.LEAVING_SOON ? (counts?.leavingSoon || 0)
             : currentTab === CommunityMemberStatus.CHURNED ? (counts?.churned || 0)
                 : currentTab === CommunityMemberStatus.BANNED ? (counts?.banned || 0)
-                    : (counts?.all || 0);
+                    : currentTab === "admins" ? (counts?.admins || 0)
+                        : (counts?.all || 0);
 
     return (
         <div className="space-y-6">
-            <Filters counts={{
-                all: counts?.all || 0,
-                leavingSoon: counts?.leavingSoon || 0,
-                churned: counts?.churned || 0,
-                banned: counts?.banned || 0,
-            }} />
+            <AccessControl allowedAccess={[UserAccess.OWNER, UserAccess.ADMIN]}>
+                <Filters counts={{
+                    all: counts?.all || 0,
+                    leavingSoon: counts?.leavingSoon || 0,
+                    churned: counts?.churned || 0,
+                    banned: counts?.banned || 0,
+                }} communitySlug={slug} />
+            </AccessControl>
+
+            <AccessControl allowedAccess={[UserAccess.MEMBER, UserAccess.ANONYMOUS, UserAccess.NOT_MEMBER]}>
+                <NonAdminFilters counts={{
+                    all: counts?.all || 0,
+                    admins: counts?.admins || 0,
+                }} communitySlug={slug} />
+            </AccessControl>
 
             <Suspense
                 key={`${community.id}-${currentPage}-${currentTab}`}
@@ -64,7 +77,7 @@ export default async function MembersPage({
                 <MembersList
                     communityId={community.id}
                     page={currentPage}
-                    tab={currentTab}
+                    tab={tab === "admins" ? "admins" : currentTab}
                     community={{
                         pricing: community.pricing,
                         billing_cycle: community.billing_cycle,

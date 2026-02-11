@@ -1,27 +1,77 @@
 'use client';
 import { Tables } from "@/database.types";
-import { LessonResourceType, VideoType } from "@/enums/enums";
+import { CommunityMemberStatus, LessonResourceType, UserAccess, VideoType } from "@/enums/enums";
 import { cn } from "@/lib/utils";
-import { ChevronDown, ChevronLeftIcon } from "lucide-react";
+import { Check, ChevronDown, ChevronLeftIcon } from "lucide-react";
 import { useState } from "react";
 import { LessonContentBadge } from "@/components/lesson-content-badge";
-import { getClassroom } from "@/action/classroom";
+import { getClassroom, toggleLessonCompletion } from "@/action/classroom";
 import { MarkdownEditor } from "@/components/markdown-editor";
+import { Button } from "@/components/ui/button";
+import AccessControl from "@/components/access-control";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 export function ContentViewer({
     selectedModuleIndex,
     setSelectedModuleIndex,
     selectedLessonIndex,
     setSelectedLessonIndex,
-    classroom
+    classroom,
+    userId,
+    communityId,
+    progressLessons
 }: {
     selectedModuleIndex: number | null;
     setSelectedModuleIndex: (index: number | null) => void;
     selectedLessonIndex: number | null;
     setSelectedLessonIndex: (index: number | null) => void;
-    classroom: Awaited<ReturnType<typeof getClassroom>>["data"]
+    classroom: Awaited<ReturnType<typeof getClassroom>>["data"];
+    userId: string | null;
+    communityId: number;
+    progressLessons: number[];
 }) {
+    const router = useRouter();
     const [showResources, setShowResources] = useState(false);
+    const [completedLessons, setCompletedLessons] = useState<number[]>(progressLessons);
+    const [isUpdating, setIsUpdating] = useState(false);
+
+    const handleToggleCompletion = async (lessonId: number) => {
+        if (!userId || !classroom?.id) {
+            toast.error("Unable to update progress");
+            return;
+        }
+
+        const isCurrentlyCompleted = completedLessons.includes(lessonId);
+        const newCompletionState = !isCurrentlyCompleted;
+
+        setIsUpdating(true);
+
+        const result = await toggleLessonCompletion(
+            userId,
+            communityId,
+            classroom.id,
+            lessonId,
+            newCompletionState
+        );
+
+        setIsUpdating(false);
+
+        if (result.error) {
+            toast.error(result.message);
+            return;
+        }
+
+        // Update local state
+        if (newCompletionState) {
+            setCompletedLessons([...completedLessons, lessonId]);
+        } else {
+            setCompletedLessons(completedLessons.filter(id => id !== lessonId));
+        }
+
+        toast.success(result.message);
+        router.refresh();
+    };
 
     if (selectedModuleIndex === null) {
         return (
@@ -207,8 +257,48 @@ export function ContentViewer({
                     {classroom?.modules[selectedModuleIndex]?.name || "Module Name"}
                 </div>
 
-                <div className="text-xl font-semibold py-3">
-                    {classroom?.modules[selectedModuleIndex]?.lessons[selectedLessonIndex]?.name || "Lesson Name"}
+                <div className="flex items-center justify-between">
+                    <div className="text-xl font-semibold py-3">
+                        {classroom?.modules[selectedModuleIndex]?.lessons[selectedLessonIndex]?.name || "Lesson Name"}
+                    </div>
+
+                    <AccessControl allowedStatus={[CommunityMemberStatus.ACTIVE]} allowedAccess={[UserAccess.MEMBER]}>
+                        {(() => {
+                            const currentLesson = classroom?.modules[selectedModuleIndex]?.lessons[selectedLessonIndex];
+                            const isCompleted = currentLesson ? completedLessons.includes(currentLesson.id) : false;
+
+                            return (
+                                <Button
+                                    variant={"secondary"}
+                                    className={cn(
+                                        "rounded-[12px] py-5 text-sm font-semibold",
+                                        isCompleted && ""
+                                    )}
+                                    onClick={() => currentLesson && handleToggleCompletion(currentLesson.id)}
+                                    disabled={isUpdating || !userId}
+                                >
+                                    {isUpdating
+                                        ? <>Updating...</>
+                                        : isCompleted
+                                            ?
+                                            <div className="flex items-center gap-2">
+                                                Completed
+                                                <div className="bg-orange-500 rounded-full p-1">
+                                                    <Check className="w-4 h-4 text-white" />
+                                                </div>
+                                            </div>
+                                            :
+                                            <div className="flex items-center gap-2">
+                                                Mark as completed
+                                                <div className="border-2 border-grey-700 rounded-full p-0.5">
+                                                    <Check className="w-3 h-3 text-grey-700" />
+                                                </div>
+                                            </div>
+                                    }
+                                </Button>
+                            );
+                        })()}
+                    </AccessControl>
                 </div>
 
                 {/* Video content */}
