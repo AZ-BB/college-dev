@@ -3,6 +3,7 @@ import { Tables } from "@/database.types";
 import { CommunityMemberStatus, CommunityRole } from "@/enums/enums";
 import { GeneralResponse } from "@/utils/general-response";
 import { createSupabaseServerClient } from "@/utils/supabase-server";
+import { getUserData } from "@/utils/get-user-data";
 import { revalidatePath } from "next/cache";
 
 export type MemberWithUser = Tables<"community_members"> & {
@@ -927,6 +928,107 @@ export async function getMemberAnswers(
         return {
             error: "Error fetching answers",
             message: "Error fetching answers",
+            statusCode: 500,
+        };
+    }
+}
+
+export async function getMemberPayments(
+    userId: string,
+    communityId: number
+): Promise<GeneralResponse<{
+    payments: Array<{
+        id: number;
+        amount: number;
+        type: string;
+        status: string;
+        paid_at: string;
+        classroom_name: string | null;
+    }>;
+}>> {
+    try {
+        const supabase = await createSupabaseServerClient();
+        const currentUser = await getUserData();
+
+        if (!currentUser) {
+            return {
+                error: "User not authenticated",
+                message: "User not authenticated",
+                statusCode: 401,
+            };
+        }
+
+        // Fetch payments for this user in this community
+        const { data: payments, error: paymentsError } = await (supabase as any)
+            .from("payments")
+            .select(`
+                id,
+                amount,
+                type,
+                status,
+                paid_at,
+                community_member_classrooms_id
+            `)
+            .eq("user_id", userId)
+            .eq("comm_id", communityId)
+            .order("paid_at", { ascending: false });
+
+        if (paymentsError) {
+            console.error("Error fetching payments:", paymentsError);
+            return {
+                error: "Error fetching payments",
+                message: "Error fetching payments",
+                statusCode: 500,
+            };
+        }
+
+        // For each payment with a classroom reference, fetch the classroom name
+        const paymentsWithClassrooms = await Promise.all(
+            (payments || []).map(async (payment: any) => {
+                let classroomName = null;
+                
+                if (payment.community_member_classrooms_id) {
+                    const { data: memberClassroom } = await supabase
+                        .from("community_member_classrooms")
+                        .select("classroom_id")
+                        .eq("id", payment.community_member_classrooms_id)
+                        .single();
+
+                    if (memberClassroom) {
+                        const { data: classroom } = await supabase
+                            .from("classrooms")
+                            .select("name")
+                            .eq("id", memberClassroom.classroom_id)
+                            .single();
+
+                        if (classroom) {
+                            classroomName = classroom.name;
+                        }
+                    }
+                }
+
+                return {
+                    id: payment.id,
+                    amount: payment.amount,
+                    type: payment.type,
+                    status: payment.status,
+                    paid_at: payment.paid_at,
+                    classroom_name: classroomName,
+                };
+            })
+        );
+
+        return {
+            data: { payments: paymentsWithClassrooms },
+            error: undefined,
+            message: "Payments fetched successfully",
+            statusCode: 200,
+        };
+    } catch (error) {
+        console.error("Error fetching member payments:", error);
+        return {
+            error: "Error fetching payments",
+            message: "Error fetching payments",
             statusCode: 500,
         };
     }

@@ -24,7 +24,7 @@ import {
 } from "@/components/ui/select"
 import { cn } from "@/lib/utils"
 import { useUserAccess } from "@/contexts/access-context"
-import { updateMemberRole, removeMember, getMemberAnswers } from "@/action/members"
+import { updateMemberRole, removeMember, getMemberAnswers, getMemberPayments } from "@/action/members"
 import { getMemberClassroomProgress, removeMemberClassroomAccess } from "@/action/classroom"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
@@ -143,6 +143,17 @@ export default function MemberSettingsModal({
   const [loadingCourses, setLoadingCourses] = useState(false)
   const [coursesError, setCoursesError] = useState<string | null>(null)
   const [giveAccessModalOpen, setGiveAccessModalOpen] = useState(false)
+  const [payments, setPayments] = useState<Array<{
+    id: number;
+    amount: number;
+    type: string;
+    status: string;
+    paid_at: string;
+    classroom_name: string | null;
+  }>>([])
+  const [loadingPayments, setLoadingPayments] = useState(false)
+  const [paymentsError, setPaymentsError] = useState<string | null>(null)
+  const [paymentsFetched, setPaymentsFetched] = useState(false)
 
   const canChangeRole = userAccess === UserAccess.OWNER
 
@@ -219,6 +230,9 @@ export default function MemberSettingsModal({
       setAnswersError(null)
       setCoursesProgress([])
       setCoursesError(null)
+      setPayments([])
+      setPaymentsError(null)
+      setPaymentsFetched(false)
     }
   }, [open, member])
 
@@ -253,6 +267,23 @@ export default function MemberSettingsModal({
       })
     }
   }, [open, activeTab, loadedMember, coursesProgress.length, loadingCourses])
+
+  // Fetch payments when payments tab is opened
+  useEffect(() => {
+    if (open && activeTab === "payments" && loadedMember && !paymentsFetched && !loadingPayments) {
+      setLoadingPayments(true)
+      setPaymentsError(null)
+      setPaymentsFetched(true)
+      getMemberPayments(loadedMember.user_id, loadedMember.community_id).then((result) => {
+        setLoadingPayments(false)
+        if (result.error || !result.data) {
+          setPaymentsError(result.message || "Failed to load payments")
+        } else {
+          setPayments(result.data.payments)
+        }
+      })
+    }
+  }, [open, activeTab, loadedMember, paymentsFetched, loadingPayments])
 
   return (
     <>
@@ -475,7 +506,75 @@ export default function MemberSettingsModal({
                   )}
                 </div>
               )}
-              {activeTab === "payments" && <div className="text-sm text-grey-500">No content yet.</div>}
+              {activeTab === "payments" && (
+                <div className="space-y-4">
+                  {loadingPayments ? (
+                    <div className="text-center py-8 text-grey-600">Loading payments...</div>
+                  ) : paymentsError ? (
+                    <div className="text-center py-8 text-destructive">{paymentsError}</div>
+                  ) : payments.length === 0 ? (
+                    <div className="text-center py-8 text-grey-500">No payments found</div>
+                  ) : (
+                    <>
+                      <p className="font-bold text-lg text-grey-900 mb-2">Payment History</p>
+                      <div className="space-y-3">
+                        {payments.map((payment) => {
+                          const paymentTypeLabel = payment.type
+                            .replace(/_/g, " ")
+                            .toLowerCase()
+                            .replace(/\b\w/g, (l) => l.toUpperCase());
+                          
+                          const isZeroAmount = payment.amount === 0;
+                          
+                          return (
+                            <div
+                              key={payment.id}
+                              className="border border-grey-200 rounded-lg p-4 space-y-2"
+                            >
+                              <div className="flex items-start justify-between">
+                                <div className="flex-1">
+                                  <div className="flex items-center gap-2 mb-1">
+                                    <p className="font-semibold text-grey-900">
+                                      {payment.classroom_name || "Community Subscription"}
+                                    </p>
+                                    {isZeroAmount && (
+                                      <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">
+                                        Admin Granted
+                                      </span>
+                                    )}
+                                  </div>
+                                  <p className="text-sm text-grey-600">{paymentTypeLabel}</p>
+                                </div>
+                                <div className="text-right">
+                                  <p className="font-bold text-grey-900">
+                                    {isZeroAmount ? "Free" : `₹${payment.amount}`}
+                                  </p>
+                                  <span
+                                    className={cn(
+                                      "text-xs px-2 py-0.5 rounded-full",
+                                      payment.status === "PAID"
+                                        ? "bg-green-100 text-green-700"
+                                        : payment.status === "PENDING"
+                                        ? "bg-yellow-100 text-yellow-700"
+                                        : "bg-red-100 text-red-700"
+                                    )}
+                                  >
+                                    {payment.status}
+                                  </span>
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-1 text-xs text-grey-500">
+                                <CalendarIcon className="w-3.5 h-3.5" />
+                                <span>{format(new Date(payment.paid_at), "MMM dd, yyyy 'at' hh:mm a")}</span>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </>
+                  )}
+                </div>
+              )}
               {activeTab === "questions" && (
                 <div className="space-y-4">
                   {loadingAnswers ? (
