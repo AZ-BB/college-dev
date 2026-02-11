@@ -48,6 +48,7 @@ interface MemberCardProps {
   community: CommunityPricing
   invitedByUser?: InvitedByUser
   isCurrentUser?: boolean
+  communitySlug: string
 }
 
 function calculateDaysAgo(dateString: string | null): string {
@@ -99,7 +100,7 @@ function getRoleDisplayName(role: string): string {
   return ""
 }
 
-export default function MemberCard({ member, community, invitedByUser, isCurrentUser = false }: MemberCardProps) {
+export default function MemberCard({ member, community, invitedByUser, isCurrentUser = false, communitySlug }: MemberCardProps) {
   const { userAccess } = useUserAccess()
   const [editModalOpen, setEditModalOpen] = useState(false)
 
@@ -211,6 +212,7 @@ export default function MemberCard({ member, community, invitedByUser, isCurrent
         member={member}
         community={community}
         invitedByUser={invitedByUser}
+        communitySlug={communitySlug}
       />
     </div>
   )

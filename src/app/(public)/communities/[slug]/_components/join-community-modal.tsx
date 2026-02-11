@@ -217,7 +217,16 @@ export default function JoinCommunityModal({
     async function handlePayment() {
         setJoining(true);
         const preparedAnswers = prepareAnswersForServer();
-        const res = await joinCommunity(communityId, slug, hasQuestions ? { answers: preparedAnswers } : {});
+        const options: { answers?: Record<number, string>; billingPlan?: "monthly" | "yearly" } = hasQuestions 
+            ? { answers: preparedAnswers } 
+            : {};
+        
+        // Pass selected billing plan for MONTHLY_YEARLY subscriptions
+        if (pricing === "SUB" && billingCycle === "MONTHLY_YEARLY") {
+            options.billingPlan = selectedPlan;
+        }
+        
+        const res = await joinCommunity(communityId, slug, options);
         setJoining(false);
         if (res.error) {
             toast.error(res.message ?? res.error);

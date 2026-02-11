@@ -1059,6 +1059,67 @@ export type Database = {
           },
         ]
       }
+      payments: {
+        Row: {
+          amount: number
+          comm_id: number | null
+          community_member_classrooms_id: number | null
+          created_at: string
+          id: number
+          paid_at: string
+          status: Database["public"]["Enums"]["payment_status_enum"]
+          type: Database["public"]["Enums"]["payment_type_enum"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount?: number
+          comm_id?: number | null
+          community_member_classrooms_id?: number | null
+          created_at?: string
+          id?: number
+          paid_at?: string
+          status?: Database["public"]["Enums"]["payment_status_enum"]
+          type: Database["public"]["Enums"]["payment_type_enum"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          comm_id?: number | null
+          community_member_classrooms_id?: number | null
+          created_at?: string
+          id?: number
+          paid_at?: string
+          status?: Database["public"]["Enums"]["payment_status_enum"]
+          type?: Database["public"]["Enums"]["payment_type_enum"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payments_comm_id_fkey"
+            columns: ["comm_id"]
+            isOneToOne: false
+            referencedRelation: "communities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payments_community_member_classrooms_id_fkey"
+            columns: ["community_member_classrooms_id"]
+            isOneToOne: false
+            referencedRelation: "community_member_classrooms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payments_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       topics: {
         Row: {
           community_id: number
@@ -1326,6 +1387,12 @@ export type Database = {
       community_question_type_enum: "TEXT" | "EMAIL" | "MULTIPLE_CHOICE"
       community_role_enum: "OWNER" | "MEMBER" | "ADMIN"
       lesson_resource_type_enum: "FILE" | "LINK"
+      payment_status_enum: "PENDING" | "PAID" | "FAILED"
+      payment_type_enum:
+        | "SUBSCRIPTION_MONTHLY_FEE"
+        | "SUBSCRIPTION_YEARLY_FEE"
+        | "SUBSCRIPTION_ONE_TIME_PAYMENT"
+        | "CLASSROOM_ONE_TIME_PAYMENT"
       posts_attachment_type_enum: "IMAGE" | "LINK"
       topic_write_permission_type_enum: "PUBLIC" | "ADMINS"
       video_type_enum: "YOUTUBE" | "LOOM" | "VIMEO"
@@ -1475,6 +1542,13 @@ export const Constants = {
       community_question_type_enum: ["TEXT", "EMAIL", "MULTIPLE_CHOICE"],
       community_role_enum: ["OWNER", "MEMBER", "ADMIN"],
       lesson_resource_type_enum: ["FILE", "LINK"],
+      payment_status_enum: ["PENDING", "PAID", "FAILED"],
+      payment_type_enum: [
+        "SUBSCRIPTION_MONTHLY_FEE",
+        "SUBSCRIPTION_YEARLY_FEE",
+        "SUBSCRIPTION_ONE_TIME_PAYMENT",
+        "CLASSROOM_ONE_TIME_PAYMENT",
+      ],
       posts_attachment_type_enum: ["IMAGE", "LINK"],
       topic_write_permission_type_enum: ["PUBLIC", "ADMINS"],
       video_type_enum: ["YOUTUBE", "LOOM", "VIMEO"],

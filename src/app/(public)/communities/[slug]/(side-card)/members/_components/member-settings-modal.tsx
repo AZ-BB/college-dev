@@ -25,7 +25,11 @@ import {
 import { cn } from "@/lib/utils"
 import { useUserAccess } from "@/contexts/access-context"
 import { updateMemberRole, removeMember, getMemberAnswers } from "@/action/members"
+import { getMemberClassroomProgress, removeMemberClassroomAccess } from "@/action/classroom"
 import { useRouter } from "next/navigation"
+import Link from "next/link"
+import { toast } from "sonner"
+import GiveAccessModal from "./give-access-modal"
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -79,6 +83,7 @@ interface MemberSettingsModalProps {
   member: MemberWithUser
   community: CommunityPricing
   invitedByUser?: InvitedByUser
+  communitySlug: string
 }
 
 function calculateDaysAgo(dateString: string | null): string {
@@ -120,6 +125,7 @@ export default function MemberSettingsModal({
   member,
   community,
   invitedByUser,
+  communitySlug,
 }: MemberSettingsModalProps) {
   const router = useRouter()
   const { userAccess } = useUserAccess()
@@ -133,6 +139,10 @@ export default function MemberSettingsModal({
   const [answers, setAnswers] = useState<Array<{ id: number; question: string; answer: string; questionType: string }>>([])
   const [loadingAnswers, setLoadingAnswers] = useState(false)
   const [answersError, setAnswersError] = useState<string | null>(null)
+  const [coursesProgress, setCoursesProgress] = useState<Array<any>>([])
+  const [loadingCourses, setLoadingCourses] = useState(false)
+  const [coursesError, setCoursesError] = useState<string | null>(null)
+  const [giveAccessModalOpen, setGiveAccessModalOpen] = useState(false)
 
   const canChangeRole = userAccess === UserAccess.OWNER
 
@@ -164,6 +174,42 @@ export default function MemberSettingsModal({
     router.refresh()
   }
 
+  async function handleRemoveClassroomAccess(classroomId: number) {
+    if (!loadedMember) return
+    
+    const res = await removeMemberClassroomAccess(
+      loadedMember.user_id,
+      loadedMember.community_id,
+      classroomId
+    )
+    
+    if (res.error) {
+      toast.error(res.message)
+      return
+    }
+    
+    toast.success("Access removed successfully")
+    // Remove from local state
+    setCoursesProgress(coursesProgress.filter(p => p.classroom.id !== classroomId))
+    router.refresh()
+  }
+
+  function handleAccessGranted() {
+    // Refetch courses progress
+    if (loadedMember) {
+      setLoadingCourses(true)
+      setCoursesError(null)
+      getMemberClassroomProgress(loadedMember.user_id, loadedMember.community_id).then((result) => {
+        setLoadingCourses(false)
+        if (result.error || !result.data) {
+          setCoursesError(result.message || "Failed to load courses")
+        } else {
+          setCoursesProgress(result.data)
+        }
+      })
+    }
+  }
+
   useEffect(() => {
     if (open) {
       setLoadedMember(member)
@@ -171,6 +217,8 @@ export default function MemberSettingsModal({
       setLoadedMember(null)
       setAnswers([])
       setAnswersError(null)
+      setCoursesProgress([])
+      setCoursesError(null)
     }
   }, [open, member])
 
@@ -189,6 +237,22 @@ export default function MemberSettingsModal({
       })
     }
   }, [open, activeTab, loadedMember, answers.length, loadingAnswers])
+
+  // Fetch courses progress when courses tab is opened
+  useEffect(() => {
+    if (open && activeTab === "courses" && loadedMember && coursesProgress.length === 0 && !loadingCourses) {
+      setLoadingCourses(true)
+      setCoursesError(null)
+      getMemberClassroomProgress(loadedMember.user_id, loadedMember.community_id).then((result) => {
+        setLoadingCourses(false)
+        if (result.error || !result.data) {
+          setCoursesError(result.message || "Failed to load courses")
+        } else {
+          setCoursesProgress(result.data)
+        }
+      })
+    }
+  }, [open, activeTab, loadedMember, coursesProgress.length, loadingCourses])
 
   return (
     <>
@@ -317,7 +381,100 @@ export default function MemberSettingsModal({
                   </div>
                 </div>
               )}
-              {activeTab === "courses" && <div className="text-sm text-grey-500">No content yet.</div>}
+              {activeTab === "courses" && (
+                <div className="space-y-4 overflow-y-auto max-h-[450px]">
+                  {loadingCourses ? (
+                    <div className="text-center py-8 text-grey-600">Loading courses...</div>
+                  ) : coursesError ? (
+                    <div className="text-center py-8 text-destructive">{coursesError}</div>
+                  ) : (
+                    <>
+                      <div className="flex items-center justify-between mb-2">
+                        <p className="font-bold text-lg text-grey-900">
+                          Has access to: {coursesProgress.length > 0 && `(${coursesProgress.length})`}
+                        </p>
+                        <Button
+                          type="button"
+                          size="sm"
+                          onClick={() => setGiveAccessModalOpen(true)}
+                          className="bg-orange-500 hover:bg-orange-600 rounded-sm font-medium text-white text-sm"
+                        >
+                          Give access to courses
+                        </Button>
+                      </div>
+
+                      {coursesProgress.length === 0 ? (
+                        <div className="text-center py-8 text-grey-500">No courses enrolled yet</div>
+                      ) : (
+                        <div className="space-y-4">
+                        {coursesProgress.map((progress) => {
+                          const classroom = progress.classroom;
+                          const isOpenToAll = classroom.type === "PUBLIC" || classroom.type === "PRIVATE";
+                          const isOneTimePayment = classroom.type === "ONE_TIME_PAYMENT";
+                          const isTimeUnlock = classroom.type === "TIME_UNLOCK";
+
+                          return (
+                            <div key={classroom.id} className="space-y-2">
+                              <div className="flex items-start justify-between">
+                                <div className="flex-1">
+                                  <Link 
+                                    href={`/communities/${communitySlug}/classrooms/${classroom.id}`}
+                                    className="font-semibold text-base text-grey-900 hover:text-orange-500 transition-colors"
+                                  >
+                                    {classroom.name}
+                                  </Link>
+                                  <div className="flex items-center gap-2 mt-1">
+                                    <span className="text-sm font-medium text-orange-500">
+                                      {progress.progress_percentage}% Progress
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+
+                              <div className="text-sm text-grey-600 space-y-1">
+                                {isOpenToAll && (
+                                  <p>
+                                    <span className="font-medium">Open To All:</span> All members have access
+                                  </p>
+                                )}
+                                {isOneTimePayment && (
+                                  <div className="flex items-center justify-between">
+                                    <p>
+                                      <span className="font-medium">One Time Payment:</span> Members pay ₹{classroom.amount_one_time} for access.
+                                    </p>
+                                    <button 
+                                      type="button"
+                                      className="text-sm text-destructive hover:underline font-medium"
+                                      onClick={() => handleRemoveClassroomAccess(classroom.id)}
+                                    >
+                                      Remove Access
+                                    </button>
+                                  </div>
+                                )}
+                                {isTimeUnlock && (
+                                  <div className="flex items-center justify-between">
+                                    <p>
+                                      <span className="font-medium">Time Unlock:</span> Members get access after {classroom.time_unlock_in_days} days
+                                    </p>
+                                    <button 
+                                      type="button"
+                                      className="text-sm text-destructive hover:underline font-medium"
+                                      onClick={() => handleRemoveClassroomAccess(classroom.id)}
+                                    >
+                                      Remove Access
+                                    </button>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                      )}
+                    </>
+                  )}
+                </div>
+              )}
               {activeTab === "payments" && <div className="text-sm text-grey-500">No content yet.</div>}
               {activeTab === "questions" && (
                 <div className="space-y-4">
@@ -391,6 +548,16 @@ export default function MemberSettingsModal({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {loadedMember && (
+        <GiveAccessModal
+          open={giveAccessModalOpen}
+          onOpenChange={setGiveAccessModalOpen}
+          userId={loadedMember.user_id}
+          communityId={loadedMember.community_id}
+          onAccessGranted={handleAccessGranted}
+        />
+      )}
     </>
   )
 }

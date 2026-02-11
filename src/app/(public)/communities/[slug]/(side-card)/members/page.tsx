@@ -85,6 +85,7 @@ export default async function MembersPage({
                         amount_per_year: community.amount_per_year,
                         amount_one_time: community.amount_one_time,
                     }}
+                    communitySlug={community.slug}
                 />
             </Suspense>
 
