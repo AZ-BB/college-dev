@@ -75,6 +75,7 @@ type InvitedByUser = {
   first_name: string
   last_name: string
   avatar_url: string | null
+  username: string
 } | null
 
 interface MemberSettingsModalProps {
@@ -379,19 +380,14 @@ export default function MemberSettingsModal({
                       <span>{getAccessType(community)}</span>
                     </div>
                     {loadedMember.invited_by && invitedByUser && (
-                      <div className="flex items-center gap-2 mt-1">
+                      <Link href={`/profile/${invitedByUser.username}`} className="flex items-center gap-2 hover:underline">
                         <div className="flex items-center gap-2 px-3 py-1.5 bg-grey-100 rounded-full w-fit">
-                          <Avatar className="w-5 h-5 rounded-full">
-                            <AvatarImage src={invitedByUser.avatar_url || ""} />
-                            <AvatarFallback className="bg-grey-300 text-grey-700 text-xs">
-                              {invitedByUser.first_name?.charAt(0).toUpperCase() || "U"}
-                            </AvatarFallback>
-                          </Avatar>
+                          <UserAvatar user={invitedByUser} className="w-4 h-4 rounded-full shrink-0" />
                           <span className="text-sm text-grey-700 font-medium">
                             Invited By {formatFullName(invitedByUser.first_name, invitedByUser.last_name)}
                           </span>
                         </div>
-                      </div>
+                      </Link>
                     )}
                   </div>
                   <div className="flex flex-col gap-1 pt-2 border-t border-grey-200">
