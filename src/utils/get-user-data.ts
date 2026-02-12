@@ -52,12 +52,12 @@ export async function getUserData(): Promise<UserData> {
 
     if (error) {
       console.error("Error fetching user data:", error)
-      return redirect("/login");
+      return {} as UserData;
     }
 
     return dbUser as UserData
   } catch (error) {
     console.error("Error fetching user data:", error)
-    return redirect("/login");
+    return {} as UserData;
   }
 }

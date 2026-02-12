@@ -13,13 +13,16 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { AlertCircle } from "lucide-react"
 import { resendOTP, verifyOTP, isProfileComplete } from "@/action/auth"
 import { createSupabaseBrowserClient } from "@/utils/supabase-browser"
+import { isValidRedirect } from "@/lib/redirect"
 
 interface VerifyEmailFormProps extends React.ComponentProps<"form"> {
   email?: string
+  redirect?: string | null
 }
 
 export function VerifyEmailForm({
   email = "",
+  redirect,
   className,
   ...props
 }: VerifyEmailFormProps) {
@@ -93,21 +96,21 @@ export function VerifyEmailForm({
         return
       }
 
-      // OTP verified successfully, check if profile is complete
+      const safeRedirect = redirect && isValidRedirect(redirect) ? redirect : null
+
       const supabase = createSupabaseBrowserClient()
       const { data: { user } } = await supabase.auth.getUser()
-      
+
       if (user) {
         const profileCheck = await isProfileComplete(user.id)
         if (profileCheck.data?.needsOnboarding) {
-          router.push("/onboarding")
+          router.push(safeRedirect ? `/onboarding?redirect=${encodeURIComponent(safeRedirect)}` : "/onboarding")
         } else {
-          router.push("/")
+          router.push(safeRedirect || "/")
           router.refresh()
         }
       } else {
-        // No user found, default to onboarding
-        router.push("/onboarding")
+        router.push(safeRedirect ? `/onboarding?redirect=${encodeURIComponent(safeRedirect)}` : "/onboarding")
       }
     } catch (err) {
       setError("Invalid OTP. Please try again.")
@@ -140,7 +143,8 @@ export function VerifyEmailForm({
   }
 
   const handleChangeEmail = () => {
-    router.push("/signup")
+    const safeRedirect = redirect && isValidRedirect(redirect) ? redirect : null
+    router.push(safeRedirect ? `/signup?redirect=${encodeURIComponent(safeRedirect)}` : "/signup")
   }
 
   return (

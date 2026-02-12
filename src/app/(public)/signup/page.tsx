@@ -2,8 +2,15 @@ import { GalleryVerticalEnd } from "lucide-react"
 
 import { SignupForm } from "@/components/signup-form"
 
-export default function SignupPage() {
-  return (
+interface SignupPageProps {
+    searchParams?: Promise<{ redirect?: string }>;
+}
+
+export default async function SignupPage({ searchParams }: SignupPageProps) {
+    const params = await searchParams;
+    const redirect = params?.redirect;
+
+    return (
     <div className="flex min-h-screen flex-col bg-white px-4 py-10">
       <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-md">
         <svg
@@ -53,7 +60,7 @@ export default function SignupPage() {
       </div>
       <div className="flex flex-1 items-center justify-center">
         <div className="w-full max-w-md">
-          <SignupForm className="w-full" />
+          <SignupForm className="w-full" redirect={redirect} />
         </div>
       </div>
     </div>

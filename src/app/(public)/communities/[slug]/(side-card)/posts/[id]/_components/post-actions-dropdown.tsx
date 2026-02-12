@@ -17,7 +17,9 @@ import { Tables } from "@/database.types";
 import ChangeTopicModal from "../../_components/change-topic-modal";
 import ToggleCommentsModal from "../../_components/toggle-comments-modal";
 import DeletePostModal from "../../_components/delete-post-modal";
+import EditPostModal from "../../_components/edit-post-modal";
 import { togglePinPost, toggleCommentsDisabled, deletePost } from "@/action/posts";
+import { UserData } from "@/utils/get-user-data";
 
 interface PostActionsDropdownProps {
     post: {
@@ -26,18 +28,25 @@ interface PostActionsDropdownProps {
         topic_id: number | null;
         comments_disabled?: boolean;
         is_pinned?: boolean;
+        title?: string;
+        content?: string;
+        video_url?: string | null;
+        attachments?: Array<{ id: number; type: string; url: string; name: string }>;
+        poll?: { id: number; poll_options?: Array<{ id: number; text: string }> } | null;
     };
     topics: Tables<"topics">[];
     slug: string;
+    user?: UserData | null;
 }
 
-export default function PostActionsDropdown({ post, topics, slug }: PostActionsDropdownProps) {
+export default function PostActionsDropdown({ post, topics, slug, user }: PostActionsDropdownProps) {
     const router = useRouter();
     const [changeTopicModalOpen, setChangeTopicModalOpen] = useState(false);
     const [toggleCommentsModalOpen, setToggleCommentsModalOpen] = useState(false);
     const [isTogglingComments, setIsTogglingComments] = useState(false);
     const [deletePostModalOpen, setDeletePostModalOpen] = useState(false);
     const [isDeletingPost, setIsDeletingPost] = useState(false);
+    const [editPostModalOpen, setEditPostModalOpen] = useState(false);
 
     const handleCopyLink = async (e: React.MouseEvent) => {
         e.stopPropagation();
@@ -90,6 +99,11 @@ export default function PostActionsDropdown({ post, topics, slug }: PostActionsD
         setDeletePostModalOpen(true);
     };
 
+    const handleEditPostClick = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        setEditPostModalOpen(true);
+    };
+
     const handleConfirmDeletePost = async () => {
         setIsDeletingPost(true);
         const result = await deletePost(post.id);
@@ -138,6 +152,11 @@ export default function PostActionsDropdown({ post, topics, slug }: PostActionsD
                             </DropdownMenuItem>
                         </AccessControl>
                         <AccessControl allowedAccess={[UserAccess.OWNER, UserAccess.ADMIN]} allowedUserId={post.author_id}>
+                            <DropdownMenuItem onClick={handleEditPostClick}>
+                                Edit post
+                            </DropdownMenuItem>
+                        </AccessControl>
+                        <AccessControl allowedAccess={[UserAccess.OWNER, UserAccess.ADMIN]} allowedUserId={post.author_id}>
                             <DropdownMenuItem onClick={handleChangeTopic}>
                                 Change Topic
                             </DropdownMenuItem>
@@ -181,6 +200,23 @@ export default function PostActionsDropdown({ post, topics, slug }: PostActionsD
                 onConfirm={handleConfirmDeletePost}
                 isSubmitting={isDeletingPost}
             />
+            {user && (
+                <EditPostModal
+                    open={editPostModalOpen}
+                    onOpenChange={setEditPostModalOpen}
+                    post={{
+                        id: post.id,
+                        title: post.title ?? "",
+                        content: post.content ?? "",
+                        topic_id: post.topic_id,
+                        video_url: post.video_url ?? null,
+                        attachments: post.attachments ?? [],
+                        poll: post.poll ?? null,
+                    }}
+                    topics={topics}
+                    user={user}
+                />
+            )}
         </>
     );
 }

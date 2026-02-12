@@ -20,6 +20,289 @@ export interface CreatedPostData {
     postId: number;
 }
 
+export interface UpdatePostData {
+    title: string;
+    content: string;
+    topicId: number;
+    videoUrl?: string | null;
+    links?: Array<{ url: string; name: string }>;
+}
+
+export async function updatePost(
+    postId: number,
+    postData: UpdatePostData
+): Promise<GeneralResponse<void>> {
+    const supabase = await createSupabaseServerClient();
+    const user = await getUserData();
+
+    if (!user) {
+        return {
+            error: "User not authenticated",
+            message: "User not authenticated",
+            statusCode: 401,
+        };
+    }
+
+    try {
+        const { data: post, error: postError } = await supabase
+            .from("posts")
+            .select(`
+                id,
+                author_id,
+                community_id,
+                community:communities!posts_community_id_fkey(id, slug)
+            `)
+            .eq("id", postId)
+            .single();
+
+        if (postError || !post) {
+            console.error("Error fetching post:", postError);
+            return {
+                error: "Post not found",
+                message: "Post not found",
+                statusCode: 404,
+            };
+        }
+
+        if (post.author_id !== user.id) {
+            const { data: member } = await supabase
+                .from("community_members")
+                .select("role")
+                .eq("community_id", post.community_id)
+                .eq("user_id", user.id)
+                .eq("member_status", "ACTIVE")
+                .single();
+
+            if (!member || (member.role !== "ADMIN" && member.role !== "OWNER")) {
+                return {
+                    error: "Unauthorized",
+                    message: "You can only edit your own posts or if you are an admin/owner",
+                    statusCode: 403,
+                };
+            }
+        }
+
+        const { data: newTopic, error: topicError } = await supabase
+            .from("topics")
+            .select("id, write_permission_type, community_id")
+            .eq("id", postData.topicId)
+            .single();
+
+        if (topicError || !newTopic) {
+            return {
+                error: "Topic not found",
+                message: "Topic not found",
+                statusCode: 404,
+            };
+        }
+
+        if (newTopic.community_id !== post.community_id) {
+            return {
+                error: "Invalid topic",
+                message: "Topic does not belong to this community",
+                statusCode: 400,
+            };
+        }
+
+        const { data: member } = await supabase
+            .from("community_members")
+            .select("role")
+            .eq("community_id", post.community_id)
+            .eq("user_id", user.id)
+            .eq("member_status", "ACTIVE")
+            .single();
+
+        if (!member) {
+            return {
+                error: "Unauthorized",
+                message: "You are not a member of this community",
+                statusCode: 403,
+            };
+        }
+
+        if (newTopic.write_permission_type === "ADMINS" && member.role === "MEMBER") {
+            return {
+                error: "Unauthorized",
+                message: "You do not have write access to this topic",
+                statusCode: 403,
+            };
+        }
+
+        const { error: updateError } = await supabase
+            .from("posts")
+            .update({
+                title: postData.title.trim(),
+                content: postData.content.trim(),
+                topic_id: postData.topicId,
+                video_url: postData.videoUrl?.trim() || null,
+            })
+            .eq("id", postId);
+
+        if (updateError) {
+            console.error("Error updating post:", updateError);
+            return {
+                error: "Error updating post",
+                message: "Error updating post",
+                statusCode: 500,
+            };
+        }
+
+        const { error: deleteLinksError } = await supabase
+            .from("posts_attachments")
+            .delete()
+            .eq("post_id", postId)
+            .eq("type", "LINK");
+
+        if (deleteLinksError) {
+            console.error("Error deleting link attachments:", deleteLinksError);
+        }
+
+        if (postData.links && postData.links.length > 0) {
+            const linkAttachmentInserts = postData.links.map((link) => ({
+                post_id: postId,
+                url: link.url,
+                name: link.name || link.url,
+                type: "LINK" as const,
+            }));
+
+            const { error: linksError } = await supabase
+                .from("posts_attachments")
+                .insert(linkAttachmentInserts);
+
+            if (linksError) {
+                console.error("Error creating link attachments:", linksError);
+            }
+        }
+
+        const community = post.community as { id: number; slug: string };
+        if (community?.slug) {
+            revalidatePath(`/communities/${community.slug}/posts`);
+            revalidatePath(`/communities/${community.slug}/posts/${postId}`);
+        }
+
+        return {
+            data: undefined,
+            message: "Post updated successfully",
+            statusCode: 200,
+        };
+    } catch (error) {
+        console.error("Error in updatePost:", error);
+        return {
+            error: "Error updating post",
+            message: "Error updating post",
+            statusCode: 500,
+        };
+    }
+}
+
+export async function deletePostImageAttachments(
+    postId: number,
+    attachmentIds: number[]
+): Promise<GeneralResponse<void>> {
+    const supabase = await createSupabaseServerClient();
+    const user = await getUserData();
+
+    if (!user) {
+        return {
+            error: "User not authenticated",
+            message: "User not authenticated",
+            statusCode: 401,
+        };
+    }
+
+    if (attachmentIds.length === 0) {
+        return {
+            data: undefined,
+            message: "No attachments to delete",
+            statusCode: 200,
+        };
+    }
+
+    try {
+        const { data: post, error: postError } = await supabase
+            .from("posts")
+            .select(`
+                id,
+                author_id,
+                community_id,
+                community:communities!posts_community_id_fkey(id, slug)
+            `)
+            .eq("id", postId)
+            .single();
+
+        if (postError || !post) {
+            return {
+                error: "Post not found",
+                message: "Post not found",
+                statusCode: 404,
+            };
+        }
+
+        if (post.author_id !== user.id) {
+            const { data: member } = await supabase
+                .from("community_members")
+                .select("role")
+                .eq("community_id", post.community_id)
+                .eq("user_id", user.id)
+                .eq("member_status", "ACTIVE")
+                .single();
+
+            if (!member || (member.role !== "ADMIN" && member.role !== "OWNER")) {
+                return {
+                    error: "Unauthorized",
+                    message: "You can only delete attachments from your own posts or if you are an admin/owner",
+                    statusCode: 403,
+                };
+            }
+        }
+
+        const { data: attachments } = await supabase
+            .from("posts_attachments")
+            .select("id, type")
+            .eq("post_id", postId)
+            .in("id", attachmentIds);
+
+        const imageIds = (attachments ?? [])
+            .filter((a) => a.type === "IMAGE")
+            .map((a) => a.id);
+
+        if (imageIds.length > 0) {
+            const { error: deleteError } = await supabase
+                .from("posts_attachments")
+                .delete()
+                .in("id", imageIds);
+
+            if (deleteError) {
+                console.error("Error deleting image attachments:", deleteError);
+                return {
+                    error: "Error deleting image attachments",
+                    message: "Error deleting image attachments",
+                    statusCode: 500,
+                };
+            }
+        }
+
+        const community = post.community as { id: number; slug: string };
+        if (community?.slug) {
+            revalidatePath(`/communities/${community.slug}/posts`);
+            revalidatePath(`/communities/${community.slug}/posts/${postId}`);
+        }
+
+        return {
+            data: undefined,
+            message: "Image attachments deleted successfully",
+            statusCode: 200,
+        };
+    } catch (error) {
+        console.error("Error in deletePostImageAttachments:", error);
+        return {
+            error: "Error deleting image attachments",
+            message: "Error deleting image attachments",
+            statusCode: 500,
+        };
+    }
+}
+
 export async function createPost(
     postData: CreatePostData
 ): Promise<GeneralResponse<CreatedPostData>> {
@@ -190,10 +473,10 @@ export async function createPostImageAttachments(
     const uploadedPaths: string[] = attachments.map((att) => att.path);
 
     try {
-        // Verify post exists and user is the author
+        // Verify post exists and user is the author or admin/owner
         const { data: post, error: postError } = await supabase
             .from("posts")
-            .select("id, author_id")
+            .select("id, author_id, community_id")
             .eq("id", postId)
             .single();
 
@@ -212,17 +495,26 @@ export async function createPostImageAttachments(
         }
 
         if (post.author_id !== user.id) {
-            // Cleanup: delete uploaded images
-            await Promise.all(
-                uploadedPaths.map((path) =>
-                    supabase.storage.from(bucketName).remove([path])
-                )
-            );
-            return {
-                error: "Unauthorized",
-                message: "Unauthorized",
-                statusCode: 403,
-            };
+            const { data: member } = await supabase
+                .from("community_members")
+                .select("role")
+                .eq("community_id", post.community_id)
+                .eq("user_id", user.id)
+                .eq("member_status", "ACTIVE")
+                .single();
+
+            if (!member || (member.role !== "ADMIN" && member.role !== "OWNER")) {
+                await Promise.all(
+                    uploadedPaths.map((path) =>
+                        supabase.storage.from(bucketName).remove([path])
+                    )
+                );
+                return {
+                    error: "Unauthorized",
+                    message: "Unauthorized",
+                    statusCode: 403,
+                };
+            }
         }
 
         // Create post attachments for images

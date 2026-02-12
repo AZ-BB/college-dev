@@ -1,10 +1,19 @@
 "use server";
 import { Tables } from "@/database.types";
+
+function escapeHtml(s: string): string {
+    return s
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+}
 import { CommunityMemberStatus, CommunityRole } from "@/enums/enums";
 import { GeneralResponse } from "@/utils/general-response";
 import { createSupabaseServerClient } from "@/utils/supabase-server";
 import { getUserData } from "@/utils/get-user-data";
 import { revalidatePath } from "next/cache";
+import { Resend } from "resend";
 
 export type MemberWithUser = Tables<"community_members"> & {
     users: {
@@ -518,30 +527,7 @@ export async function inviteMemberByEmail(
             };
         }
 
-        const { data: inviteeUser, error: userError } = await supabase
-            .from("users")
-            .select("id")
-            .eq("email", trimmedEmail)
-            .maybeSingle();
-
-        if (userError) {
-            console.error("Error looking up user by email:", userError);
-            return {
-                error: "Error looking up user",
-                message: "Could not find user with this email",
-                statusCode: 500
-            };
-        }
-
-        if (!inviteeUser) {
-            return {
-                error: "User not found",
-                message: "No account found with this email. They need to sign up first.",
-                statusCode: 404
-            };
-        }
-
-        if (inviteeUser.id === currentUser.id) {
+        if (trimmedEmail === currentUser.email?.toLowerCase()) {
             return {
                 error: "Invalid invite",
                 message: "You cannot invite yourself",
@@ -549,51 +535,109 @@ export async function inviteMemberByEmail(
             };
         }
 
-        const { data: existingMembership, error: existingError } = await supabase
-            .from("community_members")
-            .select("id, member_status")
-            .eq("community_id", communityId)
-            .eq("user_id", inviteeUser.id)
+        const { data: inviteeUser } = await supabase
+            .from("users")
+            .select("id")
+            .eq("email", trimmedEmail)
             .maybeSingle();
 
-        if (existingError) {
-            console.error("Error checking existing membership:", existingError);
-            return {
-                error: "Error checking membership",
-                message: "Could not verify membership status",
-                statusCode: 500
-            };
+        if (inviteeUser) {
+            const { data: existingMembership } = await supabase
+                .from("community_members")
+                .select("id, member_status")
+                .eq("community_id", communityId)
+                .eq("user_id", inviteeUser.id)
+                .maybeSingle();
+
+            if (existingMembership) {
+                const alreadyInvited = existingMembership.member_status === CommunityMemberStatus.PENDING;
+                return {
+                    error: alreadyInvited ? "Already invited" : "Already a member",
+                    message: alreadyInvited
+                        ? "This user has already been invited to the community."
+                        : "This user is already a member of the community.",
+                    statusCode: 400
+                };
+            }
         }
 
-        if (existingMembership) {
-            const alreadyInvited = existingMembership.member_status === CommunityMemberStatus.PENDING;
+        const { data: existingInvitation } = await supabase
+            .from("invitations")
+            .select("id")
+            .eq("community_id", communityId)
+            .eq("email", trimmedEmail)
+            .maybeSingle();
+
+        if (existingInvitation) {
             return {
-                error: alreadyInvited ? "Already invited" : "Already a member",
-                message: alreadyInvited
-                    ? "This user has already been invited to the community."
-                    : "This user is already a member of the community.",
+                error: "Already invited",
+                message: "This email has already been invited to the community.",
                 statusCode: 400
             };
         }
 
         const { error: insertError } = await supabase
-            .from("community_members")
+            .from("invitations")
             .insert({
                 community_id: communityId,
-                user_id: inviteeUser.id,
-                role,
-                member_status: CommunityMemberStatus.PENDING,
-                invited_at: new Date().toISOString(),
-                invited_by: currentUser.id
+                invited_by: currentUser.id,
+                email: trimmedEmail,
+                role
             });
 
         if (insertError) {
-            console.error("Error creating invite:", insertError);
+            console.error("Error creating invitation:", insertError);
             return {
                 error: "Error sending invitation",
                 message: "Failed to send invitation",
                 statusCode: 500
             };
+        }
+
+        const { data: community } = await supabase
+            .from("communities")
+            .select("name")
+            .eq("id", communityId)
+            .single();
+
+        const { data: inviter } = await supabase
+            .from("users")
+            .select("first_name, last_name")
+            .eq("id", currentUser.id)
+            .single();
+
+        const communityName = community?.name ?? "the community";
+        const senderName = inviter
+            ? `${inviter.first_name}${inviter.last_name ? ` ${inviter.last_name}` : ""}`.trim() || "Someone"
+            : "Someone";
+        const communityUrl = `${process.env.NEXT_PUBLIC_APP_URL ?? ""}/invite/${slug}`;
+
+        const resendApiKey = process.env.RESEND_API_KEY;
+        if (resendApiKey) {
+            const resend = new Resend(resendApiKey);
+            const fromEmail = process.env.RESEND_FROM_EMAIL ?? "onboarding@resend.dev";
+            const html = `
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:24px">
+  <h1 style="font-size:24px;font-weight:bold;color:#111;margin-bottom:16px">You're Invited!</h1>
+  <p style="font-size:16px;line-height:1.6;color:#333;margin-bottom:16px">${escapeHtml(senderName)} has invited you to join <strong>${escapeHtml(communityName)}</strong>.</p>
+  <p style="font-size:16px;line-height:1.6;color:#333;margin-bottom:24px">Click the link below to accept the invitation and join the community:</p>
+  <a href="${escapeHtml(communityUrl)}" style="display:inline-block;padding:12px 24px;background-color:#f97316;color:#fff;text-decoration:none;border-radius:8px;font-weight:600;font-size:16px">Join ${escapeHtml(communityName)}</a>
+  <p style="font-size:14px;color:#666;margin-top:24px">Or copy and paste this link into your browser:<br><a href="${escapeHtml(communityUrl)}" style="color:#f97316;word-break:break-all">${escapeHtml(communityUrl)}</a></p>
+</body>
+</html>`;
+            const { error: emailError } = await resend.emails.send({
+                from: fromEmail,
+                // to: trimmedEmail,
+                to: "zyad.sallem.007@gmail.com",
+                subject: `${senderName} invited you to join ${communityName}`,
+                html,
+            });
+            if (emailError) {
+                console.error("Error sending invite email:", emailError);
+            }
         }
 
         revalidatePath(`/communities/${slug}/members`);
@@ -722,16 +766,35 @@ export async function joinCommunity(
             };
         }
 
-        // --- Create membership ---
+        let userEmail: string | null = user.email ?? null;
+        if (!userEmail) {
+            const { data: userRow } = await supabase.from("users").select("email").eq("id", user.id).single();
+            userEmail = userRow?.email ?? null;
+        }
+        const { data: invitation } = userEmail
+            ? await supabase
+                .from("invitations")
+                .select("invited_by, role")
+                .eq("community_id", communityId)
+                .eq("email", userEmail.toLowerCase())
+                .maybeSingle()
+            : { data: null };
+
+        const insertPayload = {
+            community_id: communityId,
+            user_id: user.id,
+            role: invitation?.role ?? CommunityRole.MEMBER,
+            member_status: status,
+            joined_at: status === CommunityMemberStatus.ACTIVE ? new Date().toISOString() : null,
+            ...(invitation && {
+                invited_by: invitation.invited_by,
+                invited_at: new Date().toISOString(),
+            }),
+        };
+
         const { data: newMember, error: insertError } = await supabase
             .from("community_members")
-            .insert({
-                community_id: communityId,
-                user_id: user.id,
-                role: CommunityRole.MEMBER,
-                member_status: status,
-                joined_at: status === CommunityMemberStatus.ACTIVE ? new Date().toISOString() : null,
-            })
+            .insert(insertPayload)
             .select("id")
             .single();
 

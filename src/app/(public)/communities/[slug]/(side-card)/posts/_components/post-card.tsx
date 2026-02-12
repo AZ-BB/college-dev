@@ -29,9 +29,11 @@ import ChangeTopicModal from "./change-topic-modal";
 import ToggleCommentsModal from "./toggle-comments-modal";
 import DeletePostModal from "./delete-post-modal";
 import ReportPostModal from "./report-post-modal";
+import EditPostModal from "./edit-post-modal";
 import { toggleCommentsDisabled, deletePost } from "@/action/posts";
+import { UserData } from "@/utils/get-user-data";
 
-export default function PostCard({ post, topics }: { post: PostList; topics: Tables<"topics">[] }) {
+export default function PostCard({ post, topics, user }: { post: PostList; topics: Tables<"topics">[]; user?: UserData | null }) {
     const params = useParams();
     const slug = params.slug as string;
     const router = useRouter();
@@ -41,6 +43,7 @@ export default function PostCard({ post, topics }: { post: PostList; topics: Tab
     const [deletePostModalOpen, setDeletePostModalOpen] = useState(false);
     const [isDeletingPost, setIsDeletingPost] = useState(false);
     const [reportPostModalOpen, setReportPostModalOpen] = useState(false);
+    const [editPostModalOpen, setEditPostModalOpen] = useState(false);
     const [liked, setLiked] = useState(post.is_liked ?? false);
     const [displayLikesCount, setDisplayLikesCount] = useState(post.likes_count ?? 0);
     const [isLiking, setIsLiking] = useState(false);
@@ -142,9 +145,14 @@ export default function PostCard({ post, topics }: { post: PostList; topics: Tab
         setReportPostModalOpen(true);
     };
 
+    const handleEditPostClick = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        setEditPostModalOpen(true);
+    };
+
     const handleCardClick = () => {
         // Don't navigate if any modal is open
-        if (changeTopicModalOpen || toggleCommentsModalOpen || deletePostModalOpen || reportPostModalOpen) {
+        if (changeTopicModalOpen || toggleCommentsModalOpen || deletePostModalOpen || reportPostModalOpen || editPostModalOpen) {
             return;
         }
         router.push(`/communities/${slug}/posts/${post.id}`);
@@ -284,6 +292,11 @@ export default function PostCard({ post, topics }: { post: PostList; topics: Tab
                             </DropdownMenuItem>
                         </AccessControl>
                         <AccessControl allowedAccess={[UserAccess.OWNER, UserAccess.ADMIN]} allowedUserId={post.author_id}>
+                            <DropdownMenuItem onClick={handleEditPostClick}>
+                                Edit post
+                            </DropdownMenuItem>
+                        </AccessControl>
+                        <AccessControl allowedAccess={[UserAccess.OWNER, UserAccess.ADMIN]} allowedUserId={post.author_id}>
                             <DropdownMenuItem onClick={handleChangeTopic}>
                                 Change Topic
                             </DropdownMenuItem>
@@ -339,6 +352,23 @@ export default function PostCard({ post, topics }: { post: PostList; topics: Tab
                 postId={post.id}
                 communityId={post.community_id}
             />
+            {user && (
+                <EditPostModal
+                    open={editPostModalOpen}
+                    onOpenChange={setEditPostModalOpen}
+                    post={{
+                        id: post.id,
+                        title: post.title,
+                        content: post.content,
+                        topic_id: post.topic_id,
+                        video_url: post.video_url,
+                        attachments: post.attachments ?? [],
+                        poll: post.poll ?? null,
+                    }}
+                    topics={topics}
+                    user={user}
+                />
+            )}
         </Card>
     )
 }
