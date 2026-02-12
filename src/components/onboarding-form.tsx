@@ -15,6 +15,7 @@ import { AlertCircle } from "lucide-react"
 import { completeUserProfile } from "@/action/auth"
 import { createSupabaseBrowserClient } from "@/utils/supabase-browser"
 import { isValidRedirect } from "@/lib/redirect"
+import { useRouter } from "next/navigation"
 
 interface OnboardingFormProps extends React.ComponentProps<"form"> {
   redirect?: string | null
