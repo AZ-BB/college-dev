@@ -29,8 +29,8 @@ type MemberWithUser = Tables<"community_members"> & {
 }
 
 type CommunityPricing = {
-  pricing: "FREE" | "SUB" | "ONE_TIME"
-  billing_cycle: "MONTHLY" | "YEARLY" | "MONTHLY_YEARLY" | null
+  is_free: boolean
+  billing_cycle: "MONTHLY" | "YEARLY" | "MONTHLY_YEARLY" | "ONE_TIME" | null
   amount_per_month: number | null
   amount_per_year: number | null
   amount_one_time: number | null
@@ -61,34 +61,32 @@ function calculateDaysAgo(dateString: string | null): string {
 }
 
 function getMembershipType(community: CommunityPricing): string {
-  if (community.pricing === "FREE") {
+  if (community.is_free) {
     return "Free"
   }
-  if (community.pricing === "ONE_TIME") {
+  if (community.billing_cycle === "ONE_TIME") {
     return `₹${community.amount_one_time || 0}`
   }
-  if (community.pricing === "SUB") {
-    if (community.billing_cycle === "MONTHLY" || community.billing_cycle === "MONTHLY_YEARLY") {
-      return `₹${community.amount_per_month || 0}/mo`
-    }
-    if (community.billing_cycle === "YEARLY") {
-      return `₹${community.amount_per_year || 0}/yr`
-    }
+  if (community.billing_cycle === "MONTHLY" || community.billing_cycle === "MONTHLY_YEARLY") {
+    return `₹${community.amount_per_month || 0}/mo`
+  }
+  if (community.billing_cycle === "YEARLY") {
+    return `₹${community.amount_per_year || 0}/yr`
   }
   return "Free"
 }
 
 function getAccessType(community: CommunityPricing): string {
-  if (community.pricing === "FREE" || community.pricing === "ONE_TIME") {
+  if (community.is_free || community.billing_cycle === "ONE_TIME") {
     return "Lifetime access"
   }
-  if (community.pricing === "SUB") {
-    if (community.billing_cycle === "MONTHLY") {
-      return "Monthly access"
-    }
-    if (community.billing_cycle === "YEARLY") {
-      return "Yearly access"
-    }
+  if (community.billing_cycle === "MONTHLY") {
+    return "Monthly access"
+  }
+  if (community.billing_cycle === "YEARLY") {
+    return "Yearly access"
+  }
+  if (community.billing_cycle === "MONTHLY_YEARLY") {
     return "Monthly access"
   }
   return "Lifetime access"

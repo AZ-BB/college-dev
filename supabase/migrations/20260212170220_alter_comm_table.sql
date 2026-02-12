@@ -1,0 +1,1 @@
+ALTER TYPE community_billing_cycle_enum ADD VALUE 'ONE_TIME';

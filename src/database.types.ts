@@ -192,7 +192,6 @@ export type Database = {
           member_count: number
           name: string
           price: number
-          pricing: Database["public"]["Enums"]["community_pricing_enum"]
           slug: string
           support_email: string | null
           updated_at: string
@@ -220,7 +219,6 @@ export type Database = {
           member_count?: number
           name: string
           price?: number
-          pricing?: Database["public"]["Enums"]["community_pricing_enum"]
           slug: string
           support_email?: string | null
           updated_at?: string
@@ -248,7 +246,6 @@ export type Database = {
           member_count?: number
           name?: string
           price?: number
-          pricing?: Database["public"]["Enums"]["community_pricing_enum"]
           slug?: string
           support_email?: string | null
           updated_at?: string
@@ -784,6 +781,67 @@ export type Database = {
           },
         ]
       }
+      payments: {
+        Row: {
+          amount: number | null
+          comm_id: number | null
+          community_member_classrooms_id: number | null
+          created_at: string
+          id: number
+          paid_at: string
+          status: Database["public"]["Enums"]["payment_status_enum"]
+          type: Database["public"]["Enums"]["payment_type_enum"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount?: number | null
+          comm_id?: number | null
+          community_member_classrooms_id?: number | null
+          created_at?: string
+          id?: number
+          paid_at?: string
+          status?: Database["public"]["Enums"]["payment_status_enum"]
+          type: Database["public"]["Enums"]["payment_type_enum"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number | null
+          comm_id?: number | null
+          community_member_classrooms_id?: number | null
+          created_at?: string
+          id?: number
+          paid_at?: string
+          status?: Database["public"]["Enums"]["payment_status_enum"]
+          type?: Database["public"]["Enums"]["payment_type_enum"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payments_comm_id_fkey"
+            columns: ["comm_id"]
+            isOneToOne: false
+            referencedRelation: "communities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payments_community_member_classrooms_id_fkey"
+            columns: ["community_member_classrooms_id"]
+            isOneToOne: false
+            referencedRelation: "community_member_classrooms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payments_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       poll: {
         Row: {
           created_at: string
@@ -1059,67 +1117,6 @@ export type Database = {
           },
         ]
       }
-      payments: {
-        Row: {
-          amount: number
-          comm_id: number | null
-          community_member_classrooms_id: number | null
-          created_at: string
-          id: number
-          paid_at: string
-          status: Database["public"]["Enums"]["payment_status_enum"]
-          type: Database["public"]["Enums"]["payment_type_enum"]
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          amount?: number
-          comm_id?: number | null
-          community_member_classrooms_id?: number | null
-          created_at?: string
-          id?: number
-          paid_at?: string
-          status?: Database["public"]["Enums"]["payment_status_enum"]
-          type: Database["public"]["Enums"]["payment_type_enum"]
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          amount?: number
-          comm_id?: number | null
-          community_member_classrooms_id?: number | null
-          created_at?: string
-          id?: number
-          paid_at?: string
-          status?: Database["public"]["Enums"]["payment_status_enum"]
-          type?: Database["public"]["Enums"]["payment_type_enum"]
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "payments_comm_id_fkey"
-            columns: ["comm_id"]
-            isOneToOne: false
-            referencedRelation: "communities"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "payments_community_member_classrooms_id_fkey"
-            columns: ["community_member_classrooms_id"]
-            isOneToOne: false
-            referencedRelation: "community_member_classrooms"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "payments_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       topics: {
         Row: {
           community_id: number
@@ -1376,7 +1373,11 @@ export type Database = {
         | "PUBLIC"
         | "ONE_TIME_PAYMENT"
         | "TIME_UNLOCK"
-      community_billing_cycle_enum: "MONTHLY" | "YEARLY" | "MONTHLY_YEARLY"
+      community_billing_cycle_enum:
+        | "MONTHLY"
+        | "YEARLY"
+        | "MONTHLY_YEARLY"
+        | "ONE_TIME"
       community_member_status_enum:
         | "PENDING"
         | "BANNED"
@@ -1530,7 +1531,12 @@ export const Constants = {
         "ONE_TIME_PAYMENT",
         "TIME_UNLOCK",
       ],
-      community_billing_cycle_enum: ["MONTHLY", "YEARLY", "MONTHLY_YEARLY"],
+      community_billing_cycle_enum: [
+        "MONTHLY",
+        "YEARLY",
+        "MONTHLY_YEARLY",
+        "ONE_TIME",
+      ],
       community_member_status_enum: [
         "PENDING",
         "BANNED",

@@ -63,8 +63,8 @@ export type MemberWithUser = Tables<"community_members"> & {
 }
 
 type CommunityPricing = {
-  pricing: "FREE" | "SUB" | "ONE_TIME"
-  billing_cycle: "MONTHLY" | "YEARLY" | "MONTHLY_YEARLY" | null
+  is_free: boolean
+  billing_cycle: "MONTHLY" | "YEARLY" | "MONTHLY_YEARLY" | "ONE_TIME" | null
   amount_per_month: number | null
   amount_per_year: number | null
   amount_one_time: number | null
@@ -96,26 +96,22 @@ function calculateDaysAgo(dateString: string | null): string {
 }
 
 function getMembershipType(community: CommunityPricing): string {
-  if (community.pricing === "FREE") return "Free"
-  if (community.pricing === "ONE_TIME") return `₹${community.amount_one_time || 0}`
-  if (community.pricing === "SUB") {
-    if (community.billing_cycle === "MONTHLY" || community.billing_cycle === "MONTHLY_YEARLY") {
-      return `₹${community.amount_per_month || 0}/mo`
-    }
-    if (community.billing_cycle === "YEARLY") {
-      return `₹${community.amount_per_year || 0}/yr`
-    }
+  if (community.is_free) return "Free"
+  if (community.billing_cycle === "ONE_TIME") return `₹${community.amount_one_time || 0}`
+  if (community.billing_cycle === "MONTHLY" || community.billing_cycle === "MONTHLY_YEARLY") {
+    return `₹${community.amount_per_month || 0}/mo`
+  }
+  if (community.billing_cycle === "YEARLY") {
+    return `₹${community.amount_per_year || 0}/yr`
   }
   return "Free"
 }
 
 function getAccessType(community: CommunityPricing): string {
-  if (community.pricing === "FREE" || community.pricing === "ONE_TIME") return "Lifetime access"
-  if (community.pricing === "SUB") {
-    if (community.billing_cycle === "MONTHLY") return "Monthly access"
-    if (community.billing_cycle === "YEARLY") return "Yearly access"
-    return "Monthly access"
-  }
+  if (community.is_free || community.billing_cycle === "ONE_TIME") return "Lifetime access"
+  if (community.billing_cycle === "MONTHLY") return "Monthly access"
+  if (community.billing_cycle === "YEARLY") return "Yearly access"
+  if (community.billing_cycle === "MONTHLY_YEARLY") return "Monthly access"
   return "Lifetime access"
 }
 
@@ -187,18 +183,18 @@ export default function MemberSettingsModal({
 
   async function handleRemoveClassroomAccess(classroomId: number) {
     if (!loadedMember) return
-    
+
     const res = await removeMemberClassroomAccess(
       loadedMember.user_id,
       loadedMember.community_id,
       classroomId
     )
-    
+
     if (res.error) {
       toast.error(res.message)
       return
     }
-    
+
     toast.success("Access removed successfully")
     // Remove from local state
     setCoursesProgress(coursesProgress.filter(p => p.classroom.id !== classroomId))
@@ -438,69 +434,69 @@ export default function MemberSettingsModal({
                         <div className="text-center py-8 text-grey-500">No courses enrolled yet</div>
                       ) : (
                         <div className="space-y-4">
-                        {coursesProgress.map((progress) => {
-                          const classroom = progress.classroom;
-                          const isOpenToAll = classroom.type === "PUBLIC" || classroom.type === "PRIVATE";
-                          const isOneTimePayment = classroom.type === "ONE_TIME_PAYMENT";
-                          const isTimeUnlock = classroom.type === "TIME_UNLOCK";
+                          {coursesProgress.map((progress) => {
+                            const classroom = progress.classroom;
+                            const isOpenToAll = classroom.type === "PUBLIC" || classroom.type === "PRIVATE";
+                            const isOneTimePayment = classroom.type === "ONE_TIME_PAYMENT";
+                            const isTimeUnlock = classroom.type === "TIME_UNLOCK";
 
-                          return (
-                            <div key={classroom.id} className="space-y-2">
-                              <div className="flex items-start justify-between">
-                                <div className="flex-1">
-                                  <Link 
-                                    href={`/communities/${communitySlug}/classrooms/${classroom.id}`}
-                                    className="font-semibold text-base text-grey-900 hover:text-orange-500 transition-colors"
-                                  >
-                                    {classroom.name}
-                                  </Link>
-                                  <div className="flex items-center gap-2 mt-1">
-                                    <span className="text-sm font-medium text-orange-500">
-                                      {progress.progress_percentage}% Progress
-                                    </span>
+                            return (
+                              <div key={classroom.id} className="space-y-2">
+                                <div className="flex items-start justify-between">
+                                  <div className="flex-1">
+                                    <Link
+                                      href={`/communities/${communitySlug}/classrooms/${classroom.id}`}
+                                      className="font-semibold text-base text-grey-900 hover:text-orange-500 transition-colors"
+                                    >
+                                      {classroom.name}
+                                    </Link>
+                                    <div className="flex items-center gap-2 mt-1">
+                                      <span className="text-sm font-medium text-orange-500">
+                                        {progress.progress_percentage}% Progress
+                                      </span>
+                                    </div>
                                   </div>
                                 </div>
-                              </div>
 
-                              <div className="text-sm text-grey-600 space-y-1">
-                                {isOpenToAll && (
-                                  <p>
-                                    <span className="font-medium">Open To All:</span> All members have access
-                                  </p>
-                                )}
-                                {isOneTimePayment && (
-                                  <div className="flex items-center justify-between">
+                                <div className="text-sm text-grey-600 space-y-1">
+                                  {isOpenToAll && (
                                     <p>
-                                      <span className="font-medium">One Time Payment:</span> Members pay ₹{classroom.amount_one_time} for access.
+                                      <span className="font-medium">Open To All:</span> All members have access
                                     </p>
-                                    <button 
-                                      type="button"
-                                      className="text-sm text-destructive hover:underline font-medium"
-                                      onClick={() => handleRemoveClassroomAccess(classroom.id)}
-                                    >
-                                      Remove Access
-                                    </button>
-                                  </div>
-                                )}
-                                {isTimeUnlock && (
-                                  <div className="flex items-center justify-between">
-                                    <p>
-                                      <span className="font-medium">Time Unlock:</span> Members get access after {classroom.time_unlock_in_days} days
-                                    </p>
-                                    <button 
-                                      type="button"
-                                      className="text-sm text-destructive hover:underline font-medium"
-                                      onClick={() => handleRemoveClassroomAccess(classroom.id)}
-                                    >
-                                      Remove Access
-                                    </button>
-                                  </div>
-                                )}
+                                  )}
+                                  {isOneTimePayment && (
+                                    <div className="flex items-center justify-between">
+                                      <p>
+                                        <span className="font-medium">One Time Payment:</span> Members pay ₹{classroom.amount_one_time} for access.
+                                      </p>
+                                      <button
+                                        type="button"
+                                        className="text-sm text-destructive hover:underline font-medium"
+                                        onClick={() => handleRemoveClassroomAccess(classroom.id)}
+                                      >
+                                        Remove Access
+                                      </button>
+                                    </div>
+                                  )}
+                                  {isTimeUnlock && (
+                                    <div className="flex items-center justify-between">
+                                      <p>
+                                        <span className="font-medium">Time Unlock:</span> Members get access after {classroom.time_unlock_in_days} days
+                                      </p>
+                                      <button
+                                        type="button"
+                                        className="text-sm text-destructive hover:underline font-medium"
+                                        onClick={() => handleRemoveClassroomAccess(classroom.id)}
+                                      >
+                                        Remove Access
+                                      </button>
+                                    </div>
+                                  )}
+                                </div>
                               </div>
-                            </div>
-                          );
-                        })}
-                      </div>
+                            );
+                          })}
+                        </div>
                       )}
                     </>
                   )}
@@ -523,9 +519,9 @@ export default function MemberSettingsModal({
                             .replace(/_/g, " ")
                             .toLowerCase()
                             .replace(/\b\w/g, (l) => l.toUpperCase());
-                          
+
                           const isZeroAmount = payment.amount === 0;
-                          
+
                           return (
                             <div
                               key={payment.id}
@@ -555,8 +551,8 @@ export default function MemberSettingsModal({
                                       payment.status === "PAID"
                                         ? "bg-green-100 text-green-700"
                                         : payment.status === "PENDING"
-                                        ? "bg-yellow-100 text-yellow-700"
-                                        : "bg-red-100 text-red-700"
+                                          ? "bg-yellow-100 text-yellow-700"
+                                          : "bg-red-100 text-red-700"
                                     )}
                                   >
                                     {payment.status}
@@ -591,7 +587,7 @@ export default function MemberSettingsModal({
                           answers.map((answer) => {
                             const isMcq = answer.questionType === "MULTIPLE_CHOICE";
                             const answerParts = isMcq ? answer.answer.split(", ") : [answer.answer];
-                            
+
                             return (
                               <div key={answer.id} className="">
                                 <p className="text-base font-bold text-grey-900 mb-1">{answer.question}</p>

@@ -79,7 +79,7 @@ export default async function MembersPage({
                     page={currentPage}
                     tab={tab === "admins" ? "admins" : currentTab}
                     community={{
-                        pricing: community.pricing,
+                        is_free: community.is_free,
                         billing_cycle: community.billing_cycle,
                         amount_per_month: community.amount_per_month,
                         amount_per_year: community.amount_per_year,

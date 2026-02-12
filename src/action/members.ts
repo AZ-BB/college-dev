@@ -652,7 +652,7 @@ export async function joinCommunity(
         // --- Community & questions ---
         const { data: community } = await supabase
             .from("communities")
-            .select("is_free, is_public, pricing, amount_per_month, amount_per_year, amount_one_time, billing_cycle")
+            .select("is_free, is_public, amount_per_month, amount_per_year, amount_one_time, billing_cycle")
             .eq("id", communityId)
             .single();
 
@@ -771,26 +771,24 @@ export async function joinCommunity(
             let paymentType: "SUBSCRIPTION_MONTHLY_FEE" | "SUBSCRIPTION_YEARLY_FEE" | "SUBSCRIPTION_ONE_TIME_PAYMENT" | null = null;
             let paymentAmount: number = 0;
 
-            if (community.pricing === "ONE_TIME" && community.amount_one_time != null) {
+            if (community.billing_cycle === "ONE_TIME" && community.amount_one_time != null) {
                 paymentType = "SUBSCRIPTION_ONE_TIME_PAYMENT";
                 paymentAmount = Number(community.amount_one_time);
-            } else if (community.pricing === "SUB") {
-                if (community.billing_cycle === "MONTHLY" && community.amount_per_month != null) {
-                    paymentType = "SUBSCRIPTION_MONTHLY_FEE";
-                    paymentAmount = Number(community.amount_per_month);
-                } else if (community.billing_cycle === "YEARLY" && community.amount_per_year != null) {
+            } else if (community.billing_cycle === "MONTHLY" && community.amount_per_month != null) {
+                paymentType = "SUBSCRIPTION_MONTHLY_FEE";
+                paymentAmount = Number(community.amount_per_month);
+            } else if (community.billing_cycle === "YEARLY" && community.amount_per_year != null) {
+                paymentType = "SUBSCRIPTION_YEARLY_FEE";
+                paymentAmount = Number(community.amount_per_year);
+            } else if (community.billing_cycle === "MONTHLY_YEARLY") {
+                // Use the billing plan selected by the user
+                if (options.billingPlan === "yearly" && community.amount_per_year != null) {
                     paymentType = "SUBSCRIPTION_YEARLY_FEE";
                     paymentAmount = Number(community.amount_per_year);
-                } else if (community.billing_cycle === "MONTHLY_YEARLY") {
-                    // Use the billing plan selected by the user
-                    if (options.billingPlan === "yearly" && community.amount_per_year != null) {
-                        paymentType = "SUBSCRIPTION_YEARLY_FEE";
-                        paymentAmount = Number(community.amount_per_year);
-                    } else if (community.amount_per_month != null) {
-                        // Default to monthly if not specified or if monthly selected
-                        paymentType = "SUBSCRIPTION_MONTHLY_FEE";
-                        paymentAmount = Number(community.amount_per_month);
-                    }
+                } else if (community.amount_per_month != null) {
+                    // Default to monthly if not specified or if monthly selected
+                    paymentType = "SUBSCRIPTION_MONTHLY_FEE";
+                    paymentAmount = Number(community.amount_per_month);
                 }
             }
 
