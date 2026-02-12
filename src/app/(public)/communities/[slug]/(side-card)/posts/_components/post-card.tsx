@@ -31,7 +31,17 @@ import DeletePostModal from "./delete-post-modal";
 import ReportPostModal from "./report-post-modal";
 import EditPostModal from "./edit-post-modal";
 import { toggleCommentsDisabled, deletePost } from "@/action/posts";
+import { banUserFromCommunity } from "@/action/members";
 import { UserData } from "@/utils/get-user-data";
+import {
+    AlertDialog,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 export default function PostCard({ post, topics, user }: { post: PostList; topics: Tables<"topics">[]; user?: UserData | null }) {
     const params = useParams();
@@ -44,6 +54,8 @@ export default function PostCard({ post, topics, user }: { post: PostList; topic
     const [isDeletingPost, setIsDeletingPost] = useState(false);
     const [reportPostModalOpen, setReportPostModalOpen] = useState(false);
     const [editPostModalOpen, setEditPostModalOpen] = useState(false);
+    const [banUserModalOpen, setBanUserModalOpen] = useState(false);
+    const [isBanningUser, setIsBanningUser] = useState(false);
     const [liked, setLiked] = useState(post.is_liked ?? false);
     const [displayLikesCount, setDisplayLikesCount] = useState(post.likes_count ?? 0);
     const [isLiking, setIsLiking] = useState(false);
@@ -150,9 +162,27 @@ export default function PostCard({ post, topics, user }: { post: PostList; topic
         setEditPostModalOpen(true);
     };
 
+    const handleBanUserClick = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        setBanUserModalOpen(true);
+    };
+
+    const handleConfirmBanUser = async () => {
+        setIsBanningUser(true);
+        const result = await banUserFromCommunity(post.community_id, post.author_id);
+        setIsBanningUser(false);
+        setBanUserModalOpen(false);
+        if (result.error) {
+            toast.error(result.message || "Failed to ban user");
+        } else {
+            toast.success(result.message || "User banned successfully");
+            router.refresh();
+        }
+    };
+
     const handleCardClick = () => {
         // Don't navigate if any modal is open
-        if (changeTopicModalOpen || toggleCommentsModalOpen || deletePostModalOpen || reportPostModalOpen || editPostModalOpen) {
+        if (changeTopicModalOpen || toggleCommentsModalOpen || deletePostModalOpen || reportPostModalOpen || editPostModalOpen || banUserModalOpen) {
             return;
         }
         router.push(`/communities/${slug}/posts/${post.id}`);
@@ -317,12 +347,13 @@ export default function PostCard({ post, topics, user }: { post: PostList; topic
                                 Delete post
                             </DropdownMenuItem>
                         </AccessControl>
-                        {/* Disabled for now */}
-                        {/* <AccessControl allowedAccess={[UserAccess.OWNER, UserAccess.ADMIN]}>
-                            <DropdownMenuItem variant="destructive">
-                                Delete post and ban
-                            </DropdownMenuItem>
-                        </AccessControl> */}
+                        {user?.id !== post.author_id && (
+                            <AccessControl allowedAccess={[UserAccess.OWNER, UserAccess.ADMIN]}>
+                                <DropdownMenuItem variant="destructive" onClick={handleBanUserClick}>
+                                    Ban user
+                                </DropdownMenuItem>
+                            </AccessControl>
+                        )}
                     </DropdownMenuContent>
                 </DropdownMenu>
             </div>
@@ -369,6 +400,26 @@ export default function PostCard({ post, topics, user }: { post: PostList; topic
                     user={user}
                 />
             )}
+            <AlertDialog open={banUserModalOpen} onOpenChange={setBanUserModalOpen}>
+                <AlertDialogContent onClick={(e) => e.stopPropagation()} onPointerDown={(e) => e.stopPropagation()}>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Ban User From Community?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            Are you sure you want to ban {formatFullName(post.users.first_name, post.users.last_name)} from this community? They will be removed and unable to re-join.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel disabled={isBanningUser}>Cancel</AlertDialogCancel>
+                        <Button
+                            variant="destructive"
+                            onClick={handleConfirmBanUser}
+                            disabled={isBanningUser}
+                        >
+                            {isBanningUser ? "Banning…" : "Ban"}
+                        </Button>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </Card>
     )
 }

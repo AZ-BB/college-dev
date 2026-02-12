@@ -19,12 +19,24 @@ import ToggleCommentsModal from "../../_components/toggle-comments-modal";
 import DeletePostModal from "../../_components/delete-post-modal";
 import EditPostModal from "../../_components/edit-post-modal";
 import { togglePinPost, toggleCommentsDisabled, deletePost } from "@/action/posts";
+import { banUserFromCommunity } from "@/action/members";
 import { UserData } from "@/utils/get-user-data";
+import { formatFullName } from "@/lib/utils";
+import {
+    AlertDialog,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface PostActionsDropdownProps {
     post: {
         id: number;
         author_id: string;
+        community_id: number;
         topic_id: number | null;
         comments_disabled?: boolean;
         is_pinned?: boolean;
@@ -33,6 +45,8 @@ interface PostActionsDropdownProps {
         video_url?: string | null;
         attachments?: Array<{ id: number; type: string; url: string; name: string }>;
         poll?: { id: number; poll_options?: Array<{ id: number; text: string }> } | null;
+        author_first_name?: string;
+        author_last_name?: string;
     };
     topics: Tables<"topics">[];
     slug: string;
@@ -47,6 +61,8 @@ export default function PostActionsDropdown({ post, topics, slug, user }: PostAc
     const [deletePostModalOpen, setDeletePostModalOpen] = useState(false);
     const [isDeletingPost, setIsDeletingPost] = useState(false);
     const [editPostModalOpen, setEditPostModalOpen] = useState(false);
+    const [banUserModalOpen, setBanUserModalOpen] = useState(false);
+    const [isBanningUser, setIsBanningUser] = useState(false);
 
     const handleCopyLink = async (e: React.MouseEvent) => {
         e.stopPropagation();
@@ -118,6 +134,24 @@ export default function PostActionsDropdown({ post, topics, slug, user }: PostAc
         }
     };
 
+    const handleBanUserClick = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        setBanUserModalOpen(true);
+    };
+
+    const handleConfirmBanUser = async () => {
+        setIsBanningUser(true);
+        const result = await banUserFromCommunity(post.community_id, post.author_id);
+        setIsBanningUser(false);
+        setBanUserModalOpen(false);
+        if (result.error) {
+            toast.error(result.message || "Failed to ban user");
+        } else {
+            toast.success(result.message || "User banned successfully");
+            router.refresh();
+        }
+    };
+
     return (
         <>
             <div className="absolute top-4 right-4 flex items-center gap-2" onClick={(e) => e.stopPropagation()} onPointerDown={(e) => e.stopPropagation()}>
@@ -177,6 +211,13 @@ export default function PostActionsDropdown({ post, topics, slug, user }: PostAc
                                 Delete post
                             </DropdownMenuItem>
                         </AccessControl>
+                        {user?.id !== post.author_id && (
+                            <AccessControl allowedAccess={[UserAccess.OWNER, UserAccess.ADMIN]}>
+                                <DropdownMenuItem variant="destructive" onClick={handleBanUserClick}>
+                                    Ban user
+                                </DropdownMenuItem>
+                            </AccessControl>
+                        )}
                     </DropdownMenuContent>
                 </DropdownMenu>
             </div>
@@ -217,6 +258,26 @@ export default function PostActionsDropdown({ post, topics, slug, user }: PostAc
                     user={user}
                 />
             )}
+            <AlertDialog open={banUserModalOpen} onOpenChange={setBanUserModalOpen}>
+                <AlertDialogContent onClick={(e) => e.stopPropagation()} onPointerDown={(e) => e.stopPropagation()}>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Ban User From Community?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            Are you sure you want to ban {post.author_first_name && post.author_last_name ? formatFullName(post.author_first_name, post.author_last_name) : "this user"} from this community? They will be removed and unable to re-join.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel disabled={isBanningUser}>Cancel</AlertDialogCancel>
+                        <Button
+                            variant="destructive"
+                            onClick={handleConfirmBanUser}
+                            disabled={isBanningUser}
+                        >
+                            {isBanningUser ? "Banning…" : "Ban"}
+                        </Button>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </>
     );
 }
