@@ -507,6 +507,127 @@ export async function updateCommunity({
   }
 }
 
+export async function updateCommunityPricing({
+  id,
+  is_free,
+  billing_cycle,
+  amount_per_month,
+  amount_per_year,
+  amount_one_time,
+  free_trial,
+}: {
+  id: number,
+  is_free: boolean,
+  billing_cycle: "MONTHLY" | "YEARLY" | "MONTHLY_YEARLY" | "ONE_TIME" | null,
+  amount_per_month: number | null,
+  amount_per_year: number | null,
+  amount_one_time: number | null,
+  free_trial: boolean,
+}): Promise<GeneralResponse<Tables<"communities">>> {
+  try {
+    const supabase = await createSupabaseServerClient();
+    if (!id) {
+      return {
+        error: "Community ID is required",
+        message: "Community ID is required",
+        statusCode: 400
+      };
+    }
+
+    if (!is_free) {
+      if (!billing_cycle) {
+        return {
+          error: "Billing cycle is required for earning communities",
+          message: "Please select a billing period",
+          statusCode: 400
+        };
+      }
+      if (billing_cycle === "ONE_TIME" && (amount_one_time == null || amount_one_time <= 0)) {
+        return {
+          error: "Amount is required",
+          message: "Please enter a valid one-time amount",
+          statusCode: 400
+        };
+      }
+      if (billing_cycle === "MONTHLY" && (amount_per_month == null || amount_per_month <= 0)) {
+        return {
+          error: "Amount is required",
+          message: "Please enter a valid monthly amount",
+          statusCode: 400
+        };
+      }
+      if (billing_cycle === "YEARLY" && (amount_per_year == null || amount_per_year <= 0)) {
+        return {
+          error: "Amount is required",
+          message: "Please enter a valid yearly amount",
+          statusCode: 400
+        };
+      }
+      if (billing_cycle === "MONTHLY_YEARLY") {
+        if (amount_per_month == null || amount_per_month <= 0 || amount_per_year == null || amount_per_year <= 0) {
+          return {
+            error: "Amounts are required",
+            message: "Please enter valid monthly and yearly amounts",
+            statusCode: 400
+          };
+        }
+      }
+    }
+
+    const updateData: Record<string, unknown> = {
+      is_free,
+      free_trial: is_free ? false : free_trial,
+    };
+
+    if (is_free) {
+      updateData.billing_cycle = null;
+      updateData.amount_per_month = null;
+      updateData.amount_per_year = null;
+      updateData.amount_one_time = null;
+    } else {
+      updateData.billing_cycle = billing_cycle;
+      updateData.amount_one_time = billing_cycle === "ONE_TIME" ? amount_one_time : null;
+      updateData.amount_per_month = (billing_cycle === "MONTHLY" || billing_cycle === "MONTHLY_YEARLY") ? amount_per_month : null;
+      updateData.amount_per_year = (billing_cycle === "YEARLY" || billing_cycle === "MONTHLY_YEARLY") ? amount_per_year : null;
+    }
+
+    const { data: community, error: communityError } = await supabase
+      .from("communities")
+      .update(updateData)
+      .eq("id", id)
+      .select()
+      .single();
+
+    if (communityError) {
+      console.error("Error updating community pricing:", communityError);
+      return {
+        error: "Error updating pricing",
+        message: communityError.message,
+        statusCode: 500
+      };
+    }
+
+    if (community.slug) {
+      revalidatePath(`/communities/${community.slug}`);
+      revalidatePath(`/communities/${community.slug}`, "layout");
+    }
+
+    return {
+      data: community,
+      error: undefined,
+      message: "Pricing updated successfully",
+      statusCode: 200
+    };
+  } catch (error) {
+    console.error("Error updating community pricing:", error);
+    return {
+      error: "Error updating pricing",
+      message: "Error updating pricing",
+      statusCode: 500
+    };
+  }
+}
+
 export async function updateCtaLink(ctaLinkId: number, {
   url,
   text,

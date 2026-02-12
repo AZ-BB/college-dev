@@ -180,7 +180,7 @@ export function CommunitySettingsModal({
                 <InviteTab communityId={community.id} slug={slug} />
               )}
               {effectiveTab === "pricing" && (
-                <PricingTab />
+                <PricingTab slug={slug} />
               )}
               {effectiveTab === "topics" && (
                 <TopicsTab communityId={community.id} slug={slug} />
