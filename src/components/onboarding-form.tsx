@@ -15,7 +15,6 @@ import { AlertCircle } from "lucide-react"
 import { completeUserProfile } from "@/action/auth"
 import { createSupabaseBrowserClient } from "@/utils/supabase-browser"
 import { isValidRedirect } from "@/lib/redirect"
-import { useRouter } from "next/navigation"
 
 interface OnboardingFormProps extends React.ComponentProps<"form"> {
   redirect?: string | null
@@ -26,8 +25,6 @@ export function OnboardingForm({
   redirect,
   ...props
 }: OnboardingFormProps) {
-  const router = useRouter()
-
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [firstName, setFirstName] = useState("")
@@ -113,8 +110,9 @@ export function OnboardingForm({
       }
 
       const safeRedirect = redirect && isValidRedirect(redirect) ? redirect : null
-      router.push(safeRedirect || "/")
-      router.refresh()
+      const destination = safeRedirect || "/"
+      // Use full page navigation to avoid middleware seeing stale profile data and redirecting back to onboarding
+      window.location.href = destination
 
     } catch (err) {
       console.error(err)

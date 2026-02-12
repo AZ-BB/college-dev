@@ -1,17 +1,15 @@
 "use client";
 
 import { useState } from "react"
-import { useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Field, FieldDescription, FieldGroup, FieldLabel } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { registerUser, isProfileComplete } from "@/action/auth"
+import { registerUser } from "@/action/auth"
 import { AlertCircle, CheckCircle2 } from "lucide-react"
 import config from "@/../config"
 import { OAuthButtons } from "@/components/oauth-buttons"
-import { createSupabaseBrowserClient } from "@/utils/supabase-browser"
 import { isValidRedirect } from "@/lib/redirect"
 
 interface SignupFormProps extends React.ComponentProps<"form"> {
@@ -23,7 +21,6 @@ export function SignupForm({
     redirect,
     ...props
 }: SignupFormProps) {
-  const router = useRouter()
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
@@ -57,31 +54,17 @@ export function SignupForm({
         const safeRedirect = redirect && isValidRedirect(redirect) ? redirect : null
 
         if (config.confirmation === "none") {
-          setTimeout(async () => {
-            const supabase = createSupabaseBrowserClient()
-            const { data: { user } } = await supabase.auth.getUser()
-            if (user) {
-              const profileCheck = await isProfileComplete(user.id)
-              if (profileCheck.data?.needsOnboarding && safeRedirect) {
-                router.replace(`/onboarding?redirect=${encodeURIComponent(safeRedirect)}`)
-              } else if (profileCheck.data?.needsOnboarding) {
-                router.replace("/onboarding")
-              } else if (safeRedirect) {
-                router.replace(safeRedirect)
-              } else {
-                router.replace("/")
-              }
-            } else if (safeRedirect) {
-              router.replace(safeRedirect)
-            } else {
-              router.replace("/")
-            }
+          const onboardingUrl = safeRedirect
+            ? `/onboarding?redirect=${encodeURIComponent(safeRedirect)}`
+            : "/onboarding"
+          setTimeout(() => {
+            window.location.href = onboardingUrl
           }, 1500)
         } else {
           const email = formData.get("email")?.toString() || ""
           const redirectParam = safeRedirect ? `&redirect=${encodeURIComponent(safeRedirect)}` : ""
           setTimeout(() => {
-            router.push(`/verify-email?email=${encodeURIComponent(email)}${redirectParam}`)
+            window.location.href = `/verify-email?email=${encodeURIComponent(email)}${redirectParam}`
           }, 1500)
         }
       }
