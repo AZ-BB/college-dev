@@ -39,8 +39,9 @@ export async function middleware(request: NextRequest) {
   } = await supabase.auth.getUser()
 
   // Define public routes that don't require authentication
-  const publicRoutes = ['/login', '/signup', '/auth/callback', '/auth', '/forget-password', '/auth/reset-password', '/', '/communities', '/onboarding', '/verify-email']
-  const isPublicRoute = publicRoutes.includes(pathname) || pathname.startsWith('/communities/') || pathname.startsWith('/invite/')
+
+  const publicRoutes = ['/login', '/signup', '/auth/callback', '/auth', '/forget-password', '/auth/reset-password', '/', '/communities', '/verify-email']
+  const isPublicRoute = publicRoutes.includes(pathname) || pathname.startsWith('/communities/') || pathname.startsWith('/invite/') || pathname.startsWith('/auth/')
   
   // OAuth callback route needs special handling - always allow it through
   const isCallbackRoute = pathname.startsWith('/auth/callback')
@@ -54,11 +55,12 @@ export async function middleware(request: NextRequest) {
   }
 
   // If user is authenticated and trying to access auth pages, redirect to home
-  // BUT allow the callback route, /login (to avoid redirect loop after logout), and /invite (handled by invite page)
-  const isAuthPage = isPublicRoute && !isCallbackRoute && pathname !== "/login" && !pathname.startsWith("/invite/")
+  // BUT allow the callback route, /login (to avoid redirect loop after logout), /invite (handled by invite page), and /onboarding
+  const isAuthPage = isPublicRoute && !isCallbackRoute && pathname !== "/login" && pathname !== "/onboarding" && !pathname.startsWith("/invite/")
   if (user && isAuthPage) {
     const isUserProfileComplete = await isProfileComplete(user.id)
-    if (isUserProfileComplete.data?.needsOnboarding) {
+    // Don't redirect from / to onboarding - avoids loop when middleware sees stale data after profile completion
+    if (isUserProfileComplete.data?.needsOnboarding && pathname !== "/") {
       return NextResponse.redirect(new URL('/onboarding', request.url))
     } else if (pathname !== "/" && pathname !== "/communities" && !pathname.startsWith("/communities/")) {
       return NextResponse.redirect(new URL('/', request.url))
