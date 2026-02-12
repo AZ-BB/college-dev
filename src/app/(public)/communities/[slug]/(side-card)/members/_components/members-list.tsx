@@ -3,6 +3,7 @@ import { CommunityMemberStatus, CommunityRole } from "@/enums/enums";
 import MemberCard from "./member-card";
 import { unstable_noStore as noStore } from "next/cache";
 import { getUserData } from "@/utils/get-user-data";
+import { createSupabaseServerClient } from "@/utils/supabase-server";
 
 type MembersListProps = {
     communityId: number;
@@ -45,6 +46,25 @@ export default async function MembersList({
 
     const currentUser = await getUserData();
 
+    // Fetch invited-by users for members who were invited
+    const invitedByIds = [...new Set(
+        members.members
+            .map((m) => m.invited_by)
+            .filter((id): id is string => !!id)
+    )];
+
+    const invitedByUserMap: Record<string, { id: string; first_name: string; last_name: string; avatar_url: string | null; username: string }> = {};
+    if (invitedByIds.length > 0) {
+        const supabase = await createSupabaseServerClient();
+        const { data: inviters } = await supabase
+            .from("users")
+            .select("id, first_name, last_name, avatar_url, username")
+            .in("id", invitedByIds);
+        for (const inviter of inviters ?? []) {
+            invitedByUserMap[inviter.id] = inviter;
+        }
+    }
+
     return (
         <div className="space-y-4">
             {members.members.map((member) => (
@@ -52,7 +72,7 @@ export default async function MembersList({
                     key={member.id}
                     member={member}
                     community={community}
-                    invitedByUser={undefined}
+                    invitedByUser={member.invited_by ? invitedByUserMap[member.invited_by] ?? undefined : undefined}
                     isCurrentUser={currentUser?.id === member.user_id}
                     communitySlug={communitySlug}
                 />
