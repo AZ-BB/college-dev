@@ -8,7 +8,7 @@ import { CoverImageUpload } from "./cover-image-upload";
 import AccessControl from "../../../../../components/access-control";
 import { CommunityMemberStatus, UserAccess } from "@/enums/enums";
 import Link from "next/link";
-import JoinCommunityModal from "./join-community-modal";
+import JoinOrBannedMessage from "./join-or-banned-message";
 import { InviteMemberLinkModal } from "@/components/invite-member-link";
 
 export default async function CommunityCard({ slug }: { slug: string }) {
@@ -82,7 +82,7 @@ export default async function CommunityCard({ slug }: { slug: string }) {
                     </AccessControl>
 
                     <AccessControl allowedAccess={[UserAccess.NOT_MEMBER]}>
-                        <JoinCommunityModal
+                        <JoinOrBannedMessage
                             questions={community.community_questions ?? []}
                             communityId={community.id}
                             communityName={community.name}

@@ -233,6 +233,7 @@ export default async function PostPage({ params, searchParams }: { params: Promi
                     post={{
                         id: post.id,
                         author_id: post.author_id,
+                        community_id: post.community_id,
                         topic_id: post.topic_id,
                         comments_disabled: post.comments_disabled,
                         is_pinned: post.is_pinned,
@@ -241,6 +242,8 @@ export default async function PostPage({ params, searchParams }: { params: Promi
                         video_url: post.video_url,
                         attachments: post.attachments ?? [],
                         poll: post.poll ?? null,
+                        author_first_name: post.users?.first_name,
+                        author_last_name: post.users?.last_name,
                     }}
                     topics={topicsList}
                     slug={slug}

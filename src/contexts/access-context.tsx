@@ -11,6 +11,7 @@ type UserAccessContextValue = {
   userId: string | null;
   setUserId: React.Dispatch<React.SetStateAction<string | null>>;
   isCommunityPrivate: boolean;
+  isBanned: boolean;
 };
 
 const UserAccessContext = createContext<UserAccessContextValue | null>(null);
@@ -21,17 +22,20 @@ export function UserAccessProvider({
   initialUserStatus,
   initialUserId,
   initialIsCommunityPrivate = false,
+  initialIsBanned = false,
 }: {
   children: React.ReactNode;
   initialUserAccess: UserAccess;
   initialUserStatus?: CommunityMemberStatus | null;
   initialUserId?: string | null;
   initialIsCommunityPrivate?: boolean;
+  initialIsBanned?: boolean;
 }) {
   const [userAccess, setUserAccess] = useState<UserAccess>(initialUserAccess);
   const [userStatus, setUserStatus] = useState<CommunityMemberStatus>(initialUserStatus ?? CommunityMemberStatus.ACTIVE);
   const [userId, setUserId] = useState<string | null>(initialUserId ?? null);
   const [isCommunityPrivate] = useState(initialIsCommunityPrivate);
+  const [isBanned] = useState(initialIsBanned);
 
   const value = useMemo(
     () => ({
@@ -42,8 +46,9 @@ export function UserAccessProvider({
       userId,
       setUserId,
       isCommunityPrivate,
+      isBanned,
     }),
-    [userAccess, userStatus, userId, isCommunityPrivate],
+    [userAccess, userStatus, userId, isCommunityPrivate, isBanned],
   );
 
   return (

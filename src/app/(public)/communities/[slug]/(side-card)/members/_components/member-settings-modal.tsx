@@ -24,7 +24,7 @@ import {
 } from "@/components/ui/select"
 import { cn } from "@/lib/utils"
 import { useUserAccess } from "@/contexts/access-context"
-import { updateMemberRole, removeMember, getMemberAnswers, getMemberPayments } from "@/action/members"
+import { updateMemberRole, removeMember, banMember, getMemberAnswers, getMemberPayments } from "@/action/members"
 import { getMemberClassroomProgress, removeMemberClassroomAccess } from "@/action/classroom"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
@@ -133,6 +133,9 @@ export default function MemberSettingsModal({
   const [removeConfirmOpen, setRemoveConfirmOpen] = useState(false)
   const [removeLoading, setRemoveLoading] = useState(false)
   const [removeError, setRemoveError] = useState<string | null>(null)
+  const [banConfirmOpen, setBanConfirmOpen] = useState(false)
+  const [banLoading, setBanLoading] = useState(false)
+  const [banError, setBanError] = useState<string | null>(null)
   const [answers, setAnswers] = useState<Array<{ id: number; question: string; answer: string; questionType: string }>>([])
   const [loadingAnswers, setLoadingAnswers] = useState(false)
   const [answersError, setAnswersError] = useState<string | null>(null)
@@ -178,6 +181,21 @@ export default function MemberSettingsModal({
       return
     }
     setRemoveConfirmOpen(false)
+    onOpenChange(false)
+    router.refresh()
+  }
+
+  async function handleBanMember() {
+    if (!loadedMember) return
+    setBanError(null)
+    setBanLoading(true)
+    const res = await banMember(loadedMember.id)
+    setBanLoading(false)
+    if (res.error) {
+      setBanError(res.message ?? res.error)
+      return
+    }
+    setBanConfirmOpen(false)
     onOpenChange(false)
     router.refresh()
   }
@@ -398,7 +416,11 @@ export default function MemberSettingsModal({
                     >
                       Remove from community
                     </button>
-                    <button type="button" className="text-sm text-grey-700 hover:text-destructive text-left">
+                    <button
+                      type="button"
+                      className="text-sm text-grey-700 hover:text-destructive text-left"
+                      onClick={() => setBanConfirmOpen(true)}
+                    >
                       Ban from community
                     </button>
                   </div>
@@ -635,6 +657,30 @@ export default function MemberSettingsModal({
               disabled={removeLoading}
             >
               {removeLoading ? "Removing…" : "Remove"}
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={banConfirmOpen} onOpenChange={setBanConfirmOpen}>
+        <AlertDialogContent onClick={(e) => e.stopPropagation()} onPointerDown={(e) => e.stopPropagation()}>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Ban From Community?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you certain you wish to ban &quot;{loadedMember ? formatFullName(loadedMember.users.first_name, loadedMember.users.last_name) : "Member Name"}&quot;? They will be removed and unable to re-join.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          {banError && (
+            <p className="text-sm text-destructive">{banError}</p>
+          )}
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={banLoading}>Cancel</AlertDialogCancel>
+            <Button
+              variant="destructive"
+              onClick={() => handleBanMember()}
+              disabled={banLoading}
+            >
+              {banLoading ? "Banning…" : "Ban"}
             </Button>
           </AlertDialogFooter>
         </AlertDialogContent>

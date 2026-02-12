@@ -1,6 +1,7 @@
-import { getCommunityMembers } from "@/action/members";
+import { getCommunityMembers, getBannedMembers } from "@/action/members";
 import { CommunityMemberStatus, CommunityRole } from "@/enums/enums";
 import MemberCard from "./member-card";
+import BannedMemberCard from "./banned-member-card";
 import { unstable_noStore as noStore } from "next/cache";
 import { getUserData } from "@/utils/get-user-data";
 import { createSupabaseServerClient } from "@/utils/supabase-server";
@@ -29,13 +30,36 @@ export default async function MembersList({
     // Prevent caching to ensure Suspense works properly
     noStore();
 
-    console.log('Tab:', tab);
+    if (tab === 'BANNED') {
+        const { data: bannedData, error: bannedError } = await getBannedMembers(communityId, { page, limit: 10 });
+
+        if (bannedError || !bannedData) {
+            return <div>Error loading banned members</div>;
+        }
+
+        if (bannedData.members.length === 0) {
+            return <div className="text-center py-12 text-grey-600">No banned members</div>;
+        }
+
+        return (
+            <div className="space-y-4">
+                {bannedData.members.map((bannedMember) => (
+                    <BannedMemberCard
+                        key={bannedMember.id}
+                        bannedMember={bannedMember}
+                        communityId={communityId}
+                        communitySlug={communitySlug}
+                    />
+                ))}
+            </div>
+        );
+    }
 
     const { data: members, error: membersError } = await getCommunityMembers(communityId, {
         page,
         limit: 10,
         filter: {
-            status: (tab && ['LEAVING_SOON', 'CHURNED', 'BANNED'].includes(tab)) ? tab as CommunityMemberStatus : CommunityMemberStatus.ACTIVE,
+            status: (tab && ['LEAVING_SOON', 'CHURNED'].includes(tab)) ? tab as CommunityMemberStatus : CommunityMemberStatus.ACTIVE,
             roles: tab === "admins" ? [CommunityRole.ADMIN, CommunityRole.OWNER] : undefined
         },
     });

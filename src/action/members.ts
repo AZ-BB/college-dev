@@ -126,10 +126,9 @@ export async function getCommunityMembersCounts(id: number): Promise<GeneralResp
             .eq("community_id", id)
             .eq("member_status", CommunityMemberStatus.CHURNED)
 
-        const { count: bannedMembers, error: e4 } = await supabase.from("community_members")
+        const { count: bannedMembers, error: e4 } = await supabase.from("banned_list")
             .select("*", { count: "exact", head: true })
             .eq("community_id", id)
-            .eq("member_status", CommunityMemberStatus.BANNED)
 
         const { count: admins, error: e5 } = await supabase.from("community_members")
             .select("*", { count: "exact", head: true })
@@ -475,6 +474,409 @@ export async function removeMember(membershipId: number): Promise<GeneralRespons
     }
 }
 
+export async function banMember(membershipId: number): Promise<GeneralResponse<{ message: string }>> {
+    try {
+        const supabase = await createSupabaseServerClient();
+        const { data: { user } } = await supabase.auth.getUser();
+
+        if (!user) {
+            return {
+                error: "Unauthorized",
+                message: "You must be signed in to ban members",
+                statusCode: 401
+            };
+        }
+
+        const { data: targetMembership, error: fetchError } = await supabase
+            .from("community_members")
+            .select("id, community_id, role, user_id, communities(slug)")
+            .eq("id", membershipId)
+            .single();
+
+        if (fetchError || !targetMembership) {
+            return {
+                error: "Membership not found",
+                message: "Membership not found",
+                statusCode: 404
+            };
+        }
+
+        const communityId = targetMembership.community_id as number;
+        const targetUserId = targetMembership.user_id as string;
+        const communitySlug = (targetMembership.communities as { slug: string })?.slug;
+
+        const { data: currentUserMembership, error: currentError } = await supabase
+            .from("community_members")
+            .select("role")
+            .eq("community_id", communityId)
+            .eq("user_id", user.id)
+            .single();
+
+        if (currentError || !currentUserMembership) {
+            return {
+                error: "Forbidden",
+                message: "You are not a member of this community",
+                statusCode: 403
+            };
+        }
+
+        const isOwner = currentUserMembership.role === CommunityRole.OWNER;
+        const isAdmin = currentUserMembership.role === CommunityRole.ADMIN;
+        const targetIsOwner = targetMembership.role === CommunityRole.OWNER;
+
+        if (!isOwner && !isAdmin) {
+            return {
+                error: "Forbidden",
+                message: "Only admins and owners can ban members",
+                statusCode: 403
+            };
+        }
+
+        if (targetIsOwner && !isOwner) {
+            return {
+                error: "Forbidden",
+                message: "Only owners can ban an owner from the community",
+                statusCode: 403
+            };
+        }
+
+        const { error: deleteError } = await supabase
+            .from("community_members")
+            .delete()
+            .eq("id", membershipId);
+
+        if (deleteError) {
+            console.error("Error removing member:", deleteError);
+            return {
+                error: "Error banning member",
+                message: "Error banning member",
+                statusCode: 500
+            };
+        }
+
+        const { error: insertError } = await supabase
+            .from("banned_list")
+            .insert({ community_id: communityId, user_id: targetUserId });
+
+        if (insertError) {
+            console.error("Error adding to banned list:", insertError);
+            return {
+                error: "Error banning member",
+                message: "Error banning member",
+                statusCode: 500
+            };
+        }
+
+        if (communitySlug) {
+            revalidatePath(`/communities/${communitySlug}/members`);
+        }
+
+        return {
+            data: { message: "Member banned successfully" },
+            error: undefined,
+            message: "Member banned successfully",
+            statusCode: 200
+        };
+    } catch (error) {
+        console.error("Error banning member:", error);
+        return {
+            error: "Error banning member",
+            message: "Error banning member",
+            statusCode: 500
+        };
+    }
+}
+
+export async function banUserFromCommunity(communityId: number, targetUserId: string): Promise<GeneralResponse<{ message: string }>> {
+    try {
+        const supabase = await createSupabaseServerClient();
+        const { data: { user } } = await supabase.auth.getUser();
+
+        if (!user) {
+            return {
+                error: "Unauthorized",
+                message: "You must be signed in to ban users",
+                statusCode: 401
+            };
+        }
+
+        if (user.id === targetUserId) {
+            return {
+                error: "Forbidden",
+                message: "You cannot ban yourself",
+                statusCode: 400
+            };
+        }
+
+        const { data: currentUserMembership, error: currentError } = await supabase
+            .from("community_members")
+            .select("role, communities(slug)")
+            .eq("community_id", communityId)
+            .eq("user_id", user.id)
+            .single();
+
+        if (currentError || !currentUserMembership) {
+            return {
+                error: "Forbidden",
+                message: "You are not a member of this community",
+                statusCode: 403
+            };
+        }
+
+        const isOwner = currentUserMembership.role === CommunityRole.OWNER;
+        const isAdmin = currentUserMembership.role === CommunityRole.ADMIN;
+
+        if (!isOwner && !isAdmin) {
+            return {
+                error: "Forbidden",
+                message: "Only admins and owners can ban users",
+                statusCode: 403
+            };
+        }
+
+        const { data: targetMembership } = await supabase
+            .from("community_members")
+            .select("id, role")
+            .eq("community_id", communityId)
+            .eq("user_id", targetUserId)
+            .maybeSingle();
+
+        if (targetMembership?.role === CommunityRole.OWNER && !isOwner) {
+            return {
+                error: "Forbidden",
+                message: "Only owners can ban an owner from the community",
+                statusCode: 403
+            };
+        }
+
+        if (targetMembership) {
+            const { error: deleteError } = await supabase
+                .from("community_members")
+                .delete()
+                .eq("id", targetMembership.id);
+
+            if (deleteError) {
+                console.error("Error removing member:", deleteError);
+                return {
+                    error: "Error banning user",
+                    message: "Error banning user",
+                    statusCode: 500
+                };
+            }
+        }
+
+        const { error: insertError } = await supabase
+            .from("banned_list")
+            .upsert({ community_id: communityId, user_id: targetUserId }, {
+                onConflict: "community_id,user_id",
+                ignoreDuplicates: true
+            });
+
+        if (insertError) {
+            console.error("Error adding to banned list:", insertError);
+            return {
+                error: "Error banning user",
+                message: "Error banning user",
+                statusCode: 500
+            };
+        }
+
+        const communitySlug = (currentUserMembership.communities as { slug: string })?.slug;
+        if (communitySlug) {
+            revalidatePath(`/communities/${communitySlug}/members`);
+            revalidatePath(`/communities/${communitySlug}/posts`);
+        }
+
+        return {
+            data: { message: "User banned successfully" },
+            error: undefined,
+            message: "User banned successfully",
+            statusCode: 200
+        };
+    } catch (error) {
+        console.error("Error banning user:", error);
+        return {
+            error: "Error banning user",
+            message: "Error banning user",
+            statusCode: 500
+        };
+    }
+}
+
+export type BannedMemberWithUser = {
+    id: number
+    community_id: number
+    user_id: string
+    created_at: string
+    users: {
+        id: string
+        bio: string | null
+        email: string
+        username: string
+        first_name: string
+        last_name: string
+        avatar_url: string | null
+    }
+}
+
+export async function getBannedMembers(communityId: number, {
+    page = 1,
+    limit = 10
+}: { page?: number; limit?: number } = {}): Promise<GeneralResponse<{
+    members: BannedMemberWithUser[]
+    totalCount: number
+}>> {
+    try {
+        const supabase = await createSupabaseServerClient();
+        const offset = (page - 1) * limit;
+
+        const { data: bannedRows, error: fetchError } = await supabase
+            .from("banned_list")
+            .select(`
+                id,
+                community_id,
+                user_id,
+                created_at,
+                users (
+                    id,
+                    bio,
+                    email,
+                    username,
+                    first_name,
+                    last_name,
+                    avatar_url
+                )
+            `)
+            .eq("community_id", communityId)
+            .order("created_at", { ascending: false })
+            .range(offset, offset + limit - 1);
+
+        if (fetchError) {
+            console.error("Error fetching banned members:", fetchError);
+            return {
+                error: "Error fetching banned members",
+                message: fetchError.message,
+                statusCode: 500
+            };
+        }
+
+        const { count, error: countError } = await supabase
+            .from("banned_list")
+            .select("*", { count: "exact", head: true })
+            .eq("community_id", communityId);
+
+        if (countError) {
+            console.error("Error counting banned members:", countError);
+            return {
+                error: "Error fetching banned members",
+                message: countError.message,
+                statusCode: 500
+            };
+        }
+
+        const members: BannedMemberWithUser[] = (bannedRows ?? []).map((row: any) => ({
+            id: row.id,
+            community_id: row.community_id,
+            user_id: row.user_id,
+            created_at: row.created_at,
+            users: row.users
+        }));
+
+        return {
+            data: {
+                members,
+                totalCount: count ?? 0
+            },
+            error: undefined,
+            message: "Banned members fetched successfully",
+            statusCode: 200
+        };
+    } catch (error) {
+        console.error("Error fetching banned members:", error);
+        return {
+            error: "Error fetching banned members",
+            message: "Error fetching banned members",
+            statusCode: 500
+        };
+    }
+}
+
+export async function unbanUser(communityId: number, userId: string): Promise<GeneralResponse<{ message: string }>> {
+    try {
+        const supabase = await createSupabaseServerClient();
+        const { data: { user } } = await supabase.auth.getUser();
+
+        if (!user) {
+            return {
+                error: "Unauthorized",
+                message: "You must be signed in to unban users",
+                statusCode: 401
+            };
+        }
+
+        const { data: currentUserMembership, error: currentError } = await supabase
+            .from("community_members")
+            .select("role, communities(slug)")
+            .eq("community_id", communityId)
+            .eq("user_id", user.id)
+            .single();
+
+        if (currentError || !currentUserMembership) {
+            return {
+                error: "Forbidden",
+                message: "You are not a member of this community",
+                statusCode: 403
+            };
+        }
+
+        const isOwner = currentUserMembership.role === CommunityRole.OWNER;
+        const isAdmin = currentUserMembership.role === CommunityRole.ADMIN;
+
+        if (!isOwner && !isAdmin) {
+            return {
+                error: "Forbidden",
+                message: "Only admins and owners can unban users",
+                statusCode: 403
+            };
+        }
+
+        const communitySlug = (currentUserMembership.communities as { slug: string })?.slug;
+
+        const { error: deleteError } = await supabase
+            .from("banned_list")
+            .delete()
+            .eq("community_id", communityId)
+            .eq("user_id", userId);
+
+        if (deleteError) {
+            console.error("Error unbanning user:", deleteError);
+            return {
+                error: "Error unbanning user",
+                message: "Error unbanning user",
+                statusCode: 500
+            };
+        }
+
+        if (communitySlug) {
+            revalidatePath(`/communities/${communitySlug}/members`);
+        }
+
+        return {
+            data: { message: "User unbanned successfully" },
+            error: undefined,
+            message: "User unbanned successfully",
+            statusCode: 200
+        };
+    } catch (error) {
+        console.error("Error unbanning user:", error);
+        return {
+            error: "Error unbanning user",
+            message: "Error unbanning user",
+            statusCode: 500
+        };
+    }
+}
+
 export async function inviteMemberByEmail(
     communityId: number,
     slug: string,
@@ -556,6 +958,20 @@ export async function inviteMemberByEmail(
                     message: alreadyInvited
                         ? "This user has already been invited to the community."
                         : "This user is already a member of the community.",
+                    statusCode: 400
+                };
+            }
+
+            const { data: bannedEntry } = await supabase
+                .from("banned_list")
+                .select("id")
+                .eq("community_id", communityId)
+                .eq("user_id", inviteeUser.id)
+                .maybeSingle();
+            if (bannedEntry) {
+                return {
+                    error: "User banned",
+                    message: "Cannot invite: this user is banned from the community.",
                     statusCode: 400
                 };
             }
@@ -690,6 +1106,20 @@ export async function joinCommunity(
                 error: "Already a member",
                 message: "You are already a member of this community.",
                 statusCode: 400,
+            };
+        }
+
+        const { data: bannedEntry } = await supabase
+            .from("banned_list")
+            .select("id")
+            .eq("community_id", communityId)
+            .eq("user_id", user.id)
+            .maybeSingle();
+        if (bannedEntry) {
+            return {
+                error: "Banned",
+                message: "You are banned from this community.",
+                statusCode: 403,
             };
         }
 

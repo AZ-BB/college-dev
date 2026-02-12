@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      banned_list: {
+        Row: {
+          community_id: number
+          created_at: string
+          id: number
+          user_id: string
+        }
+        Insert: {
+          community_id: number
+          created_at?: string
+          id?: number
+          user_id: string
+        }
+        Update: {
+          community_id?: number
+          created_at?: string
+          id?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "banned_list_community_id_fkey"
+            columns: ["community_id"]
+            isOneToOne: false
+            referencedRelation: "communities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "banned_list_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       classrooms: {
         Row: {
           amount_one_time: number | null

@@ -17,22 +17,30 @@ export default async function CommunityLayout({ children, params }: { children: 
 
     let userAccess: UserAccess
     let userStatus: CommunityMemberStatus | null = null;
+    let isBanned = false;
 
     if (user) {
-        const { data: community, error: communityError } = await supabase.from("communities").select("id").eq("slug", slug).single();
+        const { data: communityWithId, error: communityError } = await supabase.from("communities").select("id").eq("slug", slug).single();
 
-        if (communityError || !community) {
+        if (communityError || !communityWithId) {
             return notFound();
         }
 
         const { data: membership, error: membershipError } = await supabase
             .from("community_members")
             .select("role, member_status")
-            .eq("user_id", user?.id).eq("community_id", community?.id).single();
+            .eq("user_id", user?.id).eq("community_id", communityWithId?.id).single();
 
         if (membershipError || !membership) {
             userAccess = UserAccess.NOT_MEMBER;
             userStatus = null;
+            const { data: bannedEntry } = await supabase
+                .from("banned_list")
+                .select("id")
+                .eq("community_id", communityWithId.id)
+                .eq("user_id", user.id)
+                .maybeSingle();
+            isBanned = !!bannedEntry;
         }
         else {
             userAccess = membership.role as UserAccess;
@@ -64,6 +72,7 @@ export default async function CommunityLayout({ children, params }: { children: 
             initialUserStatus={userStatus}
             initialUserId={user?.id ?? null}
             initialIsCommunityPrivate={!community.is_public}
+            initialIsBanned={isBanned}
         >
             {children}
         </UserAccessProvider>
