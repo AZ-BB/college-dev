@@ -1,16 +1,28 @@
 import { isProfileComplete } from "@/action/auth"
 import { OnboardingForm } from "@/components/onboarding-form"
+import { isValidRedirect } from "@/lib/redirect"
 import { redirect } from "next/navigation"
 import { createSupabaseServerClient } from "@/utils/supabase-server"
 
-export default async function OnboardingPage() {
+interface OnboardingPageProps {
+  searchParams?: Promise<{ redirect?: string }>
+}
+
+export default async function OnboardingPage({ searchParams }: OnboardingPageProps) {
   const supabase = await createSupabaseServerClient()
   const { data: { user } } = await supabase.auth.getUser()
-  console.log(user)
-  const isUserProfileComplete = await isProfileComplete(user!.id) 
-  if (!isUserProfileComplete.data?.needsOnboarding) {
+  const params = await searchParams
+  const redirectTo = params?.redirect && isValidRedirect(params.redirect) ? params.redirect : null
+
+  if (!user) {
     return redirect("/")
   }
+
+  const isUserProfileComplete = await isProfileComplete(user.id)
+  if (!isUserProfileComplete.data?.needsOnboarding) {
+    return redirect(redirectTo || "/")
+  }
+
   return (
     <div className="flex min-h-screen flex-col bg-white px-4 py-10">
       <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-md">
@@ -61,7 +73,7 @@ export default async function OnboardingPage() {
       </div>
       <div className="flex flex-1 items-center justify-center">
         <div className="w-full max-w-md">
-          <OnboardingForm className="w-full" />
+          <OnboardingForm className="w-full" redirect={redirectTo} />
         </div>
       </div>
     </div>

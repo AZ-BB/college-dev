@@ -142,6 +142,7 @@ export default async function PostsPage({
                 sortBy={initialSortBy}
                 topics={topics}
                 userId={user?.id}
+                user={user}
             />
         </div >
     )

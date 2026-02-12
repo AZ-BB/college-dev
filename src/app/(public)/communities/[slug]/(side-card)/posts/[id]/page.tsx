@@ -236,9 +236,15 @@ export default async function PostPage({ params, searchParams }: { params: Promi
                         topic_id: post.topic_id,
                         comments_disabled: post.comments_disabled,
                         is_pinned: post.is_pinned,
+                        title: post.title,
+                        content: post.content,
+                        video_url: post.video_url,
+                        attachments: post.attachments ?? [],
+                        poll: post.poll ?? null,
                     }}
                     topics={topicsList}
                     slug={slug}
+                    user={user}
                 />
             </Card>
         </div>

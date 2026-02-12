@@ -1,7 +1,7 @@
 import { VerifyEmailForm } from "@/components/verify-email-form"
 
 interface VerifyEmailPageProps {
-  searchParams?: Promise<{ email?: string }>
+  searchParams?: Promise<{ email?: string; redirect?: string }>
 }
 
 export default async function VerifyEmailPage({
@@ -9,6 +9,7 @@ export default async function VerifyEmailPage({
 }: VerifyEmailPageProps) {
   const params = await searchParams
   const email = params?.email || ""
+  const redirect = params?.redirect
 
   return (
     <div className="flex min-h-screen flex-col bg-white px-4 py-10">
@@ -60,7 +61,7 @@ export default async function VerifyEmailPage({
       </div>
       <div className="flex flex-1 items-center justify-center">
         <div className="w-full max-w-md">
-          <VerifyEmailForm email={email} className="w-full" />
+          <VerifyEmailForm email={email} redirect={redirect} className="w-full" />
         </div>
       </div>
     </div>

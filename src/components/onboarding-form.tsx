@@ -15,11 +15,17 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { AlertCircle } from "lucide-react"
 import { completeUserProfile } from "@/action/auth"
 import { createSupabaseBrowserClient } from "@/utils/supabase-browser"
+import { isValidRedirect } from "@/lib/redirect"
+
+interface OnboardingFormProps extends React.ComponentProps<"form"> {
+  redirect?: string | null
+}
 
 export function OnboardingForm({
   className,
+  redirect,
   ...props
-}: React.ComponentProps<"form">) {
+}: OnboardingFormProps) {
   const router = useRouter()
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
@@ -105,8 +111,8 @@ export function OnboardingForm({
         return
       }
 
-      // Profile updated successfully, redirect to home
-      router.push("/")
+      const safeRedirect = redirect && isValidRedirect(redirect) ? redirect : null
+      router.push(safeRedirect || "/")
       router.refresh()
     } catch (err) {
       console.error(err)

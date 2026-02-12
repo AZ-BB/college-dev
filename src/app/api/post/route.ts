@@ -58,10 +58,10 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // Verify post exists and user has permission
+        // Verify post exists and user has permission (author or admin/owner)
         const { data: post, error: postError } = await supabase
             .from('posts')
-            .select('id, author_id')
+            .select('id, author_id, community_id')
             .eq('id', parseInt(postId))
             .single();
 
@@ -72,12 +72,21 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // Verify user is the author of the post
         if (post.author_id !== user.id) {
-            return NextResponse.json(
-                { error: 'Unauthorized' },
-                { status: 403 }
-            );
+            const { data: member } = await supabase
+                .from('community_members')
+                .select('role')
+                .eq('community_id', post.community_id)
+                .eq('user_id', user.id)
+                .eq('member_status', 'ACTIVE')
+                .single();
+
+            if (!member || (member.role !== 'ADMIN' && member.role !== 'OWNER')) {
+                return NextResponse.json(
+                    { error: 'Unauthorized' },
+                    { status: 403 }
+                );
+            }
         }
 
         // Upload image: posts/{post_id}/{UUID-name}.{extension}

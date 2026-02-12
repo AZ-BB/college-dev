@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button"
 import { createSupabaseBrowserClient } from "@/utils/supabase-browser"
 import config, { type OAuthProvider } from "@/../config"
+import { isValidRedirect } from "@/lib/redirect"
 
 const getOAuthConfig = (provider: OAuthProvider, type: "signin" | "signup") => {
   const action = type === "signin" ? "Sign In" : "Sign Up"
@@ -69,15 +70,20 @@ const getOAuthConfig = (provider: OAuthProvider, type: "signin" | "signup") => {
 
 interface OAuthButtonsProps {
   type: "signin" | "signup"
+  redirect?: string | null
 }
 
-export function OAuthButtons({ type }: OAuthButtonsProps) {
+export function OAuthButtons({ type, redirect }: OAuthButtonsProps) {
   const handleOAuth = async (provider: OAuthProvider) => {
+    const site = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"
+    const nextParam = redirect && isValidRedirect(redirect) ? `&next=${encodeURIComponent(redirect)}` : ""
+    const redirectTo = `${site}/auth/callback?provider=${provider}${nextParam}`
+
     const supabase = createSupabaseBrowserClient()
     await supabase.auth.signInWithOAuth({
       provider,
       options: {
-        redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/auth/callback?provider=${provider}`,
+        redirectTo,
       },
     })
   }

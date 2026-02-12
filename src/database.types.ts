@@ -606,6 +606,48 @@ export type Database = {
           },
         ]
       }
+      invitations: {
+        Row: {
+          community_id: number
+          created_at: string
+          email: string
+          id: number
+          invited_by: string
+          role: Database["public"]["Enums"]["community_role_enum"]
+        }
+        Insert: {
+          community_id: number
+          created_at?: string
+          email: string
+          id?: number
+          invited_by: string
+          role: Database["public"]["Enums"]["community_role_enum"]
+        }
+        Update: {
+          community_id?: number
+          created_at?: string
+          email?: string
+          id?: number
+          invited_by?: string
+          role?: Database["public"]["Enums"]["community_role_enum"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invitations_community_id_fkey"
+            columns: ["community_id"]
+            isOneToOne: false
+            referencedRelation: "communities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invitations_invited_by_fkey"
+            columns: ["invited_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       lesson_resources: {
         Row: {
           created_at: string
