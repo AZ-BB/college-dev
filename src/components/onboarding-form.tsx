@@ -1,7 +1,6 @@
 "use client"
 
 import { useState } from "react"
-import { useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import {
@@ -27,6 +26,7 @@ export function OnboardingForm({
   ...props
 }: OnboardingFormProps) {
   const router = useRouter()
+
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [firstName, setFirstName] = useState("")
@@ -114,6 +114,7 @@ export function OnboardingForm({
       const safeRedirect = redirect && isValidRedirect(redirect) ? redirect : null
       router.push(safeRedirect || "/")
       router.refresh()
+
     } catch (err) {
       console.error(err)
       setError("An unexpected error occurred. Please try again.")
