@@ -192,7 +192,6 @@ export type Database = {
           member_count: number
           name: string
           price: number
-          pricing: Database["public"]["Enums"]["community_pricing_enum"]
           slug: string
           support_email: string | null
           updated_at: string
@@ -220,7 +219,6 @@ export type Database = {
           member_count?: number
           name: string
           price?: number
-          pricing?: Database["public"]["Enums"]["community_pricing_enum"]
           slug: string
           support_email?: string | null
           updated_at?: string
@@ -248,7 +246,6 @@ export type Database = {
           member_count?: number
           name?: string
           price?: number
-          pricing?: Database["public"]["Enums"]["community_pricing_enum"]
           slug?: string
           support_email?: string | null
           updated_at?: string
@@ -784,6 +781,67 @@ export type Database = {
           },
         ]
       }
+      payments: {
+        Row: {
+          amount: number | null
+          comm_id: number | null
+          community_member_classrooms_id: number | null
+          created_at: string
+          id: number
+          paid_at: string
+          status: Database["public"]["Enums"]["payment_status_enum"]
+          type: Database["public"]["Enums"]["payment_type_enum"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount?: number | null
+          comm_id?: number | null
+          community_member_classrooms_id?: number | null
+          created_at?: string
+          id?: number
+          paid_at?: string
+          status?: Database["public"]["Enums"]["payment_status_enum"]
+          type: Database["public"]["Enums"]["payment_type_enum"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number | null
+          comm_id?: number | null
+          community_member_classrooms_id?: number | null
+          created_at?: string
+          id?: number
+          paid_at?: string
+          status?: Database["public"]["Enums"]["payment_status_enum"]
+          type?: Database["public"]["Enums"]["payment_type_enum"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payments_comm_id_fkey"
+            columns: ["comm_id"]
+            isOneToOne: false
+            referencedRelation: "communities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payments_community_member_classrooms_id_fkey"
+            columns: ["community_member_classrooms_id"]
+            isOneToOne: false
+            referencedRelation: "community_member_classrooms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payments_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       poll: {
         Row: {
           created_at: string
@@ -1315,7 +1373,11 @@ export type Database = {
         | "PUBLIC"
         | "ONE_TIME_PAYMENT"
         | "TIME_UNLOCK"
-      community_billing_cycle_enum: "MONTHLY" | "YEARLY" | "MONTHLY_YEARLY"
+      community_billing_cycle_enum:
+        | "MONTHLY"
+        | "YEARLY"
+        | "MONTHLY_YEARLY"
+        | "ONE_TIME"
       community_member_status_enum:
         | "PENDING"
         | "BANNED"
@@ -1326,6 +1388,12 @@ export type Database = {
       community_question_type_enum: "TEXT" | "EMAIL" | "MULTIPLE_CHOICE"
       community_role_enum: "OWNER" | "MEMBER" | "ADMIN"
       lesson_resource_type_enum: "FILE" | "LINK"
+      payment_status_enum: "PENDING" | "PAID" | "FAILED"
+      payment_type_enum:
+        | "SUBSCRIPTION_MONTHLY_FEE"
+        | "SUBSCRIPTION_YEARLY_FEE"
+        | "SUBSCRIPTION_ONE_TIME_PAYMENT"
+        | "CLASSROOM_ONE_TIME_PAYMENT"
       posts_attachment_type_enum: "IMAGE" | "LINK"
       topic_write_permission_type_enum: "PUBLIC" | "ADMINS"
       video_type_enum: "YOUTUBE" | "LOOM" | "VIMEO"
@@ -1463,7 +1531,12 @@ export const Constants = {
         "ONE_TIME_PAYMENT",
         "TIME_UNLOCK",
       ],
-      community_billing_cycle_enum: ["MONTHLY", "YEARLY", "MONTHLY_YEARLY"],
+      community_billing_cycle_enum: [
+        "MONTHLY",
+        "YEARLY",
+        "MONTHLY_YEARLY",
+        "ONE_TIME",
+      ],
       community_member_status_enum: [
         "PENDING",
         "BANNED",
@@ -1475,6 +1548,13 @@ export const Constants = {
       community_question_type_enum: ["TEXT", "EMAIL", "MULTIPLE_CHOICE"],
       community_role_enum: ["OWNER", "MEMBER", "ADMIN"],
       lesson_resource_type_enum: ["FILE", "LINK"],
+      payment_status_enum: ["PENDING", "PAID", "FAILED"],
+      payment_type_enum: [
+        "SUBSCRIPTION_MONTHLY_FEE",
+        "SUBSCRIPTION_YEARLY_FEE",
+        "SUBSCRIPTION_ONE_TIME_PAYMENT",
+        "CLASSROOM_ONE_TIME_PAYMENT",
+      ],
       posts_attachment_type_enum: ["IMAGE", "LINK"],
       topic_write_permission_type_enum: ["PUBLIC", "ADMINS"],
       video_type_enum: ["YOUTUBE", "LOOM", "VIMEO"],

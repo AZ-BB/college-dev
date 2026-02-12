@@ -786,6 +786,308 @@ export async function deleteClassroom(classroomId: number, communitySlug: string
 
 // MEMBER CLASSROOM PROGRESS
 
+export async function removeMemberClassroomAccess(
+    userId: string,
+    communityId: number,
+    classroomId: number
+): Promise<GeneralResponse<void>> {
+    const supabase = await createSupabaseServerClient();
+    const currentUser = await getUserData();
+
+    if (!currentUser) {
+        return {
+            error: "User not authenticated",
+            message: "User not authenticated",
+            statusCode: 401,
+        };
+    }
+
+    try {
+        const { error: deleteError } = await supabase
+            .from("community_member_classrooms")
+            .delete()
+            .eq("user_id", userId)
+            .eq("community_id", communityId)
+            .eq("classroom_id", classroomId);
+
+        if (deleteError) {
+            console.error("Error removing classroom access:", deleteError);
+            return {
+                error: "Error removing access",
+                message: "Error removing classroom access",
+                statusCode: 500,
+            };
+        }
+
+        return {
+            data: undefined,
+            message: "Access removed successfully",
+            statusCode: 200,
+        };
+    } catch (error) {
+        console.error("Error in removeMemberClassroomAccess:", error);
+        return {
+            error: "Error removing access",
+            message: "Error removing classroom access",
+            statusCode: 500,
+        };
+    }
+}
+
+export async function getAvailableClassroomsForMember(
+    userId: string,
+    communityId: number
+): Promise<GeneralResponse<Array<Tables<"classrooms">>>> {
+    const supabase = await createSupabaseServerClient();
+
+    try {
+        // Get all classrooms in the community (excluding drafts)
+        const { data: allClassrooms, error: classroomsError } = await supabase
+            .from("classrooms")
+            .select("*")
+            .eq("community_id", communityId)
+            .eq("is_draft", false)
+            .order("name");
+
+        if (classroomsError) {
+            console.error("Error fetching classrooms:", classroomsError);
+            return {
+                error: "Error fetching classrooms",
+                message: "Error fetching available classrooms",
+                statusCode: 500,
+            };
+        }
+
+        // Get classrooms the member has already joined
+        const { data: joinedClassrooms, error: joinedError } = await supabase
+            .from("community_member_classrooms")
+            .select("classroom_id")
+            .eq("user_id", userId)
+            .eq("community_id", communityId);
+
+        if (joinedError) {
+            console.error("Error fetching joined classrooms:", joinedError);
+            return {
+                error: "Error fetching joined classrooms",
+                message: "Error fetching joined classrooms",
+                statusCode: 500,
+            };
+        }
+
+        const joinedClassroomIds = joinedClassrooms?.map(jc => jc.classroom_id) || [];
+
+        // Filter out already joined classrooms
+        const availableClassrooms = allClassrooms?.filter(
+            classroom => !joinedClassroomIds.includes(classroom.id)
+        ) || [];
+
+        return {
+            data: availableClassrooms,
+            message: "Available classrooms fetched successfully",
+            statusCode: 200,
+        };
+    } catch (error) {
+        console.error("Error in getAvailableClassroomsForMember:", error);
+        return {
+            error: "Error fetching classrooms",
+            message: "Error fetching available classrooms",
+            statusCode: 500,
+        };
+    }
+}
+
+export async function giveClassroomAccessToMember(
+    userId: string,
+    communityId: number,
+    classroomIds: number[]
+): Promise<GeneralResponse<void>> {
+    const supabase = await createSupabaseServerClient();
+    const currentUser = await getUserData();
+
+    if (!currentUser) {
+        return {
+            error: "User not authenticated",
+            message: "User not authenticated",
+            statusCode: 401,
+        };
+    }
+
+    try {
+        // Create rows for each classroom
+        const rows = classroomIds.map(classroomId => ({
+            user_id: userId,
+            community_id: communityId,
+            classroom_id: classroomId,
+            progress_lessons: "[]",
+        }));
+
+        const { data: insertedRecords, error: insertError } = await supabase
+            .from("community_member_classrooms")
+            .insert(rows)
+            .select("id, classroom_id");
+
+        if (insertError || !insertedRecords) {
+            console.error("Error giving classroom access:", insertError);
+            return {
+                error: "Error giving access",
+                message: "Error giving classroom access",
+                statusCode: 500,
+            };
+        }
+
+        // Fetch classroom details to check if they're paid
+        const { data: classrooms, error: classroomsError } = await supabase
+            .from("classrooms")
+            .select("id, type, amount_one_time")
+            .in("id", classroomIds);
+
+        if (classroomsError) {
+            console.error("Error fetching classroom details:", classroomsError);
+            // Don't fail the operation if we can't fetch classroom details
+        } else if (classrooms) {
+            // Create zero-amount payment records for paid classrooms
+            const paymentRecords = insertedRecords
+                .map(record => {
+                    const classroom = classrooms.find(c => c.id === record.classroom_id);
+                    if (classroom && classroom.type === "ONE_TIME_PAYMENT" && classroom.amount_one_time != null) {
+                        return {
+                            user_id: userId,
+                            comm_id: communityId,
+                            community_member_classrooms_id: record.id,
+                            amount: 0, // Zero amount for admin-granted access
+                            type: "CLASSROOM_ONE_TIME_PAYMENT" as const,
+                            status: "PAID" as const,
+                        };
+                    }
+                    return null;
+                })
+                .filter((record): record is NonNullable<typeof record> => record !== null);
+
+            if (paymentRecords.length > 0) {
+                const { error: paymentError } = await (supabase as any)
+                    .from("payments")
+                    .insert(paymentRecords);
+
+                if (paymentError) {
+                    console.error("Error creating payment records:", paymentError);
+                    // Don't fail the operation if payment records fail, just log it
+                }
+            }
+        }
+
+        return {
+            data: undefined,
+            message: "Access granted successfully",
+            statusCode: 200,
+        };
+    } catch (error) {
+        console.error("Error in giveClassroomAccessToMember:", error);
+        return {
+            error: "Error giving access",
+            message: "Error giving classroom access",
+            statusCode: 500,
+        };
+    }
+}
+
+export async function getMemberClassroomProgress(
+    userId: string,
+    communityId: number
+): Promise<GeneralResponse<Array<{
+    classroom: Tables<"classrooms">;
+    progress_lessons: number[];
+    total_lessons: number;
+    completed_lessons: number;
+    progress_percentage: number;
+}>>> {
+    const supabase = await createSupabaseServerClient();
+
+    try {
+        // Get all classrooms the member has joined
+        const { data: memberClassrooms, error: memberError } = await supabase
+            .from("community_member_classrooms")
+            .select(`
+                classroom_id,
+                progress_lessons,
+                classrooms (*)
+            `)
+            .eq("user_id", userId)
+            .eq("community_id", communityId);
+
+        if (memberError) {
+            console.error("Error fetching member classrooms:", memberError);
+            return {
+                error: "Error fetching progress",
+                message: "Error fetching classroom progress",
+                statusCode: 500,
+            };
+        }
+
+        if (!memberClassrooms || memberClassrooms.length === 0) {
+            return {
+                data: [],
+                message: "No classrooms found",
+                statusCode: 200,
+            };
+        }
+
+        // Get lesson counts for each classroom
+        const progressData = await Promise.all(
+            memberClassrooms.map(async (mc: any) => {
+                const classroom = mc.classrooms;
+                
+                // Count total lessons in this classroom
+                const { data: modules } = await supabase
+                    .from("modules")
+                    .select("id")
+                    .eq("classroom_id", classroom.id);
+
+                const moduleIds = modules?.map(m => m.id) || [];
+                
+                const { count: totalLessons } = await supabase
+                    .from("lessons")
+                    .select("*", { count: "exact", head: true })
+                    .in("module_id", moduleIds);
+
+                // Parse completed lessons
+                let completedLessonsArray: number[] = [];
+                if (mc.progress_lessons) {
+                    try {
+                        completedLessonsArray = JSON.parse(mc.progress_lessons);
+                    } catch (e) {
+                        completedLessonsArray = [];
+                    }
+                }
+
+                const completedCount = completedLessonsArray.length;
+                const total = totalLessons || 0;
+                const percentage = total > 0 ? Math.round((completedCount / total) * 100) : 0;
+
+                return {
+                    classroom,
+                    progress_lessons: completedLessonsArray,
+                    total_lessons: total,
+                    completed_lessons: completedCount,
+                    progress_percentage: percentage,
+                };
+            })
+        );
+
+        return {
+            data: progressData,
+            message: "Progress fetched successfully",
+            statusCode: 200,
+        };
+    } catch (error) {
+        console.error("Error in getMemberClassroomProgress:", error);
+        return {
+            error: "Error fetching progress",
+            message: "Error fetching classroom progress",
+            statusCode: 500,
+        };
+    }
+}
+
 export async function toggleLessonCompletion(
     userId: string,
     communityId: number,
@@ -934,22 +1236,53 @@ export async function createMemberClassroomProgress(
         }
 
         // Insert new record
-        const { error: insertError } = await supabase
+        const { data: newRecord, error: insertError } = await supabase
             .from("community_member_classrooms")
             .insert({
                 user_id: userId,
                 community_id: communityId,
                 classroom_id: classroomId,
                 progress_lessons: null,
-            });
+            })
+            .select("id")
+            .single();
 
-        if (insertError) {
+        if (insertError || !newRecord) {
             console.error("Error creating member classroom progress:", insertError);
             return {
                 error: "Error creating progress",
                 message: "Error creating classroom progress",
                 statusCode: 500,
             };
+        }
+
+        // Fetch classroom details to get the amount
+        const { data: classroom, error: classroomError } = await supabase
+            .from("classrooms")
+            .select("amount_one_time, type")
+            .eq("id", classroomId)
+            .single();
+
+        if (classroomError) {
+            console.error("Error fetching classroom details:", classroomError);
+            // Don't fail the operation if we can't fetch classroom details
+        } else if (classroom && classroom.type === "ONE_TIME_PAYMENT" && classroom.amount_one_time != null) {
+            // Create payment record for paid classroom
+            const { error: paymentError } = await (supabase as any)
+                .from("payments")
+                .insert({
+                    user_id: userId,
+                    comm_id: communityId,
+                    community_member_classrooms_id: newRecord.id,
+                    amount: Number(classroom.amount_one_time),
+                    type: "CLASSROOM_ONE_TIME_PAYMENT",
+                    status: "PAID",
+                });
+
+            if (paymentError) {
+                console.error("Error creating payment record:", paymentError);
+                // Don't fail the operation if payment record fails, just log it
+            }
         }
 
         const { data: community, error: communityError } = await supabase.from("communities").select("slug").eq("id", communityId).single();

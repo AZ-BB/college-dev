@@ -9,12 +9,13 @@ type MembersListProps = {
     page: number;
     tab?: CommunityMemberStatus | "admins";
     community: {
-        pricing: "FREE" | "SUB" | "ONE_TIME";
-        billing_cycle: "MONTHLY" | "YEARLY" | "MONTHLY_YEARLY" | null;
+        is_free: boolean;
+        billing_cycle: "MONTHLY" | "YEARLY" | "MONTHLY_YEARLY" | "ONE_TIME" | null;
         amount_per_month: number | null;
         amount_per_year: number | null;
         amount_one_time: number | null;
     };
+    communitySlug: string;
 };
 
 export default async function MembersList({
@@ -22,6 +23,7 @@ export default async function MembersList({
     page,
     tab,
     community,
+    communitySlug,
 }: MembersListProps) {
     // Prevent caching to ensure Suspense works properly
     noStore();
@@ -52,6 +54,7 @@ export default async function MembersList({
                     community={community}
                     invitedByUser={undefined}
                     isCurrentUser={currentUser?.id === member.user_id}
+                    communitySlug={communitySlug}
                 />
             ))}
         </div>

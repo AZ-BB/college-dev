@@ -24,8 +24,7 @@ const QUESTION_TYPE_LABEL: Record<QuestionType, string> = {
     MULTIPLE_CHOICE: "Multiple Choice",
 };
 
-type Pricing = "FREE" | "SUB" | "ONE_TIME";
-type BillingCycle = "MONTHLY" | "YEARLY" | "MONTHLY_YEARLY" | null;
+type BillingCycle = "MONTHLY" | "YEARLY" | "MONTHLY_YEARLY" | "ONE_TIME" | null;
 
 function getQuestionDisplay(q: Tables<"community_questions">) {
     if (q.type === "MULTIPLE_CHOICE") {
@@ -40,16 +39,17 @@ function getQuestionDisplay(q: Tables<"community_questions">) {
 }
 
 function formatPlan(
-    pricing: Pricing,
+    isFree: boolean,
     amountPerMonth: number | null,
     amountPerYear: number | null,
     amountOneTime: number | null,
     billingCycle: BillingCycle
 ): string {
-    if (pricing === "FREE") return "Free";
-    if (pricing === "ONE_TIME" && amountOneTime != null) return `₹${amountOneTime} one-time`;
-    if (pricing === "SUB") {
-        if (billingCycle === "YEARLY" && amountPerYear != null) return `₹${amountPerYear}/year`;
+    if (isFree) return "Free";
+    if (billingCycle === "ONE_TIME" && amountOneTime != null) return `₹${amountOneTime} one-time`;
+    if (billingCycle === "YEARLY" && amountPerYear != null) return `₹${amountPerYear}/year`;
+    if (billingCycle === "MONTHLY" && amountPerMonth != null) return `₹${amountPerMonth}/month`;
+    if (billingCycle === "MONTHLY_YEARLY") {
         if (amountPerMonth != null) return `₹${amountPerMonth}/month`;
         if (amountPerYear != null) return `₹${amountPerYear}/year`;
         return "Subscription";
@@ -64,7 +64,6 @@ export default function JoinCommunityModal({
     slug,
     isPublic,
     isFree,
-    pricing,
     amountPerMonth,
     amountPerYear,
     amountOneTime,
@@ -76,7 +75,6 @@ export default function JoinCommunityModal({
     slug: string;
     isPublic: boolean;
     isFree: boolean;
-    pricing: Pricing;
     amountPerMonth: number | null;
     amountPerYear: number | null;
     amountOneTime: number | null;
@@ -217,7 +215,16 @@ export default function JoinCommunityModal({
     async function handlePayment() {
         setJoining(true);
         const preparedAnswers = prepareAnswersForServer();
-        const res = await joinCommunity(communityId, slug, hasQuestions ? { answers: preparedAnswers } : {});
+        const options: { answers?: Record<number, string>; billingPlan?: "monthly" | "yearly" } = hasQuestions 
+            ? { answers: preparedAnswers } 
+            : {};
+        
+        // Pass selected billing plan for MONTHLY_YEARLY subscriptions
+        if (!isFree && billingCycle === "MONTHLY_YEARLY") {
+            options.billingPlan = selectedPlan;
+        }
+        
+        const res = await joinCommunity(communityId, slug, options);
         setJoining(false);
         if (res.error) {
             toast.error(res.message ?? res.error);
@@ -237,7 +244,7 @@ export default function JoinCommunityModal({
     }
 
     const planLabel = formatPlan(
-        pricing,
+        isFree,
         amountPerMonth,
         amountPerYear,
         amountOneTime,
@@ -398,14 +405,14 @@ export default function JoinCommunityModal({
                                 <div className="rounded-lg border border-grey-200 bg-grey-50/50 p-4 space-y-3">
                                     <p className="text-sm font-semibold text-grey-900">Plan Details</p>
                                     
-                                    {pricing === "ONE_TIME" && amountOneTime != null && (
+                                    {!isFree && billingCycle === "ONE_TIME" && amountOneTime != null && (
                                         <div className="space-y-1">
                                             <p className="text-xs text-grey-600">One-time payment</p>
                                             <p className="text-2xl font-bold text-grey-900">₹{amountOneTime}</p>
                                         </div>
                                     )}
 
-                                    {pricing === "SUB" && (
+                                    {!isFree && billingCycle !== "ONE_TIME" && (
                                         <div className="space-y-3">
                                             {billingCycle === "MONTHLY" && amountPerMonth != null && (
                                                 <div className="space-y-1">

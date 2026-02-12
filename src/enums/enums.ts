@@ -58,3 +58,10 @@ export enum TopicWritePermissionType {
     PUBLIC = "PUBLIC",
     ADMINS = "ADMINS"
 }
+
+export enum CommunityBillingCycle {
+    MONTHLY = "MONTHLY",
+    YEARLY = "YEARLY",
+    MONTHLY_YEARLY = "MONTHLY_YEARLY",
+    ONE_TIME = "ONE_TIME"
+}

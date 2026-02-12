@@ -89,7 +89,6 @@ export default async function CommunityCard({ slug }: { slug: string }) {
                             slug={slug}
                             isPublic={community.is_public ?? false}
                             isFree={community.is_free ?? false}
-                            pricing={community.pricing}
                             amountPerMonth={community.amount_per_month ?? null}
                             amountPerYear={community.amount_per_year ?? null}
                             amountOneTime={community.amount_one_time ?? null}
