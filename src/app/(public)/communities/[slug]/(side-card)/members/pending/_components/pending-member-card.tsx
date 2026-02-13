@@ -94,7 +94,7 @@ export default function PendingMemberCard({ member }: PendingMemberCardProps) {
   }
 
   return (
-    <div className="bg-white rounded-xl border border-grey-200 shadow-sm p-6 flex flex-col gap-4">
+    <div className="bg-white rounded-xl border border-grey-200 shadow-sm p-4 sm:p-6 flex flex-col gap-4">
       {/* Header Section */}
       <div className="flex items-start justify-between gap-4">
         <Link
@@ -123,7 +123,7 @@ export default function PendingMemberCard({ member }: PendingMemberCardProps) {
       )}
 
       {/* Membership Details */}
-      <div className="flex flex-wrap items-center gap-4 text-sm text-grey-600">
+      <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-sm text-grey-600">
         <div className="flex items-center gap-1.5">
           <ClockIcon />
           <span className="font-medium">Requested {timeAgo}</span>
@@ -134,7 +134,7 @@ export default function PendingMemberCard({ member }: PendingMemberCardProps) {
       {answers.length > 0 && (
         <div className="space-y-3">
           <p className="text-sm font-semibold text-grey-900">Questions & Answers</p>
-          <div className="bg-grey-200 rounded-lg p-4 space-y-4">
+          <div className="bg-grey-200 rounded-lg p-3 sm:p-4 space-y-4">
             {answers.map((answer) => {
               const isMcq = answer.questionType === "MULTIPLE_CHOICE";
               const answerParts = isMcq ? answer.answer.split(", ") : [answer.answer];
@@ -158,9 +158,9 @@ export default function PendingMemberCard({ member }: PendingMemberCardProps) {
         </div>
       )}
 
-      <div className="flex items-center gap-2 justify-end">
-        <Button className="rounded-[12px] py-5 px-6 text-sm font-semibold" variant="secondary" onClick={handleRejectMember}>Decline</Button>
-        <Button className="rounded-[12px] py-5 px-5 text-sm font-semibold" variant="default" onClick={handleAcceptMember}>Approve</Button>
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 justify-end">
+        <Button className="rounded-[12px] py-5 px-6 text-sm font-semibold w-full sm:w-auto" variant="secondary" onClick={handleRejectMember}>Decline</Button>
+        <Button className="rounded-[12px] py-5 px-5 text-sm font-semibold w-full sm:w-auto" variant="default" onClick={handleAcceptMember}>Approve</Button>
       </div>
 
     </div>

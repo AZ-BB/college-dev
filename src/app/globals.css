@@ -136,6 +136,32 @@ body {
   overflow-x: clip;
 }
 
+/* Maintain consistent visual scale on smaller viewports (e.g. 14" at 150% display scaling) */
+@media (max-width: 1536px) {
+  body {
+    zoom: 0.92;
+  }
+}
+
+@media (max-width: 1280px) {
+  body {
+    zoom: 0.8;
+  }
+}
+
+@media (max-width: 1024px) {
+  body {
+    zoom: 0.75;
+  }
+}
+
+@media (max-width: 900px) {
+  body {
+    zoom: 1;
+  }
+}
+
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

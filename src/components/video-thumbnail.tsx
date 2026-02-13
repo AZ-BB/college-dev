@@ -41,6 +41,7 @@ export default function VideoThumbnail({ url, className, alt = "Video thumbnail"
                 alt={alt}
                 fill
                 className="object-cover"
+                style={{ objectPosition: "center" }}
                 unoptimized
                 onError={(e) => {
                     // Fallback to a placeholder if image fails to load

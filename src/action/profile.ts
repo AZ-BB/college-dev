@@ -188,6 +188,69 @@ export async function getUserJoinedCommunitiesByUsername(
   }
 }
 
+export interface CommunityItem {
+  id: number
+  name: string
+  avatar: string | null
+  slug: string
+}
+
+export async function getCurrentUserCommunities(): Promise<
+  GeneralResponse<CommunityItem[]>
+> {
+  try {
+    const supabase = await createSupabaseServerClient()
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+
+    if (!user) {
+      return { data: [], statusCode: 200, error: undefined }
+    }
+
+    const { data: memberships, error: membershipsError } = await supabase
+      .from("community_members")
+      .select(
+        `
+        communities!community_members_community_id_fkey(id, name, avatar, slug)
+        `
+      )
+      .eq("user_id", user.id)
+      .order("joined_at", { ascending: true })
+
+    if (membershipsError) {
+      console.error("Error fetching user communities:", membershipsError)
+      return {
+        error: "Failed to get user communities",
+        statusCode: 404,
+      }
+    }
+
+    const communities =
+      memberships
+        ?.map((m) => m.communities as { id: number; name: string; avatar: string | null; slug: string })
+        .filter(Boolean)
+        .map((c) => ({
+          id: c.id,
+          name: c.name,
+          avatar: c.avatar,
+          slug: c.slug,
+        })) ?? []
+
+    return {
+      data: communities,
+      statusCode: 200,
+      error: undefined,
+    }
+  } catch (error) {
+    console.error("Error fetching current user communities:", error)
+    return {
+      error: "Failed to get user communities",
+      statusCode: 404,
+    }
+  }
+}
+
 export interface UpdateUserProfileData {
   first_name?: string
   last_name?: string

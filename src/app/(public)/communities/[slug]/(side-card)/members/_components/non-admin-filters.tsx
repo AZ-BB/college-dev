@@ -34,7 +34,8 @@ export default function NonAdminFilters({
     }, []);
 
     return (
-        <div className="flex gap-4 items-center justify-between">
+        <div className="flex flex-col sm:flex-row gap-4 items-stretch sm:items-center justify-between">
+            <div className="min-w-0 overflow-x-auto -mx-1 px-1 sm:mx-0 sm:px-0">
             <SecondaryTabs
                 defaultValue={searchParams.get("tab") || "all"}
                 onTabChange={(value: string) => {
@@ -57,8 +58,9 @@ export default function NonAdminFilters({
                     { label: "Admins", value: "admins", count: counts.admins },
                 ]}
             />
+            </div>
 
-            <div className="flex gap-1">
+            <div className="flex gap-1 flex-shrink-0">
                 <InviteMemberLinkModal slug={communitySlug}>
                     <Button variant={'ghost'} className="text-sm font-semibold text-orange-500 px-1.5 hover:bg-orange-50">
                         <AddUserIcon className="size-5 stroke-orange-500" />

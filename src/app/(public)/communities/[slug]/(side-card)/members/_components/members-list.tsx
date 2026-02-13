@@ -42,7 +42,7 @@ export default async function MembersList({
         }
 
         return (
-            <div className="space-y-4">
+            <div className="space-y-4 min-w-0">
                 {bannedData.members.map((bannedMember) => (
                     <BannedMemberCard
                         key={bannedMember.id}
@@ -90,7 +90,7 @@ export default async function MembersList({
     }
 
     return (
-        <div className="space-y-4">
+        <div className="space-y-4 min-w-0">
             {members.members.map((member) => (
                 <MemberCard
                     key={member.id}

@@ -17,7 +17,7 @@ export default async function NoSideCardLayout({ children, params }: { children:
             <CommunityTabs slug={slug} />
 
             <div className="flex pt-10 gap-10">
-                <div className="w-full">
+                <div className="w-full px-4 sm:px-0">
                     {children}
                 </div>
             </div>
