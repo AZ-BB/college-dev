@@ -3,8 +3,8 @@
 import Link from "next/link"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
-import { Menu, X, Bell, User, LogOut, Settings } from "lucide-react"
-import { useState, useEffect } from "react"
+import { Menu, X, Bell, User, LogOut, Settings, ChevronDown, Check } from "lucide-react"
+import { useState, useEffect, useMemo } from "react"
 import { UserData } from "@/utils/get-user-data"
 import {
   DropdownMenu,
@@ -18,6 +18,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { createSupabaseBrowserClient } from "@/utils/supabase-browser"
 import { usePathname, useRouter } from "next/navigation"
 import UserAvatar from "../user-avatart"
+import { useUserCommunities } from "@/hooks/use-user-communities"
 
 interface HeaderProps {
   userData: UserData | null
@@ -30,6 +31,17 @@ export default function Header({ userData: initialUserData }: HeaderProps) {
 
   const pathname = usePathname()
   const isLandingPage = pathname === "/"
+  const { communities, loading } = useUserCommunities(userData)
+
+  const currentCommunitySlug = useMemo(() => {
+    const match = pathname.match(/^\/communities\/([^/]+)/)
+    return match?.[1] ?? null
+  }, [pathname])
+
+  const selectedCommunity = useMemo(
+    () => communities.find((c) => c.slug === currentCommunitySlug) ?? null,
+    [communities, currentCommunitySlug]
+  )
 
   // Listen for auth state changes
   useEffect(() => {
@@ -86,18 +98,106 @@ export default function Header({ userData: initialUserData }: HeaderProps) {
   return (
     <header className="sticky top-0 z-50 max-w-7xl mx-auto bg-white/95 backdrop-blur">
 
-      <div className="container mx-auto">
+      <div className="container mx-auto px-4">
         <nav className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 font-bold text-lg">
-            <Image
-              src="/logo.svg"
-              alt="College Logo"
-              width={157}
-              height={32}
-              className="w-auto h-[32px]"
-            />
-          </Link>
+          {userData ? (
+            <DropdownMenu modal={false}>
+              <DropdownMenuTrigger asChild>
+                <button
+                  type="button"
+                  className="flex items-center gap-2 font-bold text-lg hover:bg-grey-200 transition-colors cursor-pointer p-1 rounded-md"
+                >
+                  {selectedCommunity ? (
+                    <>
+                      <Avatar className="h-8 w-8 shrink-0 rounded-md">
+                        <AvatarImage
+                          src={selectedCommunity.avatar || ""}
+                          alt={selectedCommunity.name}
+                          className="rounded-md"
+                        />
+                        <AvatarFallback className="rounded-md bg-grey-900 text-white">
+                          {selectedCommunity.name.charAt(0).toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                      <span className="text-grey-900 truncate max-w-[140px]">
+                        {selectedCommunity.name}
+                      </span>
+                    </>
+                  ) : (
+                    <Image
+                      src="/logo.svg"
+                      alt="College Logo"
+                      width={157}
+                      height={32}
+                      className="w-auto h-[32px]"
+                    />
+                  )}
+                  <ChevronDown className="h-4 w-4 text-grey-600 shrink-0" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-64">
+                {loading ? (
+                  <div className="py-4 px-3 text-sm text-grey-600">
+                    Loading communities...
+                  </div>
+                ) : communities.length === 0 ? (
+                  <DropdownMenuItem asChild>
+                    <Link
+                      href="/communities"
+                      className="cursor-pointer flex items-center gap-2"
+                    >
+                      <span>No communities yet</span>
+                    </Link>
+                  </DropdownMenuItem>
+                ) : (
+                  communities.map((community) => {
+                    const isSelected = community.slug === currentCommunitySlug
+                    return (
+                      <DropdownMenuItem
+                        key={community.id}
+                        className="cursor-pointer"
+                        onClick={() => router.push(`/communities/${community.slug}`)}
+                      >
+                        <div className="flex items-center gap-2 w-full">
+                          <Avatar className="h-8 w-8 shrink-0 rounded-lg">
+                            <AvatarImage
+                              src={community.avatar || ""}
+                              alt={community.name}
+                              className="rounded-lg"
+                            />
+                            <AvatarFallback className="rounded-lg bg-grey-200 text-grey-700">
+                              {community.name.charAt(0).toUpperCase()}
+                            </AvatarFallback>
+                          </Avatar>
+                          <span
+                            className={
+                              isSelected ? "font-semibold text-grey-900" : ""
+                            }
+                          >
+                            {community.name}
+                          </span>
+                          {isSelected && (
+                            <span className="ml-auto text-orange-500"><Check className="w-4 h-4" /></span>
+                          )}
+                        </div>
+                      </DropdownMenuItem>
+                    )
+                  })
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <Link href="/" className="flex items-center gap-2 font-bold text-lg">
+              <Image
+                src="/logo.svg"
+                alt="College Logo"
+                width={157}
+                height={32}
+                className="w-auto h-[32px]"
+              />
+            </Link>
+          )}
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-8">
@@ -294,17 +394,7 @@ export default function Header({ userData: initialUserData }: HeaderProps) {
               {userData ? (
                 <div className="flex flex-col gap-3 px-4 pt-4 border-t border-grey-200">
                   <div className="flex items-center gap-3 py-2">
-                    <Avatar className="h-10 w-10">
-                      <AvatarImage
-                        src={userData.avatar_url || ""}
-                        alt={userData.first_name || userData.email}
-                      />
-                      <AvatarFallback className="bg-orange-500 text-white">
-                        {userData.first_name
-                          ? userData.first_name.charAt(0).toUpperCase()
-                          : userData.email.charAt(0).toUpperCase()}
-                      </AvatarFallback>
-                    </Avatar>
+                    <UserAvatar user={userData} className="h-10 w-10" />
                     <div className="flex flex-col">
                       <span className="text-sm font-medium">
                         {userData.first_name && userData.last_name

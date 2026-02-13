@@ -40,6 +40,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { Button } from "@/components/ui/button"
+import SecondaryTabs from "@/components/secondery-tabs"
 
 type TabId = "membership" | "courses" | "payments" | "questions"
 
@@ -304,12 +305,12 @@ export default function MemberSettingsModal({
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent
-          className="max-sm:inset-0 max-sm:top-0 max-sm:left-0 max-sm:translate-x-0 max-sm:translate-y-0 max-sm:w-screen max-sm:h-screen max-sm:max-w-none max-sm:rounded-none max-sm:border-0 sm:max-w-3xl p-0 gap-0 overflow-hidden"
+          className="max-sm:inset-0 max-sm:top-0 max-sm:left-0 max-sm:translate-x-0 max-sm:translate-y-0 max-sm:w-screen max-sm:h-screen max-sm:max-w-none max-sm:rounded-none max-sm:border-0 sm:max-w-3xl p-0 gap-0 overflow-hidden flex flex-col"
           onClick={(e) => e.stopPropagation()}
           onPointerDown={(e) => e.stopPropagation()}
         >
           {/* Header: avatar, name, "Membership Settings" */}
-          <div className="flex items-start gap-3 px-6 pt-6 pb-4 pr-12 border-b border-grey-200">
+          <div className="flex shrink-0 items-start gap-3 px-6 pt-6 pb-4 pr-12 border-b border-grey-200">
             {loadedMember && (
               <>
                 <UserAvatar user={loadedMember.users} className="w-12 h-12 rounded-[14px] shrink-0" />
@@ -324,9 +325,9 @@ export default function MemberSettingsModal({
           </div>
 
           {/* Tabs sidebar + content */}
-          <div className="flex min-h-0 flex-1">
-            {/* Left: vertical tabs */}
-            <nav className="w-48 shrink-0 border-r border-grey-200 bg-grey-50/50 py-3 px-4 space-y-2">
+          <div className="flex min-h-0 flex-1 overflow-hidden sm:flex-row flex-col">
+            {/* Left: vertical tabs (desktop only) */}
+            <nav className="w-48 shrink-0 border-r border-grey-200 bg-grey-50/50 py-3 px-4 space-y-2 hidden sm:block">
               {TABS.map((tab) => (
                 <button
                   key={tab.id}
@@ -344,8 +345,20 @@ export default function MemberSettingsModal({
               ))}
             </nav>
 
+            {/* Mobile: horizontal tabs */}
+            <nav className="w-full sm:hidden overflow-x-auto pb-2 px-4 py-2">
+              <SecondaryTabs
+                tabs={TABS.map((tab) => ({
+                  label: tab.label,
+                  value: tab.id,
+                }))}
+                value={activeTab}
+                onTabChange={(value) => setActiveTab(value as TabId)}
+              />
+            </nav>
+
             {/* Right: tab content */}
-            <div className="flex-1 overflow-auto p-6 bg-white min-h-[450px]">
+            <div className="flex-1 min-h-0 overflow-auto p-6 bg-white sm:min-h-[450px]">
               {activeTab === "membership" && loadedMember && (
                 <div className="flex flex-col gap-5">
                   <div className="flex gap-1 items-center">

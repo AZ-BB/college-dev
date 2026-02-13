@@ -189,32 +189,32 @@ export default function PostCard({ post, topics, user }: { post: PostList; topic
     };
 
     return (
-        <Card key={post.id} className="shadow-none border-grey-200 px-6 flex flex-row gap-4 justify-between cursor-pointer hover:shadow-sm transition-all duration-300 relative"
+        <Card key={post.id} className="shadow-none border-grey-200 px-4 sm:px-6 flex flex-col sm:flex-row gap-3 sm:gap-4 justify-between cursor-pointer hover:shadow-sm transition-all duration-300 relative overflow-hidden"
             onClick={handleCardClick}
         >
-            <div className="flex flex-col gap-4 justify-between">
-                <div className="flex flex-col gap-4">
-                    <div className="flex items-center gap-2">
-                        <Link href={`/profile/${post.users.username}`}>
-                            <UserAvatar className="w-11 h-11 rounded-[16px]" user={post.users} />
+            <div className="flex flex-col justify-between gap-3 sm:gap-4 min-w-0 flex-1 pr-10">
+                <div className="flex flex-col gap-3 sm:gap-4">
+                    <div className="flex items-center gap-2 min-w-0">
+                        <Link href={`/profile/${post.users.username}`} className="shrink-0">
+                            <UserAvatar className="w-9 h-9 sm:w-11 sm:h-11 rounded-[16px]" user={post.users} />
                         </Link>
-                        <div className="flex flex-col gap-0.5 items-start text-base font-medium">
-                            <Link href={`/profile/${post.users.username}`} className="font-semibold hover:underline">
+                        <div className="flex flex-col gap-0.5 items-start text-base font-medium min-w-0 overflow-hidden">
+                            <Link href={`/profile/${post.users.username}`} className="font-semibold hover:underline truncate max-w-full">
                                 {formatFullName(post.users.first_name, post.users.last_name)}
                             </Link>
-                            <span className="text-grey-700 text-sm font-medium">
+                            <span className="text-grey-700 text-xs sm:text-sm font-medium truncate max-w-full">
                                 {format(new Date(post.created_at), "MMM d, yyyy")} | {topics.find((t) => t.id === post.topic_id)?.name ?? ""}
                             </span>
                         </div>
                     </div>
 
-                    <div>
-                        <h3 className="text-lg font-semibold">{post.title}</h3>
+                    <div className="min-w-0">
+                        <h3 className="text-base sm:text-lg font-semibold line-clamp-2">{post.title}</h3>
                         <p className="text-sm text-grey-600 font-medium line-clamp-2">{post.content}</p>
                     </div>
 
                     {post.poll && (
-                        <div className="w-fit text-sm font-medium text-orange-500 bg-orange-50 rounded-full px-2 py-1 flex items-center gap-1">
+                        <div className="w-fit text-xs sm:text-sm font-medium text-orange-500 bg-orange-50 rounded-full px-2 py-1 flex items-center gap-1">
                             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <g clip-path="url(#clip0_36878_5161)">
                                     <path d="M1.3335 14.6693H14.6668M6.00016 5.73594C6.00016 5.45304 5.88778 5.18173 5.68774 4.98169C5.4877 4.78165 5.21639 4.66927 4.9335 4.66927H3.06683C2.78393 4.66927 2.51262 4.78165 2.31258 4.98169C2.11254 5.18173 2.00016 5.45304 2.00016 5.73594V14.6693M6.00016 14.6693V2.4026C6.00016 2.11971 6.11254 1.8484 6.31258 1.64836C6.51262 1.44832 6.78393 1.33594 7.06683 1.33594H8.9335C9.21639 1.33594 9.4877 1.44832 9.68774 1.64836C9.88778 1.8484 10.0002 2.11971 10.0002 2.4026V14.6693M14.0002 14.6693V9.06927C14.0002 8.78637 13.8878 8.51506 13.6877 8.31502C13.4877 8.11498 13.2164 8.0026 12.9335 8.0026H11.0668C10.7839 8.0026 10.5126 8.11498 10.3126 8.31502C10.1125 8.51506 10.0002 8.78637 10.0002 9.06927" stroke="#F7670E" strokeWidth="1.25" stroke-miterlimit="10" strokeLinecap="round" strokeLinejoin="round" />
@@ -228,11 +228,24 @@ export default function PostCard({ post, topics, user }: { post: PostList; topic
                             Poll
                         </div>
                     )}
-
                 </div>
 
-                <div className="flex items-center gap-4">
+                {/* Mobile: full-width media between content and buttons */}
+                {(post.video_url || (post.video_url === null && post.attachments.length > 0)) && (
+                    <div className="sm:hidden w-full overflow-hidden flex justify-center">
+                        {post.video_url && (
+                            <VideoThumbnail url={post.video_url} className="w-full aspect-video" />
+                        )}
+                        {post.video_url === null && post.attachments.length > 0 && (
+                            <div key={post.attachments[0].id} className="relative w-full aspect-video overflow-hidden">
+                                <Image src={post.attachments[0].url} alt={post.attachments[0].name} fill className="object-cover" style={{ objectPosition: "center" }} sizes="100vw" />
+                            </div>
+                        )}
+                    </div>
+                )}
 
+                {/* Desktop: buttons inline with content; Mobile: buttons last */}
+                <div className="flex items-center gap-3 sm:gap-4 flex-wrap sm:pt-0 pt-1">
                     <AccessControl allowedStatus={[CommunityMemberStatus.ACTIVE]} allowedAccess={[UserAccess.OWNER, UserAccess.ADMIN, UserAccess.MEMBER]}>
                         <div className="flex items-center gap-1">
                             <button
@@ -273,23 +286,21 @@ export default function PostCard({ post, topics, user }: { post: PostList; topic
                 </div>
             </div>
 
-            <div className="flex items-center">
-                {
-                    post.video_url && (
-                        <div className="py-4">
-                            <VideoThumbnail url={post.video_url} className="w-48 h-32 mt-5" />
+            {/* Desktop: media on the right, centered */}
+            {(post.video_url || (post.video_url === null && post.attachments.length > 0)) && (
+                <div className="hidden sm:flex items-center justify-center min-w-[192px]">
+                    {post.video_url && (
+                        <div className="py-7">
+                            <VideoThumbnail url={post.video_url} className="w-48 h-32" />
                         </div>
-                    )
-                }
-
-                {
-                    post.video_url === null && post.attachments.length > 0 && (
-                        <div key={post.attachments[0].id} >
-                            <Image src={post.attachments[0].url} alt={post.attachments[0].name} width={160} height={160} className="w-40 h-40 rounded-md object-cover mt-8" />
+                    )}
+                    {post.video_url === null && post.attachments.length > 0 && (
+                        <div key={post.attachments[0].id} className="rounded-md overflow-hidden mt-8">
+                            <Image src={post.attachments[0].url} alt={post.attachments[0].name} width={160} height={160} className="w-40 h-40 rounded-md object-cover" style={{ objectPosition: "center" }} />
                         </div>
-                    )
-                }
-            </div>
+                    )}
+                </div>
+            )}
             <div className="absolute top-4 right-4 flex items-center gap-2" onClick={(e) => e.stopPropagation()} onPointerDown={(e) => e.stopPropagation()}>
                 {(post as any).is_pinned && (
                     <div className="flex items-center justify-center">

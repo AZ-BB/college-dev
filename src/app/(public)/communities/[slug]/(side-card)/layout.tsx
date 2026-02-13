@@ -18,12 +18,12 @@ export default async function CommunityLayout({ children, params }: { children: 
             <CommunityTabs slug={slug} />
 
             <div className="flex pt-10 gap-10">
-                <div className="w-full sm:w-[70%]">
+                <div className="w-full px-4 sm:px-0 sm:w-[70%]">
                     {children}
                 </div>
 
                 {/* Community Card */}
-                <div className="w-full sm:w-[30%]">
+                <div className="hidden sm:block sm:w-[30%]">
                     <Suspense fallback={<CommunityCardSkeleton />}>
                         <CommunityCard slug={slug} />
                     </Suspense>

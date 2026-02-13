@@ -39,7 +39,7 @@ export default async function PendingMembersPage({
     if (pendingMembersError || !pendingMembers) return null;
 
     return (
-        <div className="space-y-4">
+        <div className="space-y-4 min-w-0 overflow-x-hidden">
             <h1 className="font-bold">Memberships Requests</h1>
 
             {pendingMembers.members.map((member) => (

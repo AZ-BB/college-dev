@@ -42,7 +42,7 @@ export default async function MembersPage({
                         : (counts?.all || 0);
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-6 min-w-0 overflow-x-hidden">
             <AccessControl allowedAccess={[UserAccess.OWNER, UserAccess.ADMIN]}>
                 <Filters counts={{
                     all: counts?.all || 0,
