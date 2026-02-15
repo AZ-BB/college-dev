@@ -766,10 +766,10 @@ export async function createComment(formData: FormData): Promise<void> {
 
     const postId = parseInt(formData.get("post_id") as string);
 
-    // Check if comments are disabled for this post
+    // Check if comments are disabled for this post and get post author
     const { data: post, error: postError } = await supabase
         .from("posts")
-        .select("id, comments_disabled, community:communities!posts_community_id_fkey(id, slug)")
+        .select("id, comments_disabled, author_id, title, community:communities!posts_community_id_fkey(id, slug)")
         .eq("id", postId)
         .single();
 
@@ -784,11 +784,30 @@ export async function createComment(formData: FormData): Promise<void> {
         return;
     }
 
-    await supabase.from("comments").insert({
+    const { data: comment, error: commentError } = await supabase.from("comments").insert({
         author_id: user.id,
         content: formData.get("comment_content") as string,
         post_id: postId,
-    });
+    }).select("id").single();
+
+    if (commentError || !comment) {
+        console.error("Error creating comment:", commentError);
+        return;
+    }
+
+    // Send notification to post author if commenter is not the author
+    if (post.author_id !== user.id) {
+        const { createNotification } = await import("@/action/notifications");
+        const commentUrl = `/communities/${post.community.slug}/posts/${postId}#comment-${comment.id}`;
+        
+        await createNotification([{
+            user_id: post.author_id,
+            type: "comment",
+            url: commentUrl,
+            title: "New comment on your post",
+            description: `${user.first_name || user.username || "Someone"} commented on "${post.title}"`,
+        }]);
+    }
 
     if (!post.community) {
         console.error("Error fetching community");
@@ -806,10 +825,22 @@ export async function createReply(formData: FormData): Promise<void> {
     const commentId = parseInt(formData.get("comment_id") as string);
     const postId = parseInt(formData.get("post_id") as string);
 
+    // Fetch the original comment to get the author (person being replied to)
+    const { data: originalComment, error: commentError } = await supabase
+        .from("comments")
+        .select("id, author_id")
+        .eq("id", commentId)
+        .single();
+
+    if (commentError || !originalComment) {
+        console.error("Error fetching comment:", commentError);
+        return;
+    }
+
     // Check if comments are disabled for this post
     const { data: post, error: postError } = await supabase
         .from("posts")
-        .select("id, comments_disabled, community:communities!posts_community_id_fkey(id, slug)")
+        .select("id, comments_disabled, title, community:communities!posts_community_id_fkey(id, slug)")
         .eq("id", postId)
         .single();
 
@@ -824,12 +855,31 @@ export async function createReply(formData: FormData): Promise<void> {
         return;
     }
 
-    await supabase.from("comments").insert({
+    const { data: reply, error: replyError } = await supabase.from("comments").insert({
         author_id: user.id,
         content: formData.get("reply_content") as string,
         post_id: postId,
         reply_to_comment_id: commentId,
-    });
+    }).select("id").single();
+
+    if (replyError || !reply) {
+        console.error("Error creating reply:", replyError);
+        return;
+    }
+
+    // Send notification to the original comment author if they're not the one replying
+    if (originalComment.author_id !== user.id) {
+        const { createNotification } = await import("@/action/notifications");
+        const replyUrl = `/communities/${post.community.slug}/posts/${postId}#comment-${reply.id}`;
+
+        await createNotification([{
+            user_id: originalComment.author_id,
+            type: "reply",
+            url: replyUrl,
+            title: "New reply to your comment",
+            description: `${user.first_name || user.username || "Someone"} replied to your comment on "${post.title}"`,
+        }]);
+    }
 
     if (!post.community) {
         console.error("Error fetching community");
